@@ -7,6 +7,7 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
+import { Music } from "./components/Music";
 import { Scene1 } from "./scenes/Scene1";
 import { Scene2 } from "./scenes/Scene2";
 import { Scene3 } from "./scenes/Scene3";
@@ -56,8 +57,8 @@ const FadeToBlack: React.FC = () => {
 };
 
 /**
- * Les 6 clips, débarrassés de leurs silences, enchaînés en fondus courts
- * avec un mouvement de caméra continu : une seule vidéo fluide.
+ * Les 6 clips en entier, enchaînés en fondus avec un mouvement de caméra
+ * continu, sur une musique de fond : une seule vidéo fluide.
  */
 export const Episode: React.FC = () => (
   <AbsoluteFill style={{ backgroundColor: "black" }}>
@@ -82,6 +83,7 @@ export const Episode: React.FC = () => (
         );
       })}
     </Series>
+    <Music />
     <ProgressBar />
     <FadeToBlack />
   </AbsoluteFill>

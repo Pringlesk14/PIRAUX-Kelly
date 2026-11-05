@@ -2,21 +2,14 @@ import { createContext, useContext } from "react";
 import { FPS } from "./theme";
 
 /**
- * Points d'entrée / sortie (en secondes, temps du clip source) : on coupe
- * les silences de début et de fin pour que la parole s'enchaîne comme
- * dans une seule prise.
+ * Points d'entrée / sortie (en secondes, temps du clip source).
+ * Les clips sont gardés en entier : seuls les fondus enchaînés se
+ * chevauchent sur leurs dernières / premières images.
  */
-export const CLIP_WINDOWS = [
-  { in: 0.3, out: 8.75 },
-  { in: 1.3, out: 8.35 },
-  { in: 1.55, out: 8.8 },
-  { in: 1.95, out: 9.5 },
-  { in: 0.75, out: 9.25 },
-  { in: 1.1, out: 10.0 },
-];
+export const CLIP_WINDOWS = Array.from({ length: 6 }, () => ({ in: 0, out: 10.0 }));
 
 /** Durée du fondu enchaîné entre deux clips (images). */
-export const XFADE = 8;
+export const XFADE = 16;
 
 export const clipFrames = (i: number) => {
   const w = CLIP_WINDOWS[i];

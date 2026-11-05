@@ -2,9 +2,10 @@
 
 **Rendu final : [`rendu-final.mp4`](rendu-final.mp4)**
 
-Vidéo verticale (9:16, 1080×1920, 24 i/s) d'environ 46 s : « les devoirs de vacances ».
-Les 6 clips de 10 s sont débarrassés de leurs silences et enchaînés en fondus
-courts avec un mouvement de caméra continu, pour donner une seule prise fluide.
+Vidéo verticale (9:16, 1080×1920, 24 i/s) d'environ 57 s : « les devoirs de vacances ».
+Les 6 clips de 10 s sont gardés en entier et enchaînés en fondus avec un
+mouvement de caméra continu, sur une musique de fond originale qui baisse
+automatiquement quand Lucas parle.
 
 ## Démarrage
 
@@ -22,6 +23,7 @@ npm run render:clips  # chaque clip séparément → out/clip1..6.mp4
 | Dossier | Contenu |
 | --- | --- |
 | `public/videos/` | Les 6 clips source (`clip1.mp4` … `clip6.mp4`) |
+| `public/music/` | Musique de fond originale (générée par `scripts/generate-music.py`) |
 | `public/emoji/` | Emojis Noto en SVG (Google, licence Apache 2.0) |
 | `src/captions/` | Transcription mot à mot (texte + timings en secondes) |
 | `src/scenes/` | Une scène par clip : animations calées sur la parole |
@@ -33,5 +35,7 @@ npm run render:clips  # chaque clip séparément → out/clip1..6.mp4
 
 - **Corriger un sous-titre** : éditer le `text` du mot dans `src/captions/clipN.json`.
 - **Décaler une animation** : changer `at` / `until` (en secondes) dans `src/scenes/SceneN.tsx`.
-- **Raccourcir / rallonger un clip** : `in` / `out` dans `src/timeline.ts`.
+- **Raccourcir un clip / durée des fondus** : `CLIP_WINDOWS` et `XFADE` dans `src/timeline.ts`.
+- **Volume de la musique** : `OPEN` (silences) et `DUCKED` (pendant la parole) dans `src/components/Music.tsx`.
+- **Régénérer la musique** : `python3 scripts/generate-music.py` (tempo, accords, mélodie modifiables dans le script).
 - **Changer les couleurs** : `COLORS` dans `src/theme.ts`.

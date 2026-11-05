@@ -16,8 +16,8 @@ export type Shake = { at: number; until: number; intensity: number };
 const ease = Easing.inOut(Easing.cubic);
 
 /** Amplitude du mouvement de caméra qui « relie » deux clips. */
-const LINK_ZOOM = 0.06;
-const LINK_FRAMES = 18;
+const LINK_ZOOM = 0.07;
+const LINK_FRAMES = 28;
 
 /**
  * Vidéo plein écran avec zooms d'emphase doux, secousses de caméra,
