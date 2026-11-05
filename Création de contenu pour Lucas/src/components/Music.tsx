@@ -11,8 +11,8 @@ import { CLIP_WINDOWS, clipFrames, XFADE } from "../timeline";
 const CAPTIONS = [clip1, clip2, clip3, clip4, clip5, clip6];
 
 /** Volume de la musique quand personne ne parle / pendant la parole. */
-const OPEN = 0.34;
-const DUCKED = 0.13;
+const OPEN = 0.19;
+const DUCKED = 0.075;
 /** Temps de montée / descente du « ducking » (s). */
 const RAMP = 0.25;
 
@@ -21,8 +21,8 @@ const RAMP = 0.25;
  * (temps de l'épisode, en s — voir scripts/generate-music.py).
  */
 const ACCENTS: { from: number; to: number; level: number }[] = [
-  { from: 0, to: 0.7, level: 0.3 }, // démarrage de la musique
-  { from: 54.8, to: 56.7, level: 0.3 }, // « ta-da ! » final
+  { from: 0, to: 0.7, level: 0.17 }, // démarrage de la musique
+  { from: 54.5, to: 56.7, level: 0.17 }, // accord final
 ];
 
 /** Intervalles de parole sur la timeline de l'épisode (en secondes). */
@@ -38,7 +38,7 @@ const speechIntervals = (fps: number) => {
 };
 
 /**
- * Musique de fond originale : un seul thème comique sur toute la vidéo
+ * Musique de fond originale : un seul thème lo-fi / chill sur toute la vidéo
  * (scripts/generate-music.py), qui baisse
  * automatiquement quand Lucas parle et remonte dans les silences.
  */

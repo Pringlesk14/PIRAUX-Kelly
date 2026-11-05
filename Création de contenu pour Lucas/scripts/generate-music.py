@@ -1,9 +1,10 @@
 """
 Génère la musique de fond originale → public/music/musique.mp3
 
-Un seul thème comique « quirky » (style storytime TikTok / Reels / Shorts) :
-pizzicato, clarinette, basson, marimba. Le même thème de 8 mesures tourne
-sur toute la vidéo et s'enrichit un peu à chaque passage.
+Un seul thème lo-fi / chill (style storytime TikTok / Reels / Shorts) :
+piano électrique doux, basse ronde, batterie feutrée, petit motif en
+pizzicato et grain de vinyle. Le même thème de 4 mesures tourne sur
+toute la vidéo puis se pose sur un accord final.
 Uniquement numpy + ffmpeg ; composition originale, libre de droits.
 
     python3 scripts/generate-music.py
@@ -14,9 +15,6 @@ from pathlib import Path
 import numpy as np
 
 SR = 44100
-BEAT = 0.5  # 120 BPM
-E8 = BEAT / 2
-BAR = 4 * BEAT  # 2 s
 DURATION = 57.5
 rng = np.random.default_rng(11)
 
@@ -76,160 +74,120 @@ def pizz(note, dur=0.45):
     return out
 
 
-def marimba(note, dur=0.8):
+# ---------------- Instruments lo-fi ----------------
+
+
+def epiano(note, dur=2.5):
+    """Piano électrique doux (synthèse FM), légère modulation."""
     t = tt(dur)
     f = midi(note)
-    s = np.sin(2 * np.pi * f * t) * np.exp(-t * 5) + 0.3 * np.sin(2 * np.pi * f * 3.93 * t) * np.exp(-t * 22)
-    return s * attack(t, 0.002)
+    index = 1.6 * np.exp(-t * 3)
+    s = np.sin(2 * np.pi * f * t + index * np.sin(2 * np.pi * f * t))
+    s += 0.15 * np.sin(2 * np.pi * f * 14 * t) * np.exp(-t * 30)  # petit « tine »
+    trem = 1 + 0.08 * np.sin(2 * np.pi * 4.5 * t)
+    return s * trem * attack(t, 0.006) * np.exp(-t * 1.1) * release(t, dur, 0.15)
 
 
-def glock(note, dur=1.0):
+def soft_bass(note, dur):
     t = tt(dur)
     f = midi(note)
-    s = np.sin(2 * np.pi * f * t) * np.exp(-t * 3.5) + 0.35 * np.sin(2 * np.pi * f * 2.76 * t) * np.exp(-t * 9)
-    return s * attack(t, 0.002)
+    s = np.sin(2 * np.pi * f * t) + 0.25 * np.sin(4 * np.pi * f * t) + 0.08 * np.sin(6 * np.pi * f * t)
+    return s * attack(t, 0.02) * np.exp(-t * 0.8) * release(t, dur, 0.08)
 
 
-def reed(note, dur, harmonics, vib=0.0, att=0.015):
-    """Instrument à vent (basson, tuba, clarinette) par synthèse additive."""
-    t = tt(dur)
-    f = midi(note) * (1 + vib * np.sin(2 * np.pi * 5.2 * t) * np.minimum(1, t / 0.25))
-    ph = 2 * np.pi * np.cumsum(f) / SR
-    s = sum(a * np.sin(k * ph) for k, a in harmonics)
-    return s * attack(t, att) * release(t, dur, 0.04)
+def lofi_kick():
+    t = tt(0.35)
+    f = 42 + 70 * np.exp(-t * 28)
+    return np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-t * 9)
 
 
-BASSOON = [(1, 1), (2, 0.9), (3, 0.6), (4, 0.45), (5, 0.3), (6, 0.2), (7, 0.12)]
-TUBA = [(1, 1), (2, 0.55), (3, 0.3), (4, 0.15)]
-CLARINET = [(1, 1), (3, 0.5), (5, 0.28), (7, 0.14), (9, 0.07)]
-
-
-def bassoon(note, dur):
-    return reed(note, dur, BASSOON) * np.exp(-tt(dur) * 3)
-
-
-def tuba(note, dur):
-    return reed(note, dur, TUBA, att=0.03)
-
-
-def clarinet(note, dur):
-    return reed(note, dur, CLARINET, vib=0.004, att=0.03)
-
-
-def snap():
-    t = tt(0.08)
+def rim():
+    t = tt(0.12)
     n = rng.uniform(-1, 1, len(t))
-    n = n - np.convolve(n, np.ones(4) / 4, mode="same")
-    return (n + 0.4 * np.sin(2 * np.pi * 2100 * t)) * np.exp(-t * 70)
+    n = np.convolve(n, np.ones(8) / 8, mode="same")  # feutré
+    return (0.7 * n + 0.5 * np.sin(2 * np.pi * 420 * t)) * np.exp(-t * 35)
 
 
-def shaker():
-    t = tt(0.07)
+def soft_hat():
+    t = tt(0.05)
     n = rng.uniform(-1, 1, len(t))
     n = n - np.convolve(n, np.ones(3) / 3, mode="same")
-    return n * np.sin(np.pi * t / 0.07)
+    return n * np.exp(-t * 80)
 
 
-def kick():
-    t = tt(0.3)
-    f = 48 + 100 * np.exp(-t * 32)
-    return np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-t * 10)
+# ---------------- Composition : un seul thème lo-fi ----------------
+BPM = 88
+BEAT = 60 / BPM
+E8 = BEAT / 2
+BAR = 4 * BEAT
+SWING = 0.16  # croches légèrement « traînées »
 
-
-# ---------------- Composition : un seul thème ----------------
-# Accords par demi-mesure : (fondamentale basse, triade)
-C = (48, [64, 67, 72])
-F = (41, [65, 69, 72])
-DM = (50, [62, 65, 69])
-G = (43, [62, 67, 71])
-A7 = (45, [61, 64, 67])
-HARMONY = [(C, C), (C, C), (F, F), (C, C), (DM, DM), (G, G), (C, A7), (DM, G)]
-
-# Mélodie (croche, note MIDI) : joueuse, staccato, quelques chromatismes.
-THEME = [
-    [(0, 67), (1, 72), (2, 71), (3, 72), (4, 74), (6, 76)],
-    [(0, 79), (2, 76), (3, 75), (4, 76), (6, 72)],
-    [(0, 77), (1, 76), (2, 77), (3, 81), (4, 79), (6, 77)],
-    [(0, 76), (2, 72), (4, 67), (6, 72)],
-    [(0, 74), (1, 73), (2, 74), (3, 77), (4, 81), (6, 77)],
-    [(0, 79), (2, 71), (3, 72), (4, 74), (6, 79)],
-    [(0, 76), (1, 75), (2, 76), (4, 73), (5, 76), (6, 79)],
-    [(0, 77), (2, 74), (4, 71), (6, 67)],
+# Rém9 – Sol13 – Domaj9 – Lam7 : doux, un brin nostalgique.
+CHORDS = [
+    (38, [65, 69, 72, 76]),
+    (43, [65, 69, 71, 76]),
+    (36, [64, 67, 71, 74]),
+    (45, [64, 67, 72]),
+]
+# Petit motif en pizzicato (croche, note) : le « sourire » du morceau.
+MOTIF = [
+    [(2, 69), (3, 72), (5, 74)],
+    [(0, 76), (3, 74), (6, 71)],
+    [(2, 67), (3, 71), (5, 72), (7, 74)],
+    [(0, 76), (4, 72), (6, 69)],
 ]
 
 
-def accompaniment(b0, bar_idx, level):
-    """Oom-pah en pizzicato + accords sur les contretemps (+ percussions)."""
-    first, second = HARMONY[bar_idx % 8]
-    for beat in range(4):
-        root, triad = first if beat < 2 else second
-        bass = root if beat % 2 == 0 else root + 7
-        place(pizz(bass, 0.45), b0 + beat * BEAT, 0.55, -0.2)
-        for n in triad:
-            place(pizz(n, 0.3), b0 + beat * BEAT + E8, 0.14, 0.2)
-    if level >= 1:
+def at(b0, e):
+    return b0 + e * E8 + (SWING * E8 if e % 2 else 0)
+
+
+def bar_music(b0, i, drums, motif):
+    root, chord = CHORDS[i % 4]
+    for k, n in enumerate(chord):
+        place(epiano(n, BAR * 0.95), b0 + k * 0.012, 0.13, -0.2 + 0.13 * k)
+    for n in chord[1:3]:
+        place(epiano(n + 12, 0.6), at(b0, 3), 0.05, 0.3)  # petite relance sur « 2-et »
+    place(soft_bass(root, BEAT * 2.6), b0, 0.5)
+    place(soft_bass(root + 7, BEAT * 1.2), at(b0, 5), 0.32)
+    if drums:
+        place(lofi_kick(), at(b0, 0), 0.55)
+        place(lofi_kick(), at(b0, 5), 0.4)
+        for e in (2, 6):
+            place(rim(), at(b0, e), 0.38, 0.1)
         for e in range(8):
-            place(shaker(), b0 + e * E8, 0.06 if e % 2 else 0.09, 0.5)
-    if level >= 2:
-        for beat in (1, 3):
-            place(snap(), b0 + beat * BEAT, 0.3, 0.3)
-    if level >= 3:
-        place(kick(), b0, 0.45)
-        place(kick(), b0 + 2 * BEAT, 0.38)
+            place(soft_hat(), at(b0, e), 0.05 if e % 2 else 0.08, 0.45)
+    if motif:
+        for e, n in MOTIF[i % 4]:
+            place(pizz(n, 0.5), at(b0, e), 0.22, 0.25)
 
-
-def melody(b0, bar_idx, level):
-    for e, n in THEME[bar_idx % 8]:
-        t = b0 + e * E8
-        place(clarinet(n, 0.17), t, 0.24, 0.25)
-        place(bassoon(n - 12, 0.17), t, 0.12, -0.25)  # doublure comique à l'octave
-        if level >= 2:
-            place(marimba(n + 12, 0.5), t, 0.16, 0.35)
-        if level >= 3 and e in (0, 4):
-            place(glock(n + 12, 0.8), t, 0.07, 0.4)
-
-
-FINAL = 55.3  # « ta-da ! » juste avant la fin de la vidéo (56,7 s)
 
 t = 0.1
-# Intro : 2 mesures d'accompagnement seul.
-for i in range(2):
-    accompaniment(t, i, 0)
+FINAL_BAR = 20
+for i in range(FINAL_BAR):
+    bar_music(t, i, drums=i >= 2, motif=i >= 2)
     t += BAR
-# Le thème, 3 fois, de plus en plus garni.
-for level in (1, 2, 3):
-    for i in range(8):
-        accompaniment(t, i, level)
-        melody(t, i, level)
-        t += BAR
-# Début d'un 4e passage jusqu'au final.
-i = 0
-while t + BAR <= FINAL + 0.01:
-    accompaniment(t, i, 3)
-    melody(t, i, 3)
-    t += BAR
-    i += 1
-# Remplit le reste de la mesure avec l'accompagnement, coupé au final.
-accompaniment(t, i, 1)
-cut = int((FINAL - 0.3) * SR)
-L[cut:] *= 0
-R[cut:] *= 0
+# Accord final tenu (Domaj9) jusqu'à la fin de la vidéo.
+for k, n in enumerate([64, 67, 71, 74, 79]):
+    place(epiano(n, 3.0), t + k * 0.03, 0.13)
+place(soft_bass(36, 3.0), t, 0.5)
+place(pizz(74, 0.8), t + 0.4, 0.2, 0.25)
 
-# « Ta-da ! » sur Do majeur, tenu jusqu'à la fin.
-for n in (67, 72):
-    place(marimba(n, 0.3), FINAL - 0.28, 0.3)
-place(kick(), FINAL, 0.6)
-for n in (48, 60, 64, 67, 72):
-    place(marimba(n, 2.0), FINAL, 0.28)
-    place(pizz(n, 1.0), FINAL, 0.25)
-place(tuba(36, 2.0), FINAL, 0.25)
-place(clarinet(72, 1.9), FINAL, 0.12, 0.3)
-place(clarinet(76, 1.9), FINAL, 0.1, -0.3)
+# Grain de vinyle : petits craquements discrets.
+for _ in range(int(DURATION * 9)):
+    pos = rng.uniform(0, DURATION - 0.01)
+    click = rng.uniform(-1, 1, 30) * np.exp(-np.arange(30) / 6)
+    place(click, pos, rng.uniform(0.01, 0.04), rng.uniform(-0.6, 0.6))
+
+# Son « feutré » lo-fi : on adoucit les aigus.
+kernel = np.ones(5) / 5
+L = np.convolve(L, kernel, mode="same")
+R = np.convolve(R, kernel, mode="same")
 
 # ---------------- Mastering ----------------
 mix = np.stack([L, R], axis=1)
 mix /= np.max(np.abs(mix))
-mix = np.tanh(mix * 1.8) / np.tanh(1.8)
+mix = np.tanh(mix * 1.2) / np.tanh(1.2)
 mix *= 0.89
 pcm = (mix * 32767).astype("<i2").tobytes()
 out = Path(__file__).resolve().parent.parent / "public" / "music" / "musique.mp3"
