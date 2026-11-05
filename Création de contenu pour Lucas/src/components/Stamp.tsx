@@ -2,7 +2,7 @@ import { interpolate } from "remotion";
 import { CLAMP, COLORS, FONT } from "../theme";
 import { useEnterExit } from "./timing";
 
-/** Tampon qui s'écrase sur l'écran (grand → taille normale). */
+/** Tampon qui s'écrase sur l'écran (un peu plus grand → taille normale, sans flash). */
 export const Stamp: React.FC<{
   at: number;
   until: number;
@@ -16,7 +16,7 @@ export const Stamp: React.FC<{
 }> = ({ at, until, text, sub, x = 540, y, rotate = -8, color = COLORS.red, size = 96 }) => {
   const { visible, enter, exit } = useEnterExit(at, until, { damping: 14, stiffness: 260 });
   if (!visible) return null;
-  const scale = interpolate(enter, [0, 1], [2.6, 1]);
+  const scale = interpolate(enter, [0, 1], [1.5, 1]);
   return (
     <div
       style={{
@@ -24,7 +24,7 @@ export const Stamp: React.FC<{
         left: x,
         top: y,
         transform: `translate(-50%, -50%) rotate(${rotate}deg) scale(${scale})`,
-        opacity: interpolate(enter, [0, 0.25], [0, 1], CLAMP) * exit,
+        opacity: interpolate(enter, [0, 0.12], [0, 1], CLAMP) * exit,
         border: `10px solid ${color}`,
         borderRadius: 24,
         padding: "14px 36px",

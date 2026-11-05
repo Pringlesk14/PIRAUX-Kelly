@@ -2,9 +2,10 @@
 
 **Rendu final : [`rendu-final.mp4`](rendu-final.mp4)**
 
-Vidéo verticale (9:16, 1080×1920, 24 i/s) d'environ 42 s : « les devoirs de vacances ».
-Les 6 clips sont resserrés autour de la parole (aucun mot coupé, ~0,3 s de respiration
-entre les phrases), accélérés de 10 % à l'export, et enchaînés en fondus avec un
+Vidéo verticale (9:16, 1080×1920, 24 i/s) d'environ 39 s : « les devoirs de vacances ».
+Les 6 clips sont resserrés autour de la parole (aucun mot coupé, ~0,1 s entre les
+phrases), les longues pauses sont retirées par des coupes douces, la vidéo est
+accélérée de 10 % à l'export, et les clips sont enchaînés en fondus avec un
 mouvement de caméra continu, sur une musique originale : **un seul thème lo-fi /
 chill** (piano électrique doux, basse ronde, batterie feutrée, petit motif en pizzicato,
 grain de vinyle) qui tourne sur toute la vidéo, se pose sur un accord final et baisse
@@ -39,6 +40,7 @@ npm run render:clips  # chaque clip séparément → out/clip1..6.mp4
 - **Corriger un sous-titre** : éditer le `text` du mot dans `src/captions/clipN.json`.
 - **Décaler une animation** : changer `at` / `until` (en secondes) dans `src/scenes/SceneN.tsx`.
 - **Respiration entre les phrases / durée des fondus** : `PAD` et `XFADE` dans `src/timeline.ts`.
+- **Pauses retirées dans les clips** : `PAUSES` dans `src/timeline.ts` (début / fin de chaque silence, en secondes).
 - **Vitesse** : `SPEED` dans `src/timeline.ts` et le facteur du script `speed` dans `package.json` (`-itsscale` = 1/vitesse, `atempo` = vitesse).
 - **Volume de la musique** : `OPEN` (silences) et `DUCKED` (pendant la parole) dans `src/components/Music.tsx`.
 - **Régénérer la musique** : `python3 scripts/generate-music.py` (accords, motif et tempo dans le script).

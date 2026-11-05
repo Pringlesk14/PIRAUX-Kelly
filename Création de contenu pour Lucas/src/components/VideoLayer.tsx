@@ -8,7 +8,7 @@ import {
   useVideoConfig,
 } from "remotion";
 import { CLAMP } from "../theme";
-import { AUDIO_FADE, useClipTransition } from "../timeline";
+import { AUDIO_FADE, CUT_XFADE, useClipTransition } from "../timeline";
 
 export type Zoom = { at: number; scale: number };
 export type Shake = { at: number; until: number; intensity: number };
@@ -46,13 +46,13 @@ export const VideoLayer: React.FC<{
   // Raccord : le clip qui part pousse légèrement vers l'avant, le clip
   // qui arrive termine ce même mouvement → une seule caméra continue.
   if (tr) {
-    if (tr.fadeOut) {
+    if (tr.outKind === "clip") {
       scale *= interpolate(frame, [tr.outFrame - LINK_FRAMES, tr.outFrame], [1, 1 + LINK_ZOOM], {
         ...CLAMP,
         easing: Easing.in(Easing.quad),
       });
     }
-    if (tr.fadeIn) {
+    if (tr.inKind === "clip") {
       scale *= interpolate(frame, [tr.inFrame, tr.inFrame + LINK_FRAMES], [1 + LINK_ZOOM, 1], {
         ...CLAMP,
         easing: Easing.out(Easing.quad),
@@ -80,8 +80,9 @@ export const VideoLayer: React.FC<{
   const volume = (f: number) => {
     if (!tr) return 1;
     let v = 1;
-    if (tr.fadeIn) v *= interpolate(f, [tr.inFrame, tr.inFrame + AUDIO_FADE], [0, 1], CLAMP);
-    if (tr.fadeOut) v *= interpolate(f, [tr.outFrame - AUDIO_FADE, tr.outFrame], [1, 0], CLAMP);
+    const fadeLen = (kind: string | null) => (kind === "cut" ? CUT_XFADE : AUDIO_FADE);
+    if (tr.inKind) v *= interpolate(f, [tr.inFrame, tr.inFrame + fadeLen(tr.inKind)], [0, 1], CLAMP);
+    if (tr.outKind) v *= interpolate(f, [tr.outFrame - fadeLen(tr.outKind), tr.outFrame], [1, 0], CLAMP);
     return v;
   };
 

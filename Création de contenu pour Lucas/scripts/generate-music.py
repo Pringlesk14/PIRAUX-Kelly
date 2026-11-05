@@ -16,7 +16,7 @@ import numpy as np
 
 SR = 44100
 # Durée de l'épisode en vitesse normale (EPISODE_FRAMES / 24 dans src/timeline.ts).
-EPISODE = 46.6
+EPISODE = 42.6
 DURATION = EPISODE + 1.0
 rng = np.random.default_rng(11)
 
@@ -90,6 +90,14 @@ def epiano(note, dur=2.5):
     return s * trem * attack(t, 0.006) * np.exp(-t * 1.1) * release(t, dur, 0.15)
 
 
+def pad(note, dur):
+    """Nappe douce et continue (fondu lent) : comble tous les silences."""
+    t = tt(dur)
+    f = midi(note)
+    s = sum(np.sin(2 * np.pi * f * k * t * (1 + 0.002 * (k - 2))) / k**1.5 for k in range(1, 5))
+    return s * attack(t, 0.5) * release(t, dur, 0.6)
+
+
 def soft_bass(note, dur):
     t = tt(dur)
     f = midi(note)
@@ -147,11 +155,12 @@ def at(b0, e):
 def bar_music(b0, i, drums, motif):
     root, chord = CHORDS[i % 4]
     for k, n in enumerate(chord):
-        place(epiano(n, BAR * 0.95), b0 + k * 0.012, 0.13, -0.2 + 0.13 * k)
+        place(epiano(n, BAR * 1.25), b0 + k * 0.012, 0.13, -0.2 + 0.13 * k)  # déborde sur la mesure suivante
+        place(pad(n - 12, BAR + 0.6), b0 - 0.3, 0.035, -0.3 + 0.2 * k)
     for n in chord[1:3]:
         place(epiano(n + 12, 0.6), at(b0, 3), 0.05, 0.3)  # petite relance sur « 2-et »
     place(soft_bass(root, BEAT * 2.6), b0, 0.5)
-    place(soft_bass(root + 7, BEAT * 1.2), at(b0, 5), 0.32)
+    place(soft_bass(root + 7, BEAT * 1.6), at(b0, 5), 0.32)
     if drums:
         place(lofi_kick(), at(b0, 0), 0.55)
         place(lofi_kick(), at(b0, 5), 0.4)
@@ -173,6 +182,7 @@ for i in range(FINAL_BAR):
 # Accord final tenu (Domaj9) jusqu'à la fin de la vidéo.
 for k, n in enumerate([64, 67, 71, 74, 79]):
     place(epiano(n, 3.0), t + k * 0.03, 0.13)
+    place(pad(n - 12, DURATION - t + 0.3), t - 0.3, 0.04)
 place(soft_bass(36, 3.0), t, 0.5)
 place(pizz(74, 0.8), t + 0.4, 0.2, 0.25)
 

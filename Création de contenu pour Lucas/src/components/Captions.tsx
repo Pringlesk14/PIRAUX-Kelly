@@ -1,5 +1,6 @@
 import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
 import { CLAMP, COLORS, FONT } from "../theme";
+import { CUT_XFADE, useClipTransition } from "../timeline";
 
 export type Word = { text: string; start: number; end: number };
 
@@ -40,6 +41,9 @@ export const Captions: React.FC<{ words: Word[]; top?: number }> = ({
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const tr = useClipTransition();
+  // Sur une coupe douce, les sous-titres sortants laissent la place aux entrants.
+  if (tr?.outKind === "cut" && frame >= tr.outFrame - CUT_XFADE) return null;
   const t = frame / fps;
   const pages = toPages(words);
   const page = pages.find((p) => t >= p.start && t < p.end);

@@ -13,12 +13,12 @@ const SPEECH = [
   { start: 0.95, end: 9.0 },
   { start: 1.3, end: 8.9 },
 ];
-const PAD = 0.45;
+const PAD = 0.35;
 
 /**
  * Points d'entrée / sortie (s, temps du clip source) : les silences de
  * début et de fin sont resserrés pour que les phrases s'enchaînent avec
- * ~0,3 s de respiration (PAD + PAD − fondu). La fin du dernier clip est
+ * ~0,1 s de respiration (PAD + PAD − fondu). La fin du dernier clip est
  * gardée pour l'écran « À très vite ».
  */
 export const CLIP_WINDOWS = SPEECH.map((s, i) => ({
@@ -26,29 +26,82 @@ export const CLIP_WINDOWS = SPEECH.map((s, i) => ({
   out: i === SPEECH.length - 1 ? 9.9 : Math.min(10, s.end + PAD),
 }));
 
+/**
+ * Pauses à l'intérieur des clips (s, temps du clip source), mesurées sur
+ * l'audio (silence franc uniquement, jamais dans un mot ni un rire).
+ * Chacune est retirée par une « coupe douce » qui laisse ~0,15 s de pause.
+ */
+const PAUSES: [number, number][][] = [
+  [
+    [2.65, 3.29],
+    [4.9, 5.34],
+  ],
+  [],
+  [[6.7, 7.17]],
+  [],
+  [[3.27, 4.3]],
+  [[4.45, 5.05]],
+];
+/** Pause gardée de chaque côté d'une coupe (s). */
+const KEEP = 0.075;
+
 /** Durée du fondu enchaîné (image) entre deux clips, en images. */
 export const XFADE = 14;
+/** Durée du mini-fondu d'une coupe douce dans un même clip, en images. */
+export const CUT_XFADE = 3;
 /** Durée du fondu sonore, plus court : il ne touche que les silences. */
 export const AUDIO_FADE = 5;
 
 /**
- * Accélération appliquée à l'export final (voir le script « render »).
+ * Accélération appliquée à l'export final (voir le script « speed »).
  * Les timings du projet restent en vitesse normale.
  */
 export const SPEED = 1.1;
 
-export const clipFrames = (i: number) => {
-  const w = CLIP_WINDOWS[i];
-  return {
-    inFrame: Math.round(w.in * FPS),
-    outFrame: Math.round(w.out * FPS),
-    length: Math.round(w.out * FPS) - Math.round(w.in * FPS),
-  };
+/** Nature d'un raccord : changement de clip, ou coupe douce dans un même clip. */
+export type JoinKind = "clip" | "cut" | null;
+
+export type Segment = {
+  clip: number;
+  inFrame: number;
+  outFrame: number;
+  length: number;
+  /** Chevauchement avec le segment précédent (images). */
+  overlap: number;
+  /** Image de début dans l'épisode. */
+  start: number;
+  inKind: JoinKind;
+  outKind: JoinKind;
 };
 
-export const EPISODE_FRAMES =
-  CLIP_WINDOWS.reduce((sum, _, i) => sum + clipFrames(i).length, 0) -
-  XFADE * (CLIP_WINDOWS.length - 1);
+/** Chaque clip découpé en segments (sa fenêtre moins ses pauses), bout à bout. */
+export const SEGMENTS: Segment[] = (() => {
+  const out: Segment[] = [];
+  let cursor = 0;
+  CLIP_WINDOWS.forEach((w, clip) => {
+    const bounds: [number, number][] = [];
+    let from = w.in;
+    for (const [ps, pe] of PAUSES[clip]) {
+      bounds.push([from, ps + KEEP]);
+      from = pe - KEEP;
+    }
+    bounds.push([from, w.out]);
+    bounds.forEach(([a, b], k) => {
+      const inFrame = Math.round(a * FPS);
+      const outFrame = Math.round(b * FPS);
+      const inKind: JoinKind = out.length === 0 ? null : k === 0 ? "clip" : "cut";
+      const overlap = inKind === "clip" ? XFADE : inKind === "cut" ? CUT_XFADE : 0;
+      const start = cursor - overlap;
+      if (out.length) out[out.length - 1].outKind = inKind;
+      out.push({ clip, inFrame, outFrame, length: outFrame - inFrame, overlap, start, inKind, outKind: null });
+      cursor = start + (outFrame - inFrame);
+    });
+  });
+  return out;
+})();
+
+const LAST = SEGMENTS[SEGMENTS.length - 1];
+export const EPISODE_FRAMES = LAST.start + LAST.length;
 
 /**
  * Informations de transition transmises à la couche vidéo d'une scène
@@ -57,8 +110,8 @@ export const EPISODE_FRAMES =
 export type ClipTransition = {
   inFrame: number;
   outFrame: number;
-  fadeIn: boolean;
-  fadeOut: boolean;
+  inKind: JoinKind;
+  outKind: JoinKind;
 };
 
 export const TransitionContext = createContext<ClipTransition | null>(null);

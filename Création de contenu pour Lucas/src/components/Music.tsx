@@ -6,13 +6,13 @@ import clip4 from "../captions/clip4.json";
 import clip5 from "../captions/clip5.json";
 import clip6 from "../captions/clip6.json";
 import { CLAMP } from "../theme";
-import { CLIP_WINDOWS, clipFrames, XFADE } from "../timeline";
+import { SEGMENTS } from "../timeline";
 
 const CAPTIONS = [clip1, clip2, clip3, clip4, clip5, clip6];
 
 /** Volume de la musique quand personne ne parle / pendant la parole. */
 const OPEN = 0.19;
-const DUCKED = 0.075;
+const DUCKED = 0.13;
 /** Temps de montée / descente du « ducking » (s). */
 const RAMP = 0.25;
 
@@ -28,12 +28,14 @@ const ACCENTS = (end: number): { from: number; to: number; level: number }[] => 
 /** Intervalles de parole sur la timeline de l'épisode (en secondes). */
 const speechIntervals = (fps: number) => {
   const out: [number, number][] = [];
-  let start = 0;
-  CAPTIONS.forEach((words, i) => {
-    const offset = start / fps - CLIP_WINDOWS[i].in;
-    for (const w of words) out.push([w.start + offset, w.end + offset]);
-    start += clipFrames(i).length - XFADE;
-  });
+  for (const seg of SEGMENTS) {
+    const a = seg.inFrame / fps;
+    const b = seg.outFrame / fps;
+    const offset = seg.start / fps - a;
+    for (const w of CAPTIONS[seg.clip]) {
+      if (w.end > a && w.start < b) out.push([Math.max(w.start, a) + offset, Math.min(w.end, b) + offset]);
+    }
+  }
   return out;
 };
 

@@ -15,7 +15,7 @@ import { Scene4 } from "./scenes/Scene4";
 import { Scene5 } from "./scenes/Scene5";
 import { Scene6 } from "./scenes/Scene6";
 import { CLAMP, COLORS } from "./theme";
-import { clipFrames, TransitionContext, XFADE } from "./timeline";
+import { SEGMENTS, TransitionContext } from "./timeline";
 
 export const SCENES = [Scene1, Scene2, Scene3, Scene4, Scene5, Scene6];
 
@@ -38,14 +38,12 @@ const ProgressBar: React.FC = () => {
 };
 
 /** Fondu d'entrée du clip suivant par-dessus le précédent. */
-const CrossFade: React.FC<{ enabled: boolean; children: React.ReactNode }> = ({
-  enabled,
-  children,
-}) => {
+const CrossFade: React.FC<{ frames: number; children: React.ReactNode }> = ({ frames, children }) => {
   const frame = useCurrentFrame();
-  const opacity = enabled
-    ? interpolate(frame, [0, XFADE], [0, 1], { ...CLAMP, easing: Easing.inOut(Easing.quad) })
-    : 1;
+  const opacity =
+    frames > 0
+      ? interpolate(frame, [0, frames], [0, 1], { ...CLAMP, easing: Easing.inOut(Easing.quad) })
+      : 1;
   return <AbsoluteFill style={{ opacity }}>{children}</AbsoluteFill>;
 };
 
@@ -57,22 +55,20 @@ const FadeToBlack: React.FC = () => {
 };
 
 /**
- * Les 6 clips en entier, enchaînés en fondus avec un mouvement de caméra
- * continu, sur une musique de fond : une seule vidéo fluide.
+ * Les 6 clips resserrés autour de la parole (pauses retirées par des coupes
+ * douces), enchaînés en fondus avec un mouvement de caméra continu, sur une
+ * musique de fond : une seule vidéo fluide, sans blanc.
  */
 export const Episode: React.FC = () => (
   <AbsoluteFill style={{ backgroundColor: "black" }}>
     <Series>
-      {SCENES.map((Scene, i) => {
-        const { inFrame, outFrame, length } = clipFrames(i);
-        const first = i === 0;
-        const last = i === SCENES.length - 1;
+      {SEGMENTS.map((seg, i) => {
+        const Scene = SCENES[seg.clip];
+        const { inFrame, outFrame, inKind, outKind } = seg;
         return (
-          <Series.Sequence key={i} durationInFrames={length} offset={first ? 0 : -XFADE}>
-            <TransitionContext.Provider
-              value={{ inFrame, outFrame, fadeIn: !first, fadeOut: !last }}
-            >
-              <CrossFade enabled={!first}>
+          <Series.Sequence key={i} durationInFrames={seg.length} offset={-seg.overlap}>
+            <TransitionContext.Provider value={{ inFrame, outFrame, inKind, outKind }}>
+              <CrossFade frames={seg.overlap}>
                 {/* Décale le temps : les timings des scènes restent ceux du clip source. */}
                 <Sequence from={-inFrame}>
                   <Scene />
