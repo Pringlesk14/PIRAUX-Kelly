@@ -17,14 +17,12 @@ const DUCKED = 0.13;
 const RAMP = 0.25;
 
 /**
- * Effets comiques qui doivent rester audibles même sous la voix
+ * Moments de la musique qui doivent rester audibles même sous la voix
  * (temps de l'épisode, en s — voir scripts/generate-music.py).
  */
 const ACCENTS: { from: number; to: number; level: number }[] = [
-  { from: 9.9, to: 10.6, level: 0.4 }, // scratch de disque
-  { from: 19.2, to: 21.9, level: 0.3 }, // tic-tac + BOOM « panique »
-  { from: 36.15, to: 38.5, level: 0.3 }, // trombone triste
-  { from: 54.8, to: 56.7, level: 0.3 }, // « ta-da ! »
+  { from: 0, to: 0.7, level: 0.3 }, // démarrage de la musique
+  { from: 54.8, to: 56.7, level: 0.3 }, // « ta-da ! » final
 ];
 
 /** Intervalles de parole sur la timeline de l'épisode (en secondes). */
@@ -40,7 +38,8 @@ const speechIntervals = (fps: number) => {
 };
 
 /**
- * Musique de fond originale (scripts/generate-music.py), qui baisse
+ * Musique de fond originale : un seul thème comique sur toute la vidéo
+ * (scripts/generate-music.py), qui baisse
  * automatiquement quand Lucas parle et remonte dans les silences.
  */
 export const Music: React.FC = () => {
