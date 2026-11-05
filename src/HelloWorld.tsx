@@ -1,0 +1,39 @@
+import {
+  AbsoluteFill,
+  interpolate,
+  spring,
+  useCurrentFrame,
+  useVideoConfig,
+} from "remotion";
+
+export const HelloWorld: React.FC<{ titre: string }> = ({ titre }) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+
+  const scale = spring({ frame, fps, config: { damping: 200 } });
+  const opacity = interpolate(frame, [0, 30], [0, 1], {
+    extrapolateRight: "clamp",
+  });
+
+  return (
+    <AbsoluteFill
+      style={{
+        backgroundColor: "#0b1020",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <h1
+        style={{
+          color: "white",
+          fontFamily: "sans-serif",
+          fontSize: 120,
+          opacity,
+          transform: `scale(${scale})`,
+        }}
+      >
+        {titre}
+      </h1>
+    </AbsoluteFill>
+  );
+};
