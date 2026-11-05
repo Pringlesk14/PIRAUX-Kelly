@@ -5,10 +5,12 @@
   "description": "Projet vidéo Remotion",
   "scripts": {
     "dev": "remotion studio",
-    "render": "remotion render HelloWorld out/video.mp4",
+    "render": "remotion render Episode out/episode.mp4",
+    "render:clips": "for i in 1 2 3 4 5 6; do remotion render Clip$i out/clip$i.mp4; done",
     "upgrade": "remotion upgrade"
   },
   "dependencies": {
+    "@fontsource/montserrat": "5.3.0",
     "@remotion/cli": "4.0.541",
     "react": "19.3.1",
     "react-dom": "19.3.1",
