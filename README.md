@@ -1,7 +1,8 @@
 # PIRAUX-Kelly — Motion design Remotion
 
-Mini-série verticale (9:16, 1080×1920, 24 i/s) de 6 clips de 10 s montés en
-un épisode de 60 s : « les devoirs de vacances ».
+Vidéo verticale (9:16, 1080×1920, 24 i/s) d'environ 46 s : « les devoirs de vacances ».
+Les 6 clips de 10 s sont débarrassés de leurs silences et enchaînés en fondus
+courts avec un mouvement de caméra continu, pour donner une seule prise fluide.
 
 ## Démarrage
 
@@ -22,9 +23,11 @@ npm run render:clips  # chaque clip séparément → out/clip1..6.mp4
 | `src/scenes/` | Une scène par clip : animations calées sur la parole |
 | `src/components/` | Briques réutilisables : sous-titres, stickers, tampons, checklist, bouton d'abonnement… |
 | `src/theme.ts` | Couleurs, police, format |
+| `src/timeline.ts` | Points d'entrée/sortie de chaque clip et durée des fondus |
 
 ## Modifier
 
 - **Corriger un sous-titre** : éditer le `text` du mot dans `src/captions/clipN.json`.
 - **Décaler une animation** : changer `at` / `until` (en secondes) dans `src/scenes/SceneN.tsx`.
+- **Raccourcir / rallonger un clip** : `in` / `out` dans `src/timeline.ts`.
 - **Changer les couleurs** : `COLORS` dans `src/theme.ts`.

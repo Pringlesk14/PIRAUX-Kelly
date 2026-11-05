@@ -1,14 +1,15 @@
 import "./fonts";
 import { Composition, Folder } from "remotion";
 import { Episode, SCENES } from "./Episode";
-import { CLIP_COUNT, CLIP_FRAMES, FPS, HEIGHT, WIDTH } from "./theme";
+import { CLIP_FRAMES, FPS, HEIGHT, WIDTH } from "./theme";
+import { EPISODE_FRAMES } from "./timeline";
 
 export const RemotionRoot: React.FC = () => (
   <>
     <Composition
       id="Episode"
       component={Episode}
-      durationInFrames={CLIP_FRAMES * CLIP_COUNT}
+      durationInFrames={EPISODE_FRAMES}
       fps={FPS}
       width={WIDTH}
       height={HEIGHT}

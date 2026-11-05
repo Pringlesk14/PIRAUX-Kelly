@@ -1,3 +1,4 @@
+import { Overlays } from "../components/Overlays";
 import { AbsoluteFill } from "remotion";
 import { Banner } from "../components/Banner";
 import { Captions } from "../components/Captions";
@@ -23,13 +24,25 @@ export const Scene3: React.FC = () => (
         { at: 7.9, until: 8.7, intensity: 0.8 },
       ]}
     />
-    <RedAlert at={2.42} until={4.6} />
-    <RedAlert at={7.6} until={9.95} />
     <BottomShade />
-    <Banner at={2.42} until={3.7} text="Panique !" emoji="😱" bg={COLORS.red} color="white" size={110} jitter y={250} />
-    <Stamp at={3.74} until={6.1} text="J-1" sub="AVANT LA RENTRÉE" y={270} rotate={7} size={120} />
-    <EmojiStack at={5.22} until={9.95} emoji="📚" count={7} x={920} bottom={1120} />
-    <Banner at={7.9} until={9.95} text="La galère" emoji="😩" bg="white" size={96} y={250} rotate={3} />
-    <Captions words={words} />
+    <Overlays>
+      <RedAlert at={2.42} until={4.6} />
+      <RedAlert at={7.6} until={9.95} />
+      <Banner
+        at={2.42}
+        until={3.7}
+        text="Panique !"
+        emoji="😱"
+        bg={COLORS.red}
+        color="white"
+        size={110}
+        jitter
+        y={250}
+      />
+      <Stamp at={3.74} until={6.1} text="J-1" sub="AVANT LA RENTRÉE" y={270} rotate={7} size={120} />
+      <EmojiStack at={5.22} until={9.95} emoji="📚" count={7} x={920} bottom={1120} />
+      <Banner at={7.9} until={9.95} text="La galère" emoji="😩" bg="white" size={96} y={250} rotate={3} />
+      <Captions words={words} />
+    </Overlays>
   </AbsoluteFill>
 );

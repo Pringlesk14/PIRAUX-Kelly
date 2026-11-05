@@ -1,14 +1,6 @@
 import { AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import { CLAMP } from "../theme";
 
-/** Flash blanc au début d'une scène (transition « cut »). */
-export const Flash: React.FC = () => {
-  const frame = useCurrentFrame();
-  const opacity = interpolate(frame, [0, 5], [0.85, 0], CLAMP);
-  if (opacity <= 0) return null;
-  return <AbsoluteFill style={{ backgroundColor: "white", opacity }} />;
-};
-
 /** Vignette rouge qui pulse (alerte / panique). */
 export const RedAlert: React.FC<{ at: number; until: number }> = ({ at, until }) => {
   const frame = useCurrentFrame();

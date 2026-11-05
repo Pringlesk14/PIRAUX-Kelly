@@ -1,12 +1,20 @@
-import { AbsoluteFill, Series, useCurrentFrame, useVideoConfig } from "remotion";
-import { Flash } from "./components/Effects";
+import {
+  AbsoluteFill,
+  Easing,
+  interpolate,
+  Sequence,
+  Series,
+  useCurrentFrame,
+  useVideoConfig,
+} from "remotion";
 import { Scene1 } from "./scenes/Scene1";
 import { Scene2 } from "./scenes/Scene2";
 import { Scene3 } from "./scenes/Scene3";
 import { Scene4 } from "./scenes/Scene4";
 import { Scene5 } from "./scenes/Scene5";
 import { Scene6 } from "./scenes/Scene6";
-import { CLIP_FRAMES, COLORS } from "./theme";
+import { CLAMP, COLORS } from "./theme";
+import { clipFrames, TransitionContext, XFADE } from "./timeline";
 
 export const SCENES = [Scene1, Scene2, Scene3, Scene4, Scene5, Scene6];
 
@@ -28,17 +36,53 @@ const ProgressBar: React.FC = () => {
   );
 };
 
-/** Les 6 clips montés bout à bout avec flashs de transition. */
+/** Fondu d'entrée du clip suivant par-dessus le précédent. */
+const CrossFade: React.FC<{ enabled: boolean; children: React.ReactNode }> = ({
+  enabled,
+  children,
+}) => {
+  const frame = useCurrentFrame();
+  const opacity = enabled
+    ? interpolate(frame, [0, XFADE], [0, 1], { ...CLAMP, easing: Easing.inOut(Easing.quad) })
+    : 1;
+  return <AbsoluteFill style={{ opacity }}>{children}</AbsoluteFill>;
+};
+
+const FadeToBlack: React.FC = () => {
+  const frame = useCurrentFrame();
+  const { durationInFrames } = useVideoConfig();
+  const opacity = interpolate(frame, [durationInFrames - 12, durationInFrames], [0, 1], CLAMP);
+  return <AbsoluteFill style={{ backgroundColor: "black", opacity }} />;
+};
+
+/**
+ * Les 6 clips, débarrassés de leurs silences, enchaînés en fondus courts
+ * avec un mouvement de caméra continu : une seule vidéo fluide.
+ */
 export const Episode: React.FC = () => (
   <AbsoluteFill style={{ backgroundColor: "black" }}>
     <Series>
-      {SCENES.map((Scene, i) => (
-        <Series.Sequence key={i} durationInFrames={CLIP_FRAMES}>
-          <Scene />
-          {i > 0 ? <Flash /> : null}
-        </Series.Sequence>
-      ))}
+      {SCENES.map((Scene, i) => {
+        const { inFrame, outFrame, length } = clipFrames(i);
+        const first = i === 0;
+        const last = i === SCENES.length - 1;
+        return (
+          <Series.Sequence key={i} durationInFrames={length} offset={first ? 0 : -XFADE}>
+            <TransitionContext.Provider
+              value={{ inFrame, outFrame, fadeIn: !first, fadeOut: !last }}
+            >
+              <CrossFade enabled={!first}>
+                {/* Décale le temps : les timings des scènes restent ceux du clip source. */}
+                <Sequence from={-inFrame}>
+                  <Scene />
+                </Sequence>
+              </CrossFade>
+            </TransitionContext.Provider>
+          </Series.Sequence>
+        );
+      })}
     </Series>
     <ProgressBar />
+    <FadeToBlack />
   </AbsoluteFill>
 );

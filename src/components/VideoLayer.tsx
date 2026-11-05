@@ -1,18 +1,27 @@
 import {
   AbsoluteFill,
+  Easing,
+  interpolate,
   OffthreadVideo,
-  spring,
   staticFile,
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
+import { CLAMP } from "../theme";
+import { useClipTransition, XFADE } from "../timeline";
 
 export type Zoom = { at: number; scale: number };
 export type Shake = { at: number; until: number; intensity: number };
 
+const ease = Easing.inOut(Easing.cubic);
+
+/** Amplitude du mouvement de caméra qui « relie » deux clips. */
+const LINK_ZOOM = 0.06;
+const LINK_FRAMES = 18;
+
 /**
- * Vidéo plein écran avec « punch-in » d'entrée, zooms d'emphase et
- * secousses de caméra.
+ * Vidéo plein écran avec zooms d'emphase doux, secousses de caméra,
+ * et mouvement de caméra continu + fondu sonore aux raccords.
  */
 export const VideoLayer: React.FC<{
   src: string;
@@ -22,22 +31,33 @@ export const VideoLayer: React.FC<{
 }> = ({ src, zooms = [], shakes = [], origin = "50% 32%" }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const tr = useClipTransition();
 
-  // Punch-in à l'entrée de la scène (1.15 → 1).
-  const intro = spring({ frame, fps, config: { damping: 200 }, durationInFrames: 10 });
-  let scale = 1 + 0.15 * (1 - intro);
-
-  // Zooms d'emphase successifs.
+  // Zooms d'emphase successifs, en douceur (~0,6 s).
+  let scale = 1;
   let previous = 1;
   for (const z of zooms) {
-    const p = spring({
-      frame: frame - Math.round(z.at * fps),
-      fps,
-      config: { damping: 200 },
-      durationInFrames: 8,
-    });
+    const a = Math.round(z.at * fps);
+    const p = interpolate(frame, [a, a + 14], [0, 1], { ...CLAMP, easing: ease });
     scale += (z.scale - previous) * p;
     previous = z.scale;
+  }
+
+  // Raccord : le clip qui part pousse légèrement vers l'avant, le clip
+  // qui arrive termine ce même mouvement → une seule caméra continue.
+  if (tr) {
+    if (tr.fadeOut) {
+      scale *= interpolate(frame, [tr.outFrame - LINK_FRAMES, tr.outFrame], [1, 1 + LINK_ZOOM], {
+        ...CLAMP,
+        easing: Easing.in(Easing.quad),
+      });
+    }
+    if (tr.fadeIn) {
+      scale *= interpolate(frame, [tr.inFrame, tr.inFrame + LINK_FRAMES], [1 + LINK_ZOOM, 1], {
+        ...CLAMP,
+        easing: Easing.out(Easing.quad),
+      });
+    }
   }
 
   // Secousses (pseudo-bruit déterministe).
@@ -56,6 +76,15 @@ export const VideoLayer: React.FC<{
     }
   }
 
+  // Fondu sonore croisé aux raccords (f = image dans le clip source).
+  const volume = (f: number) => {
+    if (!tr) return 1;
+    let v = 1;
+    if (tr.fadeIn) v *= interpolate(f, [tr.inFrame, tr.inFrame + XFADE], [0, 1], CLAMP);
+    if (tr.fadeOut) v *= interpolate(f, [tr.outFrame - XFADE, tr.outFrame], [1, 0], CLAMP);
+    return v;
+  };
+
   return (
     <AbsoluteFill style={{ backgroundColor: "black", overflow: "hidden" }}>
       <AbsoluteFill
@@ -66,6 +95,7 @@ export const VideoLayer: React.FC<{
       >
         <OffthreadVideo
           src={staticFile(src)}
+          volume={volume}
           style={{ width: "100%", height: "100%", objectFit: "cover" }}
         />
       </AbsoluteFill>
