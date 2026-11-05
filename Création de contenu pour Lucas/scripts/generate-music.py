@@ -15,7 +15,9 @@ from pathlib import Path
 import numpy as np
 
 SR = 44100
-DURATION = 57.5
+# Durée de l'épisode en vitesse normale (EPISODE_FRAMES / 24 dans src/timeline.ts).
+EPISODE = 46.6
+DURATION = EPISODE + 1.0
 rng = np.random.default_rng(11)
 
 total = int(DURATION * SR)
@@ -163,7 +165,8 @@ def bar_music(b0, i, drums, motif):
 
 
 t = 0.1
-FINAL_BAR = 20
+# Dernière mesure complète avant l'accord final (tenu ~2,5 s jusqu'à la fin).
+FINAL_BAR = int((EPISODE - 2.6 - t) // BAR)
 for i in range(FINAL_BAR):
     bar_music(t, i, drums=i >= 2, motif=i >= 2)
     t += BAR

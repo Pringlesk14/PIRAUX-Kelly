@@ -8,7 +8,7 @@ import {
   useVideoConfig,
 } from "remotion";
 import { CLAMP } from "../theme";
-import { useClipTransition, XFADE } from "../timeline";
+import { AUDIO_FADE, useClipTransition } from "../timeline";
 
 export type Zoom = { at: number; scale: number };
 export type Shake = { at: number; until: number; intensity: number };
@@ -80,8 +80,8 @@ export const VideoLayer: React.FC<{
   const volume = (f: number) => {
     if (!tr) return 1;
     let v = 1;
-    if (tr.fadeIn) v *= interpolate(f, [tr.inFrame, tr.inFrame + XFADE], [0, 1], CLAMP);
-    if (tr.fadeOut) v *= interpolate(f, [tr.outFrame - XFADE, tr.outFrame], [1, 0], CLAMP);
+    if (tr.fadeIn) v *= interpolate(f, [tr.inFrame, tr.inFrame + AUDIO_FADE], [0, 1], CLAMP);
+    if (tr.fadeOut) v *= interpolate(f, [tr.outFrame - AUDIO_FADE, tr.outFrame], [1, 0], CLAMP);
     return v;
   };
 

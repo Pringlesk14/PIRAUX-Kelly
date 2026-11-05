@@ -20,9 +20,9 @@ const RAMP = 0.25;
  * Moments de la musique qui doivent rester audibles même sous la voix
  * (temps de l'épisode, en s — voir scripts/generate-music.py).
  */
-const ACCENTS: { from: number; to: number; level: number }[] = [
+const ACCENTS = (end: number): { from: number; to: number; level: number }[] => [
   { from: 0, to: 0.7, level: 0.17 }, // démarrage de la musique
-  { from: 54.5, to: 56.7, level: 0.17 }, // accord final
+  { from: end - 2.9, to: end, level: 0.17 }, // accord final
 ];
 
 /** Intervalles de parole sur la timeline de l'épisode (en secondes). */
@@ -56,7 +56,7 @@ export const Music: React.FC = () => {
       }
     }
     let level = OPEN + (DUCKED - OPEN) * talk;
-    for (const a of ACCENTS) {
+    for (const a of ACCENTS(durationInFrames / fps)) {
       const k = interpolate(t, [a.from - 0.1, a.from, a.to, a.to + 0.15], [0, 1, 1, 0], CLAMP);
       level = Math.max(level, a.level * k);
     }
