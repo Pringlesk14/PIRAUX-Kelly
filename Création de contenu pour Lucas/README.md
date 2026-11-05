@@ -4,8 +4,16 @@
 
 Vidéo verticale (9:16, 1080×1920, 24 i/s) d'environ 57 s : « les devoirs de vacances ».
 Les 6 clips de 10 s sont gardés en entier et enchaînés en fondus avec un
-mouvement de caméra continu, sur une musique de fond originale qui baisse
-automatiquement quand Lucas parle.
+mouvement de caméra continu, sur une musique originale qui suit l'histoire
+(style « comédie / storytime » TikTok) et baisse automatiquement quand Lucas parle :
+
+| Moment | Musique |
+| --- | --- |
+| Le plan parfait | Marimba joyeuse, coupée net par un scratch de disque |
+| Jeux, vidéos, grasses mat' | Pizzicato « sneaky », basson, claquements de doigts |
+| La panique | Tic-tac, BOOM, cordes qui montent en tension |
+| « Quelle organisation ! » | Tuba paresseux puis trombone triste (wah wah waaah) |
+| Ce n'est que le début → abonne-toi | Groove joyeux qui finit en « ta-da ! » |
 
 ## Démarrage
 
@@ -37,5 +45,5 @@ npm run render:clips  # chaque clip séparément → out/clip1..6.mp4
 - **Décaler une animation** : changer `at` / `until` (en secondes) dans `src/scenes/SceneN.tsx`.
 - **Raccourcir un clip / durée des fondus** : `CLIP_WINDOWS` et `XFADE` dans `src/timeline.ts`.
 - **Volume de la musique** : `OPEN` (silences) et `DUCKED` (pendant la parole) dans `src/components/Music.tsx`.
-- **Régénérer la musique** : `python3 scripts/generate-music.py` (tempo, accords, mélodie modifiables dans le script).
+- **Régénérer la musique** : `python3 scripts/generate-music.py` (sections et timings dans le script ; effets à garder audibles : `ACCENTS` dans `Music.tsx`).
 - **Changer les couleurs** : `COLORS` dans `src/theme.ts`.
