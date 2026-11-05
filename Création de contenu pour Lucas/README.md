@@ -1,10 +1,14 @@
-# PIRAUX-Kelly — Motion design Remotion
+# Création de contenu pour Lucas — Motion design Remotion
+
+**Rendu final : [`rendu-final.mp4`](rendu-final.mp4)**
 
 Vidéo verticale (9:16, 1080×1920, 24 i/s) d'environ 46 s : « les devoirs de vacances ».
 Les 6 clips de 10 s sont débarrassés de leurs silences et enchaînés en fondus
 courts avec un mouvement de caméra continu, pour donner une seule prise fluide.
 
 ## Démarrage
+
+Toutes les commandes se lancent depuis ce dossier.
 
 ```bash
 npm install
