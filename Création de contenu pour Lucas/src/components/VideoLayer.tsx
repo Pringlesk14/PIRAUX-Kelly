@@ -8,7 +8,7 @@ import {
   useVideoConfig,
 } from "remotion";
 import { CLAMP } from "../theme";
-import { AUDIO_FADE, CUT_XFADE, useClipTransition } from "../timeline";
+import { useClipTransition } from "../timeline";
 
 export type Zoom = { at: number; scale: number };
 export type Shake = { at: number; until: number; intensity: number };
@@ -76,16 +76,6 @@ export const VideoLayer: React.FC<{
     }
   }
 
-  // Fondu sonore croisé aux raccords (f = image dans le clip source).
-  const volume = (f: number) => {
-    if (!tr) return 1;
-    let v = 1;
-    const fadeLen = (kind: string | null) => (kind === "cut" ? CUT_XFADE : AUDIO_FADE);
-    if (tr.inKind) v *= interpolate(f, [tr.inFrame, tr.inFrame + fadeLen(tr.inKind)], [0, 1], CLAMP);
-    if (tr.outKind) v *= interpolate(f, [tr.outFrame - fadeLen(tr.outKind), tr.outFrame], [1, 0], CLAMP);
-    return v;
-  };
-
   return (
     <AbsoluteFill style={{ backgroundColor: "black", overflow: "hidden" }}>
       <AbsoluteFill
@@ -96,7 +86,8 @@ export const VideoLayer: React.FC<{
       >
         <OffthreadVideo
           src={staticFile(src)}
-          volume={volume}
+          // Dans l'épisode, le son est posé à part (SegmentAudio) pour rester calé à l'image.
+          muted={tr !== null}
           style={{ width: "100%", height: "100%", objectFit: "cover" }}
         />
       </AbsoluteFill>

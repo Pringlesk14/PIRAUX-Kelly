@@ -11,18 +11,17 @@ import { SEGMENTS } from "../timeline";
 const CAPTIONS = [clip1, clip2, clip3, clip4, clip5, clip6];
 
 /** Volume de la musique quand personne ne parle / pendant la parole. */
-const OPEN = 0.19;
-const DUCKED = 0.13;
+const OPEN = 0.5;
+const DUCKED = 0.25;
 /** Temps de montée / descente du « ducking » (s). */
-const RAMP = 0.25;
+const RAMP = 0.12;
 
 /**
  * Moments de la musique qui doivent rester audibles même sous la voix
  * (temps de l'épisode, en s — voir scripts/generate-music.py).
  */
 const ACCENTS = (end: number): { from: number; to: number; level: number }[] => [
-  { from: 0, to: 0.7, level: 0.17 }, // démarrage de la musique
-  { from: end - 2.9, to: end, level: 0.17 }, // accord final
+  { from: end - 2.9, to: end, level: 0.5 }, // accord final
 ];
 
 /** Intervalles de parole sur la timeline de l'épisode (en secondes). */
@@ -36,7 +35,16 @@ const speechIntervals = (fps: number) => {
       if (w.end > a && w.start < b) out.push([Math.max(w.start, a) + offset, Math.min(w.end, b) + offset]);
     }
   }
-  return out;
+  // Fusionne les mots d'une même phrase : la musique reste stable pendant
+  // la phrase au lieu de remonter entre chaque mot.
+  out.sort((x, y) => x[0] - y[0]);
+  const merged: [number, number][] = [];
+  for (const iv of out) {
+    const last = merged[merged.length - 1];
+    if (last && iv[0] - last[1] < 0.35) last[1] = Math.max(last[1], iv[1]);
+    else merged.push([...iv]);
+  }
+  return merged;
 };
 
 /**
@@ -62,9 +70,9 @@ export const Music: React.FC = () => {
       const k = interpolate(t, [a.from - 0.1, a.from, a.to, a.to + 0.15], [0, 1, 1, 0], CLAMP);
       level = Math.max(level, a.level * k);
     }
-    const fadeIn = interpolate(f, [0, 8], [0, 1], CLAMP);
-    const fadeOut = interpolate(f, [durationInFrames - 18, durationInFrames], [1, 0], CLAMP);
-    return level * fadeIn * fadeOut;
+    // Pas de fondu d'entrée, fondu de sortie très court : du son jusqu'à la dernière image.
+    const fadeOut = interpolate(f, [durationInFrames - 4, durationInFrames], [1, 0.3], CLAMP);
+    return level * fadeOut;
   };
 
   return <Audio src={staticFile("music/musique.mp3")} volume={volume} />;

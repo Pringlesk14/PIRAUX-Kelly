@@ -83,11 +83,12 @@ def epiano(note, dur=2.5):
     """Piano électrique doux (synthèse FM), légère modulation."""
     t = tt(dur)
     f = midi(note)
-    index = 1.6 * np.exp(-t * 3)
+    index = 2.4 * np.exp(-t * 2)  # plus brillant : passe sur un haut-parleur de téléphone
     s = np.sin(2 * np.pi * f * t + index * np.sin(2 * np.pi * f * t))
+    s += 0.3 * np.sin(4 * np.pi * f * t) * np.exp(-t * 1.5)
     s += 0.15 * np.sin(2 * np.pi * f * 14 * t) * np.exp(-t * 30)  # petit « tine »
     trem = 1 + 0.08 * np.sin(2 * np.pi * 4.5 * t)
-    return s * trem * attack(t, 0.006) * np.exp(-t * 1.1) * release(t, dur, 0.15)
+    return s * trem * attack(t, 0.006) * np.exp(-t * 0.7) * release(t, dur, 0.15)
 
 
 def pad(note, dur):
@@ -101,7 +102,8 @@ def pad(note, dur):
 def soft_bass(note, dur):
     t = tt(dur)
     f = midi(note)
-    s = np.sin(2 * np.pi * f * t) + 0.25 * np.sin(4 * np.pi * f * t) + 0.08 * np.sin(6 * np.pi * f * t)
+    # Harmoniques renforcées : la basse reste audible sur un petit haut-parleur.
+    s = np.sin(2 * np.pi * f * t) + 0.5 * np.sin(4 * np.pi * f * t) + 0.25 * np.sin(6 * np.pi * f * t)
     return s * attack(t, 0.02) * np.exp(-t * 0.8) * release(t, dur, 0.08)
 
 
@@ -156,7 +158,7 @@ def bar_music(b0, i, drums, motif):
     root, chord = CHORDS[i % 4]
     for k, n in enumerate(chord):
         place(epiano(n, BAR * 1.25), b0 + k * 0.012, 0.13, -0.2 + 0.13 * k)  # déborde sur la mesure suivante
-        place(pad(n - 12, BAR + 0.6), b0 - 0.3, 0.035, -0.3 + 0.2 * k)
+        place(pad(n, BAR + 0.6), b0 - 0.3, 0.045, -0.3 + 0.2 * k)  # nappe continue (médiums)
     for n in chord[1:3]:
         place(epiano(n + 12, 0.6), at(b0, 3), 0.05, 0.3)  # petite relance sur « 2-et »
     place(soft_bass(root, BEAT * 2.6), b0, 0.5)
@@ -170,19 +172,19 @@ def bar_music(b0, i, drums, motif):
             place(soft_hat(), at(b0, e), 0.05 if e % 2 else 0.08, 0.45)
     if motif:
         for e, n in MOTIF[i % 4]:
-            place(pizz(n, 0.5), at(b0, e), 0.22, 0.25)
+            place(pizz(n, 0.5), at(b0, e), 0.32, 0.25)
 
 
-t = 0.1
+t = 0.0
 # Dernière mesure complète avant l'accord final (tenu ~2,5 s jusqu'à la fin).
 FINAL_BAR = int((EPISODE - 2.6 - t) // BAR)
 for i in range(FINAL_BAR):
-    bar_music(t, i, drums=i >= 2, motif=i >= 2)
+    bar_music(t, i, drums=True, motif=True)  # tout démarre dès la 1re seconde
     t += BAR
 # Accord final tenu (Domaj9) jusqu'à la fin de la vidéo.
 for k, n in enumerate([64, 67, 71, 74, 79]):
     place(epiano(n, 3.0), t + k * 0.03, 0.13)
-    place(pad(n - 12, DURATION - t + 0.3), t - 0.3, 0.04)
+    place(pad(n, DURATION - t + 0.3), t - 0.3, 0.05)
 place(soft_bass(36, 3.0), t, 0.5)
 place(pizz(74, 0.8), t + 0.4, 0.2, 0.25)
 
@@ -191,11 +193,6 @@ for _ in range(int(DURATION * 9)):
     pos = rng.uniform(0, DURATION - 0.01)
     click = rng.uniform(-1, 1, 30) * np.exp(-np.arange(30) / 6)
     place(click, pos, rng.uniform(0.01, 0.04), rng.uniform(-0.6, 0.6))
-
-# Son « feutré » lo-fi : on adoucit les aigus.
-kernel = np.ones(5) / 5
-L = np.convolve(L, kernel, mode="same")
-R = np.convolve(R, kernel, mode="same")
 
 # ---------------- Mastering ----------------
 mix = np.stack([L, R], axis=1)

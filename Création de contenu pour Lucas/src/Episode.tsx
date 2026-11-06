@@ -8,6 +8,7 @@ import {
   useVideoConfig,
 } from "remotion";
 import { Music } from "./components/Music";
+import { SegmentAudio } from "./components/SegmentAudio";
 import { Scene1 } from "./scenes/Scene1";
 import { Scene2 } from "./scenes/Scene2";
 import { Scene3 } from "./scenes/Scene3";
@@ -68,6 +69,7 @@ export const Episode: React.FC = () => (
         return (
           <Series.Sequence key={i} durationInFrames={seg.length} offset={-seg.overlap}>
             <TransitionContext.Provider value={{ inFrame, outFrame, inKind, outKind }}>
+              <SegmentAudio seg={seg} />
               <CrossFade frames={seg.overlap}>
                 {/* Décale le temps : les timings des scènes restent ceux du clip source. */}
                 <Sequence from={-inFrame}>
