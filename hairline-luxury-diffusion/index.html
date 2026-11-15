@@ -1,4 +1,4 @@
-<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>[hidden]{display:none!important}</style>
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><link rel="icon" href="img/logo-diamant.png"><style>[hidden]{display:none!important}</style>
 <title>Hairline Luxury Diffusion</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -95,7 +95,7 @@ nav.menu a:hover{color:var(--fuchsia)}
 .ribbon-track span::after{content:"✿";font-style:normal;color:var(--fuchsia);font-size:.9rem;margin-left:52px}
 @keyframes slide{to{transform:translateX(-50%)}}
 
-section.block{padding-block:clamp(70px,9vw,124px)}
+section.block{padding-block:clamp(70px,9vw,124px);scroll-margin-top:110px}
 .sec-head{display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px;margin-bottom:52px}
 .sec-head p{max-width:52ch;color:var(--muted);font-weight:300}
 
@@ -237,10 +237,37 @@ nav.menu a[aria-current="page"]{color:var(--fuchsia)}
 .other span{font-size:.8rem;color:var(--muted)}
 .see-all{display:flex;justify-content:center;margin-top:44px}
 @media (max-width:860px){.r-hero .wrap{grid-template-columns:1fr}.r-hero .arch{display:none}.others{grid-template-columns:1fr}}
+/* Logo & services */
+.brand{flex-direction:row;gap:12px}
+.brand .txt{display:flex;flex-direction:column;align-items:center;line-height:1}
+.brand .logo{width:54px;height:54px;border-radius:50%;flex:none;box-shadow:0 6px 18px -8px rgba(194,61,114,.6)}
+.badge-logo{position:absolute;right:-6%;top:6%;width:128px;height:128px;display:grid;place-items:center;pointer-events:none}
+.badge-logo img{width:70px;height:70px;border-radius:50%}
+.services{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.svc{display:flex;flex-direction:column;gap:14px}
+.svc .ph{aspect-ratio:4/5;border-radius:999px 999px 20px 20px}
+.svc h3{font-family:var(--display);font-size:1.6rem}
+.svc p{font-size:.9rem;color:var(--muted);font-weight:300;margin-top:-6px}
+.family{display:flex;align-items:center;justify-content:center;gap:18px;margin-top:48px;flex-wrap:wrap;text-align:center}
+.family .dots{display:flex}
+.family .dots img{width:64px;height:64px;border-radius:50%;object-fit:cover;border:3px solid var(--white);margin-left:-14px;box-shadow:0 6px 14px -8px rgba(46,26,36,.5)}
+.family .dots img:first-child{margin-left:0}
+.family p{font-family:var(--display);font-size:1.3rem}
+.family p em{color:var(--fuchsia)}
+.about{display:grid;grid-template-columns:.9fr 1.1fr;gap:clamp(30px,6vw,90px);align-items:center}
+.about .arch{aspect-ratio:4/4.7;animation:none;filter:grayscale(1) contrast(1.05)}
+.about .lead{color:var(--muted);font-weight:300;margin-top:18px;max-width:48ch}
+.call{display:flex;flex-wrap:wrap;gap:14px;margin-top:30px}
+.call .big{font-family:var(--display);font-size:clamp(1.8rem,4vw,2.6rem);color:var(--fuchsia);user-select:all;font-variant-numeric:tabular-nums}
+.copy{border:1px solid var(--petal);background:var(--white);border-radius:999px;padding:8px 16px;font-size:.74rem;letter-spacing:.14em;text-transform:uppercase}
+.copy:hover{border-color:var(--fuchsia);color:var(--fuchsia)}
+@media (max-width:980px){.services{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:860px){.about{grid-template-columns:1fr}.about .arch{max-width:380px;width:100%;justify-self:center}}
+@media (max-width:420px){.brand .logo{width:42px;height:42px}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 </style>
 
-<div class="announce"><div class="wrap"><span>Livraison offerte dès 50 €</span><span>Cheveux 100 % naturels</span><span>Crèmes L'Oréal d'origine</span></div></div>
+<div class="announce"><div class="wrap"><span>Tél. 06 34 54 57 83</span><span>Livraison offerte dès 50 €</span><span>Beauté &amp; parapharmacie</span></div></div>
 
 <header class="top">
   <div class="wrap">
@@ -249,9 +276,10 @@ nav.menu a[aria-current="page"]{color:var(--fuchsia)}
       <a href="#perruques">Perruques</a>
       <a href="#soins">Soins</a>
       <a href="#maquillage">Maquillage</a>
+      <a href="#services">Services</a>
     </nav>
     <a class="brand" href="#accueil" aria-label="Hairline Luxury Diffusion, accueil">
-      <span class="h">Hairline</span><span class="s">Luxury Diffusion</span>
+      <img class="logo" src="img/logo-diamant.png" alt=""><span class="txt"><span class="h">Hairline</span><span class="s">Luxury Diffusion</span></span>
     </a>
     <div class="tools">
       <button class="bag-btn" id="openBag" type="button"><span class="lbl">Panier</span><span class="count" id="bagCount">0</span></button>
@@ -295,7 +323,7 @@ nav.menu a[aria-current="page"]{color:var(--fuchsia)}
   <section class="hero">
     <div class="wrap">
       <div class="hero-copy">
-        <p class="eyebrow">Cheveux · Soins · Maquillage</p>
+        <p class="eyebrow">Tendances Beauté · Beauté &amp; parapharmacie</p>
         <h1>Hairline<span class="sub">Luxury Diffusion</span></h1>
         <p class="lead">Mèches et perruques en cheveux naturels, crèmes L'Oréal et maquillage à petit prix. Tout pour vous sentir belle, sans dépenser une fortune.</p>
         <div class="cta-row">
@@ -312,7 +340,7 @@ nav.menu a[aria-current="page"]{color:var(--fuchsia)}
         <div class="arch"><img src="img/hero.jpg" alt="Femme aux cheveux naturels volumineux sur fond rose" fetchpriority="high"></div>
         <div class="bubble"><img src="img/hero-2.jpg" alt="Longs cheveux ondulés sur fond rose"></div>
         <svg class="badge" viewBox="0 0 128 128" aria-hidden="true"><defs><path id="circ" d="M64,64 m-50,0 a50,50 0 1,1 100,0 a50,50 0 1,1 -100,0"/></defs><circle cx="64" cy="64" r="63" fill="#FFFFFF"/><text><textPath href="#circ">Hairline · Luxury · Diffusion · </textPath></text></svg>
-        <div class="badge-heart" aria-hidden="true">H</div>
+        <div class="badge-logo" aria-hidden="true"><img src="img/logo-diamant.png" alt=""></div>
       </div>
     </div>
   </section>
@@ -378,6 +406,38 @@ nav.menu a[aria-current="page"]{color:var(--fuchsia)}
     </div>
   </section>
 
+  <section class="block" id="services" style="padding-top:0">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Nos services</p>
+        <h2>Coiffure, esthétique, <em>onglerie &amp; barber</em></h2>
+        <p>En plus de nos produits, notre équipe prend soin de vous : femmes, hommes et enfants.</p>
+      </div>
+      <div class="services">
+        <div class="svc"><div class="ph"><img src="img/fl-cheveux.jpg" alt="Cheveux lisses cuivrés et blonds"></div><h3>Coiffure</h3><p>Coupe, brushing, pose de mèches et de perruques.</p></div>
+        <div class="svc"><div class="ph"><img src="img/p-soin-3.jpg" alt="Soin du visage en institut" loading="lazy"></div><h3>Esthétique</h3><p>Soins du visage et conseils beauté personnalisés.</p></div>
+        <div class="svc"><div class="ph"><img src="img/fl-ongles.jpg" alt="Ongles en french manucure"></div><h3>Onglerie</h3><p>French, gel, vernis et nail art.</p></div>
+        <div class="svc"><div class="ph"><img src="img/fl-barber.jpg" alt="Barbier taillant la barbe d'un homme"></div><h3>Barber</h3><p>Coupe homme, dégradé et taille de barbe.</p></div>
+      </div>
+      <div class="family">
+        <div class="dots"><img src="img/fl-garcon.jpg" alt="Garçon avec une coupe dégradée et motifs"><img src="img/fl-barbu.jpg" alt="Homme barbu avec une coupe pompadour"><img src="img/fl-enfant.jpg" alt="Petite fille souriante avec des tresses"></div>
+        <p>Pour toute la famille : <em>femmes, hommes &amp; enfants</em></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="apropos" style="padding-top:0">
+    <div class="wrap about">
+      <div class="arch"><img src="img/fl-femmes.jpg" alt="Portrait noir et blanc de deux femmes"></div>
+      <div>
+        <p class="eyebrow">Tendances Beauté</p>
+        <h2 style="margin-top:12px">Centre spécialisé en <em>beauté &amp; parapharmacie</em></h2>
+        <p class="lead">Hairline Luxury Diffusion, c'est des produits de beauté de qualité à petit prix et un savoir-faire en coiffure, esthétique, onglerie et barber. Appelez-nous pour un conseil, une commande ou un rendez-vous.</p>
+        <div class="call"><span class="big" id="tel">06 34 54 57 83</span><button class="copy" type="button" data-copy="06 34 54 57 83">Copier le numéro</button></div>
+      </div>
+    </div>
+  </section>
+
   <section class="block contact-band" id="contact">
     <div class="wrap contact">
       <div>
@@ -385,10 +445,10 @@ nav.menu a[aria-current="page"]{color:var(--fuchsia)}
         <h2 style="margin-top:12px">Une question, <em>une commande&nbsp;?</em></h2>
         <p class="lead">Écrivez-nous : on vous répond rapidement pour confirmer la disponibilité, la couleur et la livraison.</p>
         <div class="infos">
-          <div class="infoline"><span>WhatsApp</span><span>+32 000 00 00 00</span></div>
-          <div class="infoline"><span>E-mail</span><span>contact@hairlineluxury.com</span></div>
-          <div class="infoline"><span>Instagram</span><span>@hairlineluxurydiffusion</span></div>
-          <div class="infoline"><span>Paiement</span><span>Virement · Espèces · Payconiq</span></div>
+          <div class="infoline"><span>Téléphone</span><span>06 34 54 57 83</span></div>
+          <div class="infoline"><span>E-mail</span><span>luxurydiffusions@gmail.com</span></div>
+          <div class="infoline"><span>Services</span><span>Coiffure · Esthétique · Onglerie · Barber</span></div>
+          <div class="infoline"><span>Boutique</span><span>Beauté &amp; parapharmacie</span></div>
         </div>
       </div>
       <form class="order" id="orderForm">
@@ -397,7 +457,7 @@ nav.menu a[aria-current="page"]{color:var(--fuchsia)}
         <label for="f-cat">Rayon<select id="f-cat" name="cat"><option>Mèches</option><option>Perruques</option><option>Soins L'Oréal</option><option>Maquillage</option></select></label>
         <label for="f-msg">Votre message<textarea id="f-msg" name="msg" placeholder="Produits, longueurs, couleurs…"></textarea></label>
         <button class="btn solid" type="submit">Envoyer ma demande</button>
-        <p class="sent" id="sent" hidden>Merci ! Votre demande est prête. (Aperçu : l'envoi réel sera branché sur la version finale.)</p>
+        <p class="sent" id="sent" hidden>Merci ! Votre demande est prête. Pour l'instant, ce formulaire n'envoie rien : appelez le 06 34 54 57 83 ou écrivez à luxurydiffusions@gmail.com.</p>
       </form>
     </div>
   </section>
@@ -405,8 +465,9 @@ nav.menu a[aria-current="page"]{color:var(--fuchsia)}
 
 <footer>
   <div class="wrap">
-    <span class="brand" style="align-items:flex-start"><span class="h">Hairline</span><span class="s">Luxury Diffusion</span></span>
-    <small>© 2026 Hairline Luxury Diffusion · Prix indicatifs · Photos Unsplash</small>
+    <span class="brand"><img class="logo" src="img/logo-diamant.png" alt=""><span class="txt" style="align-items:flex-start"><span class="h">Hairline</span><span class="s">Luxury Diffusion</span></span></span>
+    <span>Tél. 06 34 54 57 83 · luxurydiffusions@gmail.com</span>
+    <small>© 2026 Hairline Luxury Diffusion · Tendances Beauté · Hopes Diamants</small>
   </div>
 </footer>
 
@@ -441,7 +502,7 @@ const RAW=[
  ["meches","Lisses","Cheveux humains","Mèches lisses brésiliennes","60 cm · 100 g",49,59,"me-lisse60","Promo"],
  ["meches","Lisses","Cheveux humains","Mèches lisses extra-longues","70 cm · 100 g",59,0,"me-lisse70"],
  ["meches","Ondulées & bouclées","Cheveux humains","Mèches Body Wave","55 cm · 100 g",44,0,"me-bodywave","Nouveau"],
- ["meches","Lisses","Cheveux humains","Mèches lisses cuivrées","50 cm · couleur 350",46,0,"me-cuivre"],
+ ["meches","Lisses","Cheveux humains","Mèches lisses cuivrées","50 cm · cuivré & blond",46,0,"fl-cheveux"],
  ["meches","Clip-in & postiches","Cheveux humains","Extensions à clips","7 bandes · 50 cm",65,79,"me-clip","Promo"],
  ["meches","Clip-in & postiches","Fibre premium","Queue de cheval postiche","Pince + ruban · 55 cm",19.9,0,"me-ponytail"],
  ["meches","Clip-in & postiches","Fibre premium","Chignon postiche","Élastique · effet décoiffé",9.9,0,"me-chignon","Petit prix"],
@@ -480,6 +541,7 @@ const RAW=[
  ["maquillage","Accessoires","Sélection Hairline","Set de 12 pinceaux","Poils synthétiques doux",8.9,0,"mq-pinceaux"],
  ["maquillage","Lèvres","Sélection Hairline","Gloss repulpant","Effet miroir · 6 teintes",4.5,0,"mq-gloss",0,["#F0A9B6","#E0798F","#C9737E"]],
  ["maquillage","Teint","Sélection Hairline","Blush poudre","4 teintes",4.9,0,"mq-blush",0,["#F2B8B0","#E39AA4","#C46A6A","#9C4A4A"]],
+ ["maquillage","Ongles","Sélection Hairline","Kit French manucure","Base + vernis + pochoirs",6.9,0,"fl-ongles","Nouveau"],
  ["maquillage","Ongles","Sélection Hairline","Vernis nude","Séchage rapide · 10 ml",2.9,0,"mq-vernis-nude","Petit prix",["#F1CFC4","#E8B9AD","#D9A090"]],
  ["maquillage","Ongles","Sélection Hairline","Vernis noir & or","Duo · 2 × 10 ml",4.9,0,"mq-vernis-noir"],
  ["maquillage","Ongles","Sélection Hairline","Vernis gris paillettes","Effet gel · 10 ml",3.5,0,"mq-vernis-gris","Nouveau",["#A9A3AE","#C9C3CC","#FFFFFF"]]
@@ -587,6 +649,9 @@ $("#checkout").addEventListener("click",()=>{
   if(ids.length)$("#f-msg").value=ids.map(k=>`${bag[k]} × ${P[k].n}`).join("\n");
 });
 document.addEventListener("keydown",e=>{if(e.key==="Escape")openBag(false)});
+document.addEventListener("click",e=>{const b=e.target.closest("[data-copy]");if(!b)return;
+  const done=()=>{b.textContent="Numéro copié";setTimeout(()=>b.textContent="Copier le numéro",1500)};
+  try{navigator.clipboard.writeText(b.dataset.copy).then(done,()=>{getSelection().selectAllChildren($("#tel"))})}catch(err){getSelection().selectAllChildren($("#tel"))}});
 $("#orderForm").addEventListener("submit",e=>{e.preventDefault();$("#sent").hidden=false;});
 </script>
 </html>
