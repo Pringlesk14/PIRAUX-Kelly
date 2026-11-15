@@ -1,4 +1,4 @@
-<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>[hidden]{display:none!important}</style>
 <title>Hairline Luxury Diffusion</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -55,7 +55,7 @@ nav.menu a:hover{color:var(--fuchsia)}
 .bag-btn{display:flex;align-items:center;gap:10px;background:var(--blush);border:1px solid var(--petal);border-radius:999px;padding:9px 16px;font-size:.82rem;letter-spacing:.1em;text-transform:uppercase;transition:background .2s}
 .bag-btn:hover{background:var(--petal)}
 .bag-btn .count{background:var(--fuchsia);color:var(--white);border-radius:999px;min-width:22px;height:22px;display:grid;place-items:center;font-size:.72rem;letter-spacing:0}
-@media (max-width:900px){nav.menu{display:none}.top .wrap{grid-template-columns:auto 1fr}.brand{align-items:flex-start}.brand .h{font-size:1.3rem}}
+@media (max-width:900px){.top .wrap{grid-template-columns:1fr auto;row-gap:10px;padding-bottom:10px}.brand{align-items:flex-start;order:1}.tools{order:2}nav.menu{order:3;grid-column:1/-1;justify-content:space-between;gap:10px;font-size:.72rem;letter-spacing:.08em;border-top:1px solid var(--line);padding-top:10px}.brand .h{font-size:1.3rem}}
 @media (max-width:420px){.bag-btn .lbl{display:none}.brand .h{font-size:1.08rem;letter-spacing:.1em}}
 
 /* Hero */
@@ -211,6 +211,32 @@ aside.bag.open{transform:none;box-shadow:-30px 0 60px -30px rgba(46,26,36,.35)}
 .progress i{display:block;height:100%;background:var(--fuchsia);width:0;transition:width .4s}
 .ship{font-size:.84rem;color:var(--muted)}
 
+/* Page rayon */
+nav.menu a[aria-current="page"]{color:var(--fuchsia)}
+.r-hero{background:linear-gradient(180deg,var(--blush),var(--white))}
+.r-hero .wrap{display:grid;grid-template-columns:1.2fr .8fr;gap:clamp(28px,5vw,70px);align-items:center;padding-block:clamp(28px,5vw,60px)}
+.crumbs{font-size:.76rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap}
+.crumbs a{text-decoration:none}.crumbs a:hover{color:var(--fuchsia)}
+.r-hero h1{font-size:clamp(3rem,8vw,6.4rem);margin-top:18px}
+.r-hero h1 .sub{display:block;font-family:var(--script);font-size:.42em;color:var(--fuchsia);padding-left:.3em}
+.r-hero .lead{max-width:46ch;margin-top:20px;color:var(--muted);font-weight:300;font-size:1.06rem}
+.r-hero .arch{width:min(100%,360px);justify-self:center;aspect-ratio:4/4.8;animation:none}
+.r-stats{display:flex;gap:28px;flex-wrap:wrap;margin-top:28px}
+.r-stats div{font-family:var(--display);font-size:1.7rem;line-height:1}
+.r-stats small{display:block;font-family:var(--body);font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-top:6px}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:34px}
+.toolbar .filters{justify-content:flex-start;margin:0}
+.sort{display:flex;align-items:center;gap:10px;font-size:.76rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.sort select{font:inherit;font-size:.86rem;letter-spacing:0;text-transform:none;color:var(--plum);background:var(--white);border:1px solid var(--petal);border-radius:999px;padding:9px 14px}
+.result{font-size:.86rem;color:var(--muted);margin-bottom:18px}
+.others{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.other{display:flex;align-items:center;gap:16px;text-decoration:none;background:var(--blush);border-radius:999px;padding:8px 22px 8px 8px;transition:background .2s}
+.other:hover{background:var(--petal)}
+.other img{width:64px;height:64px;border-radius:50%;object-fit:cover;flex:none}
+.other b{font-family:var(--display);font-weight:400;font-size:1.3rem;display:block}
+.other span{font-size:.8rem;color:var(--muted)}
+.see-all{display:flex;justify-content:center;margin-top:44px}
+@media (max-width:860px){.r-hero .wrap{grid-template-columns:1fr}.r-hero .arch{display:none}.others{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 </style>
 
@@ -219,9 +245,10 @@ aside.bag.open{transform:none;box-shadow:-30px 0 60px -30px rgba(46,26,36,.35)}
 <header class="top">
   <div class="wrap">
     <nav class="menu" aria-label="Menu principal">
-      <a href="#rayons">Rayons</a>
-      <a href="#boutique">Boutique</a>
-      <a href="#guide">Longueurs</a>
+      <a href="#meches">Mèches</a>
+      <a href="#perruques">Perruques</a>
+      <a href="#soins">Soins</a>
+      <a href="#maquillage">Maquillage</a>
     </nav>
     <a class="brand" href="#accueil" aria-label="Hairline Luxury Diffusion, accueil">
       <span class="h">Hairline</span><span class="s">Luxury Diffusion</span>
@@ -231,6 +258,38 @@ aside.bag.open{transform:none;box-shadow:-30px 0 60px -30px rgba(46,26,36,.35)}
     </div>
   </div>
 </header>
+
+<main id="rayonView" hidden>
+  <section class="r-hero">
+    <div class="wrap">
+      <div>
+        <nav class="crumbs" aria-label="Fil d'Ariane"><a href="#accueil">Accueil</a><span>/</span><span id="rCrumb"></span></nav>
+        <h1 id="rTitle"></h1>
+        <p class="lead" id="rLead"></p>
+        <div class="r-stats" id="rStats"></div>
+      </div>
+      <div class="arch"><img id="rImg" src="img/cat-maquillage.jpg" alt=""></div>
+    </div>
+  </section>
+  <section class="block shop" style="padding-top:clamp(40px,6vw,70px)">
+    <div class="wrap">
+      <div class="toolbar">
+        <div class="filters" id="rFilters" role="group" aria-label="Filtrer par type"></div>
+        <label class="sort" for="rSort">Trier
+          <select id="rSort"><option value="pop">Coups de cœur</option><option value="asc">Prix croissant</option><option value="desc">Prix décroissant</option></select>
+        </label>
+      </div>
+      <p class="result" id="rCount"></p>
+      <div class="grid" id="rGrid"></div>
+    </div>
+  </section>
+  <section class="block" style="padding-block:clamp(50px,7vw,90px)">
+    <div class="wrap">
+      <div class="sec-head" style="margin-bottom:34px"><p class="eyebrow">Continuer le shopping</p><h2>Nos <em>autres rayons</em></h2></div>
+      <div class="others" id="rOthers"></div>
+    </div>
+  </section>
+</main>
 
 <main id="accueil">
   <section class="hero">
@@ -285,6 +344,7 @@ aside.bag.open{transform:none;box-shadow:-30px 0 60px -30px rgba(46,26,36,.35)}
       </div>
       <div class="filters" id="filters" role="group" aria-label="Filtrer par rayon"></div>
       <div class="grid" id="grid"></div>
+      <div class="see-all"><a class="btn ghost" id="seeAll" href="#meches">Voir tous les produits du rayon</a></div>
     </div>
   </section>
 
@@ -364,59 +424,145 @@ aside.bag.open{transform:none;box-shadow:-30px 0 60px -30px rgba(46,26,36,.35)}
 
 <script>
 const CATS=[
-  {id:"meches",name:"Mèches",desc:"Lisses, ondulées, tresses",img:"img/cat-meches.jpg",alt:"Longs cheveux ondulés vus de dos"},
-  {id:"perruques",name:"Perruques",desc:"Lace front, frange, afro",img:"img/cat-perruques.jpg",alt:"Femme avec une perruque à frange"},
-  {id:"soins",name:"Soins L'Oréal",desc:"Crèmes jour, nuit, anti-âge",img:"img/cat-soin.jpg",alt:"Pot de crème ouvert"},
-  {id:"maquillage",name:"Maquillage",desc:"Petits prix, grand effet",img:"img/cat-maquillage.jpg",alt:"Pinceau dans une poudre rosée"}
+  {id:"meches",name:"Mèches",desc:"Lisses, ondulées, tresses",img:"img/cat-meches.jpg",alt:"Longs cheveux ondulés vus de dos",sub:"Cheveux naturels",
+   lead:"Mèches brésiliennes, deep wave, tresses Kanekalon et clip-in. Cheveux 100 % humains ou fibre premium, de 30 à 70 cm."},
+  {id:"perruques",name:"Perruques",desc:"Lace front, frange, afro",img:"img/cat-perruques.jpg",alt:"Femme avec une perruque à frange",sub:"Prêtes à porter",
+   lead:"Lace front, bob, afro, longues ondulées ou couleurs mode. Une nouvelle coiffure en quelques minutes."},
+  {id:"soins",name:"Soins L'Oréal",desc:"Crèmes jour, nuit, anti-âge",img:"img/cat-soin.jpg",alt:"Pot de crème ouvert",sub:"L'Oréal Paris",
+   lead:"Crèmes de jour, de nuit, sérums et soins hydratants L'Oréal Paris. Produits d'origine, neufs et scellés."},
+  {id:"maquillage",name:"Maquillage",desc:"Petits prix, grand effet",img:"img/cat-maquillage.jpg",alt:"Pinceau dans une poudre rosée",sub:"À petit prix",
+   lead:"Rouges à lèvres, palettes, mascaras, vernis et pinceaux. Du maquillage de qualité dès 2,90 €."}
 ];
-const P=[
-  {c:"meches",k:"Cheveux humains",n:"Mèches brésiliennes ondulées",m:"50 cm · 100 g",p:39,img:"p-me-1",t:"Best-seller"},
-  {c:"perruques",k:"Cheveux humains",n:"Perruque Lace Front à frange",m:"45 cm · châtain cuivré",p:129,o:159,img:"p-pe-1",t:"Promo"},
-  {c:"soins",k:"L'Oréal Paris",n:"Revitalift — Crème de jour",m:"Anti-âge · 50 ml",p:14.9,o:19.9,img:"p-soin-1",t:"Promo"},
-  {c:"maquillage",k:"Sélection Hairline",n:"Rouge à lèvres mat longue tenue",m:"12 teintes",p:3.9,img:"p-mq-1",t:"Petit prix",sh:["#C9737E","#B4373F","#8E2F4A","#E39AA4"]},
-  {c:"meches",k:"Cheveux humains",n:"Mèches Deep Wave bouclées",m:"45 cm · 100 g",p:42,img:"p-me-2"},
-  {c:"perruques",k:"Fibre premium",n:"Perruque longue ondulée lilas",m:"65 cm · couleur mode",p:59,img:"p-pe-2",t:"Nouveau"},
-  {c:"soins",k:"L'Oréal Paris",n:"Age Perfect — Crème de nuit",m:"Peaux matures · 50 ml",p:12.9,img:"p-soin-2"},
-  {c:"maquillage",k:"Sélection Hairline",n:"Poudre libre matifiante",m:"5 teintes · 10 g",p:5.5,img:"p-mq-2",sh:["#F1D3C2","#D9AE8C","#B07D5A","#7A5038"]},
-  {c:"meches",k:"Fibre premium",n:"Tresses Kanekalon",m:"Lot de 3 · coloris au choix",p:7.9,img:"p-me-3",t:"Petit prix"},
-  {c:"perruques",k:"Cheveux humains",n:"Perruque afro courte",m:"Volume naturel · prête à porter",p:69,img:"p-pe-3"},
-  {c:"soins",k:"L'Oréal Paris",n:"Hydra Genius — Soin hydratant",m:"Hydratation 72 h · 70 ml",p:9.9,img:"p-soin-3"},
-  {c:"maquillage",k:"Sélection Hairline",n:"Kit pinceaux & fards",m:"Palette + 3 pinceaux",p:12.5,o:16,img:"p-mq-3"}
+/* [rayon, type, marque, nom, détail, prix, ancien prix, photo, étiquette, teintes, coup de cœur accueil] */
+const RAW=[
+ ["meches","Ondulées & bouclées","Cheveux humains","Mèches brésiliennes ondulées","50 cm · 100 g",39,0,"p-me-1","Best-seller",0,1],
+ ["meches","Ondulées & bouclées","Cheveux humains","Mèches Deep Wave bouclées","45 cm · 100 g",42,0,"p-me-2",0,0,1],
+ ["meches","Tresses","Fibre premium","Tresses Kanekalon","Lot de 3 · coloris au choix",7.9,0,"p-me-3","Petit prix",0,1],
+ ["meches","Lisses","Cheveux humains","Mèches lisses brésiliennes","60 cm · 100 g",49,59,"me-lisse60","Promo"],
+ ["meches","Lisses","Cheveux humains","Mèches lisses extra-longues","70 cm · 100 g",59,0,"me-lisse70"],
+ ["meches","Ondulées & bouclées","Cheveux humains","Mèches Body Wave","55 cm · 100 g",44,0,"me-bodywave","Nouveau"],
+ ["meches","Lisses","Cheveux humains","Mèches lisses cuivrées","50 cm · couleur 350",46,0,"me-cuivre"],
+ ["meches","Clip-in & postiches","Cheveux humains","Extensions à clips","7 bandes · 50 cm",65,79,"me-clip","Promo"],
+ ["meches","Clip-in & postiches","Fibre premium","Queue de cheval postiche","Pince + ruban · 55 cm",19.9,0,"me-ponytail"],
+ ["meches","Clip-in & postiches","Fibre premium","Chignon postiche","Élastique · effet décoiffé",9.9,0,"me-chignon","Petit prix"],
+ ["meches","Tresses","Fibre premium","Mèches Crochet Braids","Lot de 6 · bouclées",14.9,0,"cat-meches"],
+ ["meches","Ondulées & bouclées","Cheveux humains","Mèches + closure 4×4","3 tissages + closure",119,139,"me-pose","Promo"],
+
+ ["perruques","Lace front","Cheveux humains","Perruque Lace Front à frange","45 cm · châtain cuivré",129,159,"p-pe-1","Promo",0,1],
+ ["perruques","Longues","Fibre premium","Perruque longue ondulée lilas","65 cm · couleur mode",59,0,"p-pe-2","Nouveau",0,1],
+ ["perruques","Afro & bouclées","Cheveux humains","Perruque afro courte","Volume naturel · prête à porter",69,0,"p-pe-3",0,0,1],
+ ["perruques","Courtes & bob","Cheveux humains","Perruque Bob carré","30 cm · lisse",79,0,"pe-bob","Best-seller"],
+ ["perruques","Afro & bouclées","Cheveux humains","Perruque afro Kinky Curly","40 cm · grand volume",99,0,"pe-afro"],
+ ["perruques","Longues","Cheveux humains","Perruque rousse longue","55 cm · couleur 350",109,0,"pe-rousse"],
+ ["perruques","Courtes & bob","Cheveux humains","Perruque Pixie très courte","10 cm · noir naturel",49,0,"pe-courte","Petit prix"],
+ ["perruques","Lace front","Cheveux humains","Perruque 360 Lace ondulée","60 cm · blond miel",149,179,"pe-ondulee","Promo"],
+ ["perruques","Lace front","Cheveux humains","Perruque Lace Front lisse","50 cm · brun",119,0,"me-bodywave"],
+ ["perruques","Courtes & bob","Fibre premium","Perruque frange & chignon","Mi-longue · brun foncé",39,0,"pe-chignon"],
+
+ ["soins","Jour","L'Oréal Paris","Revitalift Laser — Crème de jour","Anti-âge · 50 ml",14.9,19.9,"p-soin-1","Promo",0,1],
+ ["soins","Nuit","L'Oréal Paris","Age Perfect — Crème de nuit","Peaux matures · 50 ml",12.9,0,"p-soin-2",0,0,1],
+ ["soins","Jour","L'Oréal Paris","Hydra Genius — Soin hydratant","Hydratation 72 h · 70 ml",9.9,0,"p-soin-3",0,0,1],
+ ["soins","Sérums","L'Oréal Paris","Revitalift Filler — Sérum acide hyaluronique","Repulpant · 30 ml",19.9,24.9,"so-serum","Best-seller"],
+ ["soins","Sérums","L'Oréal Paris","Bright Reveal — Sérum anti-taches","Niacinamide · 30 ml",21.9,0,"so-ambre","Nouveau"],
+ ["soins","Nettoyants & masques","L'Oréal Paris","Pure Clay — Masque à l'argile","Purifiant · 50 ml",8.9,0,"so-masque"],
+ ["soins","Jour","L'Oréal Paris","Age Perfect — Contour des yeux","Anti-poches · 15 ml",13.9,0,"so-yeux"],
+ ["soins","Corps","L'Oréal Paris","Huile Extraordinaire","Visage, corps, cheveux · 100 ml",11.9,0,"so-huile"],
+ ["soins","Nettoyants & masques","L'Oréal Paris","Eau micellaire démaquillante","Toutes peaux · 400 ml",5.9,0,"so-nettoyant","Petit prix"],
+ ["soins","Corps","L'Oréal Paris","Crème mains réparatrice","Peaux sèches · 50 ml",4.9,0,"so-mains"],
+ ["soins","Nuit","L'Oréal Paris","Revitalift — Crème de nuit","Fermeté · 50 ml",13.9,0,"cat-soin"],
+
+ ["maquillage","Lèvres","Sélection Hairline","Rouge à lèvres mat longue tenue","12 teintes",3.9,0,"p-mq-1","Petit prix",["#C9737E","#B4373F","#8E2F4A","#E39AA4"],1],
+ ["maquillage","Teint","Sélection Hairline","Poudre libre matifiante","5 teintes · 10 g",5.5,0,"p-mq-2",0,["#F1D3C2","#D9AE8C","#B07D5A","#7A5038"],1],
+ ["maquillage","Accessoires","Sélection Hairline","Kit pinceaux & fards","Palette + 3 pinceaux",12.5,16,"p-mq-3","Promo",0,1],
+ ["maquillage","Yeux","Sélection Hairline","Eye-liner feutre waterproof","Noir intense",3.5,0,"mq-eyeliner"],
+ ["maquillage","Yeux","Sélection Hairline","Mascara volume XXL","Noir · 9 ml",4.5,0,"mq-mascara","Best-seller"],
+ ["maquillage","Yeux","Sélection Hairline","Palette 40 fards à paupières","Mats & irisés",9.9,14.9,"mq-palette","Promo"],
+ ["maquillage","Accessoires","Sélection Hairline","Set de 12 pinceaux","Poils synthétiques doux",8.9,0,"mq-pinceaux"],
+ ["maquillage","Lèvres","Sélection Hairline","Gloss repulpant","Effet miroir · 6 teintes",4.5,0,"mq-gloss",0,["#F0A9B6","#E0798F","#C9737E"]],
+ ["maquillage","Teint","Sélection Hairline","Blush poudre","4 teintes",4.9,0,"mq-blush",0,["#F2B8B0","#E39AA4","#C46A6A","#9C4A4A"]],
+ ["maquillage","Ongles","Sélection Hairline","Vernis nude","Séchage rapide · 10 ml",2.9,0,"mq-vernis-nude","Petit prix",["#F1CFC4","#E8B9AD","#D9A090"]],
+ ["maquillage","Ongles","Sélection Hairline","Vernis noir & or","Duo · 2 × 10 ml",4.9,0,"mq-vernis-noir"],
+ ["maquillage","Ongles","Sélection Hairline","Vernis gris paillettes","Effet gel · 10 ml",3.5,0,"mq-vernis-gris","Nouveau",["#A9A3AE","#C9C3CC","#FFFFFF"]]
 ];
-P.forEach((x,i)=>x.id=i);
+const P=RAW.map((r,i)=>({id:i,c:r[0],sub:r[1],k:r[2],n:r[3],m:r[4],p:r[5],o:r[6]||0,img:r[7],t:r[8]||"",sh:r[9]||null,f:!!r[10]}));
+const SUBS={meches:["Lisses","Ondulées & bouclées","Tresses","Clip-in & postiches"],perruques:["Lace front","Courtes & bob","Longues","Afro & bouclées"],soins:["Jour","Nuit","Sérums","Nettoyants & masques","Corps"],maquillage:["Lèvres","Teint","Yeux","Ongles","Accessoires"]};
 const fmt=v=>v.toFixed(2).replace(".",",")+" €";
 const $=s=>document.querySelector(s);
+const catOf=id=>CATS.find(c=>c.id===id);
 
-$("#cats").innerHTML=CATS.map(c=>`<a class="cat" href="#boutique" data-go="${c.id}">
+const card=x=>`
+  <article class="card">
+    <div class="ph"><img src="img/${x.img}.jpg" alt="${x.n}" loading="lazy">${x.t?`<span class="tag ${x.o?'promo':''}">${x.t}</span>`:""}
+      <button class="quick" type="button" data-add="${x.id}">Ajouter au panier</button></div>
+    <div class="info">
+      <span class="kind">${x.k}</span>
+      <h3>${x.n}</h3>
+      <p class="meta">${x.m}</p>
+      ${x.sh?`<div class="shades" aria-label="Teintes disponibles">${x.sh.map(s=>`<i style="background:${s}"></i>`).join("")}</div>`:""}
+      <span class="price">${fmt(x.p)}${x.o?`<s>${fmt(x.o)}</s>`:""}</span>
+    </div>
+  </article>`;
+
+/* Accueil */
+$("#cats").innerHTML=CATS.map(c=>`<a class="cat" href="#${c.id}">
   <div class="frame"><img src="${c.img}" alt="${c.alt}" loading="lazy"></div>
-  <h3>${c.name}</h3><p>${c.desc}</p></a>`).join("");
-
+  <h3>${c.name}</h3><p>${c.desc} · ${P.filter(p=>p.c===c.id).length} produits</p></a>`).join("");
 let filter="all";
-function renderFilters(){
+function renderHome(){
   const opts=[{id:"all",name:"Tout voir"},...CATS];
   $("#filters").innerHTML=opts.map(o=>`<button type="button" class="chip" data-f="${o.id}" aria-pressed="${filter===o.id}">${o.name}</button>`).join("");
+  $("#grid").innerHTML=P.filter(x=>x.f&&(filter==="all"||x.c===filter)).map(card).join("");
+  const sa=$("#seeAll");
+  if(filter==="all"){sa.parentElement.hidden=true}else{sa.parentElement.hidden=false;sa.href="#"+filter;sa.textContent=`Voir tous les produits ${catOf(filter).name}`;}
 }
-function renderGrid(){
-  $("#grid").innerHTML=P.filter(x=>filter==="all"||x.c===filter).map(x=>`
-    <article class="card">
-      <div class="ph"><img src="img/${x.img}.jpg" alt="${x.n}" loading="lazy">${x.t?`<span class="tag ${x.o?'promo':''}">${x.t}</span>`:""}
-        <button class="quick" type="button" data-add="${x.id}">Ajouter au panier</button></div>
-      <div class="info">
-        <span class="kind">${x.k}</span>
-        <h3>${x.n}</h3>
-        <p class="meta">${x.m}</p>
-        ${x.sh?`<div class="shades" aria-label="Teintes disponibles">${x.sh.map(s=>`<i style="background:${s}"></i>`).join("")}</div>`:""}
-        <span class="price">${fmt(x.p)}${x.o?`<s>${fmt(x.o)}</s>`:""}</span>
-      </div>
-    </article>`).join("");
-}
-renderFilters();renderGrid();
-$("#filters").addEventListener("click",e=>{const b=e.target.closest("[data-f]");if(!b)return;filter=b.dataset.f;renderFilters();renderGrid();});
-$("#cats").addEventListener("click",e=>{const a=e.target.closest("[data-go]");if(!a)return;filter=a.dataset.go;renderFilters();renderGrid();});
+renderHome();
+$("#filters").addEventListener("click",e=>{const b=e.target.closest("[data-f]");if(!b)return;filter=b.dataset.f;renderHome();});
 
+/* Page rayon */
+let cur=null,sub="all";
+function renderRayon(){
+  const c=catOf(cur),items=P.filter(x=>x.c===cur);
+  $("#rCrumb").textContent=c.name;
+  $("#rTitle").innerHTML=`${c.name}<span class="sub">${c.sub}</span>`;
+  $("#rLead").textContent=c.lead;
+  $("#rImg").src=c.img;$("#rImg").alt=c.alt;
+  const min=Math.min(...items.map(x=>x.p));
+  $("#rStats").innerHTML=`<div>${items.length}<small>Produits</small></div><div>${fmt(min)}<small>À partir de</small></div><div>${items.filter(x=>x.o).length}<small>En promo</small></div>`;
+  $("#rFilters").innerHTML=["all",...SUBS[cur]].map(s=>`<button type="button" class="chip" data-s="${s}" aria-pressed="${sub===s}">${s==="all"?"Tout":s}</button>`).join("");
+  let list=items.filter(x=>sub==="all"||x.sub===sub);
+  const so=$("#rSort").value;
+  if(so==="asc")list=[...list].sort((a,b)=>a.p-b.p);
+  if(so==="desc")list=[...list].sort((a,b)=>b.p-a.p);
+  $("#rCount").textContent=`${list.length} produit${list.length>1?"s":""}`;
+  $("#rGrid").innerHTML=list.map(card).join("");
+  $("#rOthers").innerHTML=CATS.filter(o=>o.id!==cur).map(o=>`<a class="other" href="#${o.id}"><img src="${o.img}" alt=""><span><b>${o.name}</b><span>${P.filter(p=>p.c===o.id).length} produits · ${o.desc}</span></span></a>`).join("");
+}
+$("#rFilters").addEventListener("click",e=>{const b=e.target.closest("[data-s]");if(!b)return;sub=b.dataset.s;renderRayon();});
+$("#rSort").addEventListener("change",renderRayon);
+
+/* Navigation */
+function route(){
+  const h=decodeURIComponent(location.hash.slice(1));
+  const isCat=!!catOf(h);
+  $("#rayonView").hidden=!isCat;$("#accueil").hidden=isCat;
+  document.querySelectorAll("nav.menu a").forEach(a=>a.toggleAttribute("aria-current",a.getAttribute("href")==="#"+h));
+  if(isCat){
+    if(cur!==h){cur=h;sub="all";$("#rSort").value="pop";}
+    renderRayon();window.scrollTo(0,0);
+    document.title=`${catOf(h).name} · Hairline Luxury Diffusion`;
+  }else{
+    document.title="Hairline Luxury Diffusion";
+    const el=h&&document.getElementById(h);
+    if(el&&h!=="accueil")el.scrollIntoView();else window.scrollTo(0,0);
+  }
+}
+window.addEventListener("hashchange",route);
+route();
+
+/* Panier */
 let bag={};
-try{bag=JSON.parse(localStorage.getItem("hld-bag")||"{}")}catch(e){bag={}}
-const save=()=>{try{localStorage.setItem("hld-bag",JSON.stringify(bag))}catch(e){}};
+try{bag=JSON.parse(localStorage.getItem("hld-bag2")||"{}")}catch(e){bag={}}
+const save=()=>{try{localStorage.setItem("hld-bag2",JSON.stringify(bag))}catch(e){}};
 function renderBag(){
   const ids=Object.keys(bag).filter(k=>bag[k]>0&&P[k]);
   const n=ids.reduce((s,k)=>s+bag[k],0), tot=ids.reduce((s,k)=>s+bag[k]*P[k].p,0);
@@ -429,7 +575,7 @@ function renderBag(){
     :`<p class="empty"><span class="script">Votre panier est vide</span>Choisissez vos produits dans la boutique.</p>`;
 }
 renderBag();
-$("#grid").addEventListener("click",e=>{const b=e.target.closest("[data-add]");if(!b)return;const k=b.dataset.add;bag[k]=(bag[k]||0)+1;save();renderBag();b.classList.add("done");b.textContent="Ajouté ♡";setTimeout(()=>{b.classList.remove("done");b.textContent="Ajouter au panier"},1200);});
+document.addEventListener("click",e=>{const b=e.target.closest("[data-add]");if(!b)return;const k=b.dataset.add;bag[k]=(bag[k]||0)+1;save();renderBag();b.classList.add("done");b.textContent="Ajouté ♡";setTimeout(()=>{b.classList.remove("done");b.textContent="Ajouter au panier"},1200);});
 $("#bagList").addEventListener("click",e=>{const b=e.target.closest("[data-q]");if(!b)return;const k=b.dataset.q;bag[k]=Math.max(0,(bag[k]||0)+Number(b.dataset.d));if(!bag[k])delete bag[k];save();renderBag();});
 const openBag=v=>{$("#bag").classList.toggle("open",v);$("#scrim").classList.toggle("open",v);$("#bag").setAttribute("aria-hidden",String(!v));};
 $("#openBag").onclick=()=>openBag(true);
