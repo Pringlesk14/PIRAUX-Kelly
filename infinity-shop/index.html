@@ -1,0 +1,384 @@
+<title>Infinity Shop</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="theme-color" content="#11100e">
+<style>
+  /* Layout: night band header → cream/dark split hero → cream sections → night footer. Single committed look. */
+  :root {
+    --ink: #171612;
+    --night: #11100e;
+    --cream: #f5f0e7;
+    --paper: #fbf8f2;
+    --gold: #bd9250;
+    --gold-soft: #d6ad6b;
+    --gold-pale: #f4d69b;
+    --muted: #716c62;
+    --line: rgba(189, 146, 80, .35);
+    --serif: Georgia, "Times New Roman", serif;
+    --sans: Arial, Helvetica, sans-serif;
+    --gutter-l: max(16px, 5vw, env(safe-area-inset-left, 0px));
+    --gutter-r: max(16px, 5vw, env(safe-area-inset-right, 0px));
+    color-scheme: light;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; animation: none !important; } }
+  body { margin: 0; color: var(--ink); background: var(--cream); font-family: var(--serif); }
+  a { color: inherit; text-decoration: none; }
+  a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--gold-soft); outline-offset: 3px; }
+  .wrap { padding-left: var(--gutter-l); padding-right: var(--gutter-r); }
+
+  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--night); }
+
+  /* ---------- Topbar ---------- */
+  .topbar {
+    position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
+    min-height: 76px; padding-block: 16px;
+    display: flex; align-items: center; justify-content: space-between; gap: 24px;
+    color: #fffaf0; background: var(--night); border-bottom: 1px solid var(--line);
+  }
+  .brand { display: flex; align-items: center; gap: 13px; font-size: clamp(19px, 2vw, 27px); letter-spacing: .16em; white-space: nowrap; }
+  .brand-mark { color: var(--gold-soft); font-family: var(--sans); font-size: 38px; line-height: 1; }
+  nav { display: flex; align-items: center; gap: clamp(16px, 3vw, 42px); }
+  nav a { font-size: 15px; color: #e9e2d6; }
+  nav a:hover { color: #e2bd7c; }
+
+  .nav-button, .button {
+    display: inline-block; padding: 12px 21px; color: var(--gold-pale); background: transparent;
+    border: 1px solid var(--gold); border-radius: 3px; transition: .2s ease; cursor: pointer; font: inherit;
+  }
+  .nav-button:hover, .button:hover { color: var(--night); background: #d4ad6c; }
+
+  /* ---------- Hero ---------- */
+  .hero { min-height: 540px; display: grid; grid-template-columns: minmax(300px, .8fr) 1.2fr; background: var(--cream); }
+  .hero-copy { padding-block: clamp(42px, 7vw, 100px); padding-left: max(16px, 7vw, env(safe-area-inset-left, 0px)); padding-right: max(16px, 5vw); align-self: center; }
+  .eyebrow { margin: 0 0 22px; color: #98713a; font: 12px/1.4 var(--sans); letter-spacing: .2em; text-transform: uppercase; }
+  h1 { max-width: 520px; margin: 0; font-size: clamp(43px, 6vw, 78px); font-weight: 400; line-height: .99; letter-spacing: -.045em; text-wrap: balance; }
+  h1 em { color: #b38747; font-weight: 400; }
+  .intro { max-width: 430px; margin: 24px 0 30px; color: #514d45; font-size: 18px; line-height: 1.6; }
+  .hero .button { color: var(--gold-pale); background: var(--night); border-color: var(--night); padding: 15px 23px; }
+  .hero .button:hover { color: var(--night); background: #d4ad6c; border-color: #d4ad6c; }
+  .hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 18px; }
+  .hero-actions .link { color: #514d45; border-bottom: 1px solid var(--gold); padding-bottom: 3px; }
+
+  .store-art {
+    min-height: 420px; display: grid; place-items: center; padding: 35px; overflow: hidden;
+    background:
+      radial-gradient(ellipse at 50% 15%, rgba(224,174,97,.24), transparent 45%),
+      linear-gradient(135deg, #282119, #100f0d 65%);
+  }
+  .store-frame { width: min(100%, 700px); padding: 13px; border: 1px solid rgba(219,177,107,.75); box-shadow: 0 24px 70px #0008; background: #1a1712; }
+  .store-sign { padding: 13px; color: #dfb96f; text-align: center; font-size: clamp(16px, 2vw, 25px); letter-spacing: .18em; border-bottom: 1px solid #846739; }
+  .aisle { min-height: 310px; display: grid; grid-template-columns: 1fr 1.1fr 1fr; gap: 12px; padding: 16px 4px 4px; }
+  .shelf-unit { display: grid; grid-template-rows: repeat(4, 1fr); gap: 8px; padding: 8px; background: linear-gradient(#211d17, #17140f); border: 1px solid #3b3123; }
+  .shelf { display: flex; align-items: flex-end; gap: 4px; padding: 0 4px 3px; border-bottom: 3px solid #6b5432; }
+  .item { flex: 1; border-radius: 2px 2px 0 0; opacity: .92; }
+  .center-aisle { position: relative; display: grid; align-content: end; justify-items: center; padding-bottom: 14px;
+    background: linear-gradient(180deg, transparent 0%, rgba(214,173,107,.08) 60%, rgba(214,173,107,.2) 100%); }
+  .center-aisle::before { content: ""; position: absolute; inset: 0 22%; background: linear-gradient(180deg, rgba(255,231,185,.18), transparent 70%); clip-path: polygon(35% 0, 65% 0, 100% 100%, 0 100%); }
+  .aisle-label { position: relative; color: #cfae73; font: 11px/1.3 var(--sans); letter-spacing: .22em; text-transform: uppercase; text-align: center; }
+  .aisle-label b { display: block; color: #f4d69b; font-family: var(--serif); font-size: 34px; font-weight: 400; letter-spacing: 0; }
+
+  /* ---------- Strip ---------- */
+  .strip { background: var(--night); color: #e9e2d6; border-block: 1px solid var(--line); }
+  .strip ul { list-style: none; margin: 0; padding-block: 22px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+  .strip li { font: 13px/1.5 var(--sans); letter-spacing: .06em; }
+  .strip strong { display: block; color: var(--gold-soft); font: 400 22px/1.2 var(--serif); letter-spacing: 0; margin-bottom: 4px; }
+
+  /* ---------- Sections ---------- */
+  section.block { padding-block: clamp(64px, 9vw, 120px); }
+  .section-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 20px 40px; margin-bottom: 44px; }
+  h2 { margin: 0; max-width: 620px; font-size: clamp(32px, 4.2vw, 52px); font-weight: 400; line-height: 1.04; letter-spacing: -.03em; text-wrap: balance; }
+  h2 em { color: #b38747; }
+  .section-head p { max-width: 400px; margin: 0; color: var(--muted); font-size: 17px; line-height: 1.6; }
+
+  .rayons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); }
+  .rayon { background: var(--paper); padding: 30px 28px 34px; display: grid; gap: 12px; align-content: start; transition: background .2s ease; }
+  .rayon:hover { background: #fff; }
+  .rayon .code { color: #98713a; font: 11px/1 var(--sans); letter-spacing: .2em; }
+  .rayon h3 { margin: 0; font-size: 25px; font-weight: 400; }
+  .rayon p { margin: 0; color: #514d45; line-height: 1.6; }
+  .rayon .count { margin-top: 6px; color: var(--muted); font: 13px/1 var(--sans); }
+
+  /* Produits */
+  .products-band { background: var(--night); color: #f3ecdf; }
+  .products-band .section-head p { color: #a9a193; }
+  .filters { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 30px; }
+  .filter { padding: 9px 16px; font: 13px/1 var(--sans); letter-spacing: .06em; color: #e9e2d6; background: transparent; border: 1px solid #4a3d29; border-radius: 40px; cursor: pointer; }
+  .filter[aria-pressed="true"] { color: var(--night); background: var(--gold-soft); border-color: var(--gold-soft); }
+  .products { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+  .product { display: grid; grid-template-rows: auto 1fr; background: #1a1712; border: 1px solid #33291c; }
+  .product-visual { aspect-ratio: 4 / 3; max-width: 100%; display: grid; place-items: center; background: radial-gradient(circle at 50% 40%, #2c241a, #15120e 70%); border-bottom: 1px solid #33291c; }
+  .product-visual span { font-size: 54px; line-height: 1; color: var(--gold-soft); font-family: var(--serif); }
+  .product-body { padding: 18px 18px 20px; display: grid; gap: 6px; align-content: start; }
+  .product-body small { color: #98713a; font: 11px/1.3 var(--sans); letter-spacing: .18em; text-transform: uppercase; }
+  .product-body h3 { margin: 0; font-size: 19px; font-weight: 400; }
+  .product-body .meta { color: #a9a193; font: 13px/1.4 var(--sans); }
+  .price-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 10px; }
+  .price { font-size: 22px; color: var(--gold-pale); font-variant-numeric: tabular-nums; }
+  .unit { color: #8a8274; font: 12px var(--sans); }
+  .add { padding: 8px 13px; font: 13px/1 var(--sans); }
+
+  .cart-bar { position: sticky; bottom: 0; z-index: 15; margin-top: 34px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px;
+    padding: 16px 20px calc(16px + env(safe-area-inset-bottom, 0px)); background: #201b14; border: 1px solid var(--gold); }
+  .cart-bar p { margin: 0; font: 14px/1.4 var(--sans); color: #e9e2d6; }
+  .cart-bar strong { color: var(--gold-pale); font-family: var(--serif); font-size: 20px; font-weight: 400; font-variant-numeric: tabular-nums; }
+
+  /* Steps */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; counter-reset: step; }
+  .step { display: grid; gap: 12px; padding-top: 22px; border-top: 1px solid var(--gold); }
+  .step-num { color: #b38747; font-size: 44px; line-height: 1; }
+  .step h3 { margin: 0; font-size: 23px; font-weight: 400; }
+  .step p { margin: 0; color: #514d45; line-height: 1.6; }
+
+  /* Newsletter */
+  .club { background: linear-gradient(135deg, #282119, #100f0d 70%); color: #f3ecdf; }
+  .club-inner { display: grid; grid-template-columns: 1.1fr .9fr; gap: 40px; align-items: center; padding-block: clamp(56px, 8vw, 96px); }
+  .club p { color: #a9a193; line-height: 1.6; max-width: 460px; }
+  .club form { display: flex; flex-wrap: wrap; gap: 10px; }
+  .club input { flex: 1 1 220px; min-width: 0; padding: 14px 16px; font: 15px var(--sans); color: #f3ecdf; background: #15120e; border: 1px solid #5a4a31; border-radius: 3px; }
+  .club input::placeholder { color: #7d7466; }
+  .form-msg { flex-basis: 100%; margin: 6px 0 0; font: 14px var(--sans); color: var(--gold-soft); min-height: 1.4em; }
+
+  /* Footer */
+  footer { background: var(--night); color: #a9a193; border-top: 1px solid var(--line); }
+  .foot { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 32px; padding-block: 48px 28px; }
+  .foot h4 { margin: 0 0 12px; color: var(--gold-soft); font: 12px/1 var(--sans); letter-spacing: .2em; text-transform: uppercase; }
+  .foot p, .foot li { margin: 0; font: 14px/1.8 var(--sans); }
+  .foot ul { list-style: none; margin: 0; padding: 0; }
+  .foot .brand { color: #fffaf0; margin-bottom: 12px; }
+  .legal { padding-block: 18px; border-top: 1px solid #2a241b; font: 12px var(--sans); color: #7d7466; }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 980px) {
+    .products { grid-template-columns: repeat(2, 1fr); }
+    .strip ul { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 860px) {
+    .hero { grid-template-columns: 1fr; }
+    .hero-copy { padding-left: var(--gutter-l); padding-right: var(--gutter-r); }
+    .store-art { min-height: 0; padding: 24px 16px; }
+    .rayons, .steps { grid-template-columns: 1fr; }
+    .club-inner, .foot { grid-template-columns: 1fr; }
+    nav a:not(.nav-button) { display: none; }
+  }
+  @media (max-width: 480px) {
+    .products { grid-template-columns: 1fr; }
+    .aisle { min-height: 220px; gap: 6px; }
+    .aisle-label b { font-size: 24px; }
+    .brand { letter-spacing: .1em; }
+  }
+</style>
+
+<header class="topbar wrap">
+  <a class="brand" href="#top"><span class="brand-mark">∞</span> INFINITY SHOP</a>
+  <nav aria-label="Navigation principale">
+    <a href="#rayons">Rayons</a>
+    <a href="#produits">Produits</a>
+    <a href="#fonctionnement">Comment ça marche</a>
+    <a class="nav-button" href="#club">Rejoindre le club</a>
+  </nav>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="hero-copy">
+      <p class="eyebrow">Épicerie &amp; essentiels · Ouvert 7j/7</p>
+      <h1>L’achat du quotidien, <em>autrement.</em></h1>
+      <p class="intro">Des produits choisis avec soin, des prix clairs et un service qui vous fait gagner du temps. Faites vos courses en boutique ou réservez en ligne, on prépare tout pour vous.</p>
+      <div class="hero-actions">
+        <a class="button" href="#produits">Découvrir les produits</a>
+        <a class="link" href="#fonctionnement">Retrait en 2 heures</a>
+      </div>
+    </div>
+
+    <div class="store-art" aria-hidden="true">
+      <div class="store-frame">
+        <div class="store-sign">∞ INFINITY SHOP</div>
+        <div class="aisle">
+          <div class="shelf-unit" id="shelfLeft"></div>
+          <div class="center-aisle">
+            <div class="aisle-label">Allée<b>∞</b>Tout, tous les jours</div>
+          </div>
+          <div class="shelf-unit" id="shelfRight"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="strip">
+    <ul class="wrap">
+      <li><strong>8h – 21h</strong>Tous les jours, dimanche compris</li>
+      <li><strong>2 heures</strong>Pour préparer votre commande</li>
+      <li><strong>+1 200</strong>Références en rayon</li>
+      <li><strong>0 €</strong>De frais de retrait en boutique</li>
+    </ul>
+  </div>
+
+  <section class="block wrap" id="rayons">
+    <div class="section-head">
+      <h2>Six rayons pour <em>tout le quotidien.</em></h2>
+      <p>De l’épicerie fine à l’entretien de la maison, chaque rayon est pensé pour aller à l’essentiel sans sacrifier la qualité.</p>
+    </div>
+    <div class="rayons">
+      <article class="rayon"><span class="code">RAYON A</span><h3>Épicerie salée</h3><p>Pâtes, conserves, condiments et produits du monde sélectionnés pour leur rapport qualité-prix.</p><span class="count">320 références</span></article>
+      <article class="rayon"><span class="code">RAYON B</span><h3>Épicerie sucrée</h3><p>Biscuits, chocolats, confitures et petits-déjeuners, avec une sélection artisanale.</p><span class="count">210 références</span></article>
+      <article class="rayon"><span class="code">RAYON C</span><h3>Frais &amp; crèmerie</h3><p>Produits laitiers, fromages à la coupe et traiteur, réapprovisionnés chaque matin.</p><span class="count">180 références</span></article>
+      <article class="rayon"><span class="code">RAYON D</span><h3>Boissons</h3><p>Eaux, jus, sodas, cafés et thés, plus une cave courte mais bien choisie.</p><span class="count">160 références</span></article>
+      <article class="rayon"><span class="code">RAYON E</span><h3>Maison &amp; entretien</h3><p>Lessive, vaisselle, papeterie et petits indispensables pour la maison.</p><span class="count">190 références</span></article>
+      <article class="rayon"><span class="code">RAYON F</span><h3>Hygiène &amp; beauté</h3><p>Soins du quotidien, produits pour bébé et une gamme naturelle en vrac.</p><span class="count">150 références</span></article>
+    </div>
+  </section>
+
+  <section class="block products-band" id="produits">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Les incontournables <em>de la semaine.</em></h2>
+        <p>Ajoutez des produits à votre panier pour préparer un retrait en boutique.</p>
+      </div>
+      <div class="filters" role="group" aria-label="Filtrer par rayon" id="filters"></div>
+      <div class="products" id="products"></div>
+      <div class="cart-bar" aria-live="polite">
+        <p><span id="cartCount">Panier vide</span></p>
+        <p>Total <strong id="cartTotal">0,00 €</strong></p>
+        <button class="button" id="checkout" type="button">Réserver le retrait</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="block wrap" id="fonctionnement">
+    <div class="section-head">
+      <h2>Vos courses prêtes <em>en trois étapes.</em></h2>
+      <p>Commandez quand vous voulez, récupérez quand ça vous arrange.</p>
+    </div>
+    <div class="steps">
+      <article class="step"><span class="step-num">1</span><h3>Composez votre panier</h3><p>Parcourez les rayons en ligne et ajoutez vos produits habituels en quelques clics.</p></article>
+      <article class="step"><span class="step-num">2</span><h3>Choisissez un créneau</h3><p>Sélectionnez l’heure de retrait qui vous convient, au plus tôt deux heures après la commande.</p></article>
+      <article class="step"><span class="step-num">3</span><h3>Récupérez en boutique</h3><p>Votre commande vous attend au comptoir. Vous réglez sur place, sans file d’attente.</p></article>
+    </div>
+  </section>
+
+  <section class="club" id="club">
+    <div class="club-inner wrap">
+      <div>
+        <p class="eyebrow">Le club Infinity</p>
+        <h2>Recevez les nouveautés <em>avant tout le monde.</em></h2>
+        <p>Une lettre par semaine avec les arrivages, les promotions du moment et une recette simple à faire avec les produits du magasin.</p>
+      </div>
+      <form id="clubForm" novalidate>
+        <label for="email" class="eyebrow" style="flex-basis:100%;margin:0">Votre adresse e-mail</label>
+        <input id="email" name="email" type="email" placeholder="prenom@exemple.fr" autocomplete="email">
+        <button class="button" type="submit">S’inscrire</button>
+        <p class="form-msg" id="formMsg" role="status"></p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="foot wrap">
+    <div>
+      <div class="brand"><span class="brand-mark">∞</span> INFINITY SHOP</div>
+      <p>L’achat du quotidien, autrement. Épicerie, frais et essentiels de la maison.</p>
+    </div>
+    <div>
+      <h4>Horaires</h4>
+      <ul><li>Lundi – Samedi : 8h – 21h</li><li>Dimanche : 9h – 19h</li><li>Retrait : jusqu’à 20h30</li></ul>
+    </div>
+    <div>
+      <h4>Explorer</h4>
+      <ul><li><a href="#rayons">Nos rayons</a></li><li><a href="#produits">Produits de la semaine</a></li><li><a href="#fonctionnement">Retrait en boutique</a></li><li><a href="#club">Le club</a></li></ul>
+    </div>
+  </div>
+  <div class="legal wrap">© 2026 Infinity Shop · Tous droits réservés</div>
+</footer>
+
+<script>
+  // Étagères décoratives
+  const tones = ['#bd9250','#8c6a3a','#d6ad6b','#5c4a32','#a8834a','#efe3cc','#6e5638','#c9a368'];
+  function fillShelf(el, seed) {
+    for (let r = 0; r < 4; r++) {
+      const shelf = document.createElement('div'); shelf.className = 'shelf';
+      const n = 4 + ((seed + r) % 3);
+      for (let i = 0; i < n; i++) {
+        const it = document.createElement('span'); it.className = 'item';
+        it.style.height = (45 + ((seed * 7 + r * 13 + i * 17) % 50)) + '%';
+        it.style.background = tones[(seed + r * 3 + i) % tones.length];
+        shelf.appendChild(it);
+      }
+      el.appendChild(shelf);
+    }
+  }
+  fillShelf(document.getElementById('shelfLeft'), 1);
+  fillShelf(document.getElementById('shelfRight'), 4);
+
+  // Produits
+  const products = [
+    { name: 'Pâtes de blé dur bio', cat: 'Épicerie', meta: 'Paquet de 500 g', price: 1.89, unit: '3,78 €/kg', glyph: 'P' },
+    { name: 'Huile d’olive vierge extra', cat: 'Épicerie', meta: 'Bouteille de 75 cl', price: 8.90, unit: '11,87 €/L', glyph: 'H' },
+    { name: 'Comté 18 mois', cat: 'Frais', meta: 'À la coupe, 250 g', price: 6.40, unit: '25,60 €/kg', glyph: 'C' },
+    { name: 'Yaourts nature fermiers', cat: 'Frais', meta: 'Lot de 4 × 125 g', price: 2.75, unit: '5,50 €/kg', glyph: 'Y' },
+    { name: 'Café en grains, torréfaction douce', cat: 'Boissons', meta: 'Sachet de 1 kg', price: 14.50, unit: '14,50 €/kg', glyph: 'K' },
+    { name: 'Jus de pomme pressé', cat: 'Boissons', meta: 'Bouteille de 1 L', price: 3.20, unit: '3,20 €/L', glyph: 'J' },
+    { name: 'Lessive écologique', cat: 'Maison', meta: 'Bidon de 3 L, 60 lavages', price: 11.90, unit: '0,20 €/lavage', glyph: 'L' },
+    { name: 'Savon de Marseille', cat: 'Maison', meta: 'Pain de 300 g', price: 3.60, unit: '12,00 €/kg', glyph: 'S' }
+  ];
+  const eur = v => v.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
+  const cart = {};
+  const cats = ['Tous', ...new Set(products.map(p => p.cat))];
+  let active = 'Tous';
+
+  const filtersEl = document.getElementById('filters');
+  cats.forEach(c => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'filter'; b.textContent = c;
+    b.setAttribute('aria-pressed', c === active);
+    b.addEventListener('click', () => { active = c; filtersEl.querySelectorAll('.filter').forEach(x => x.setAttribute('aria-pressed', x.textContent === c)); render(); });
+    filtersEl.appendChild(b);
+  });
+
+  const grid = document.getElementById('products');
+  function render() {
+    grid.innerHTML = '';
+    products.filter(p => active === 'Tous' || p.cat === active).forEach(p => {
+      const card = document.createElement('article'); card.className = 'product';
+      const qty = cart[p.name] || 0;
+      card.innerHTML = `
+        <div class="product-visual"><span>${p.glyph}</span></div>
+        <div class="product-body">
+          <small>${p.cat}</small>
+          <h3>${p.name}</h3>
+          <span class="meta">${p.meta}</span>
+          <div class="price-row">
+            <div><div class="price">${eur(p.price)}</div><div class="unit">${p.unit}</div></div>
+            <button class="button add" type="button">${qty ? 'Ajouté × ' + qty : 'Ajouter'}</button>
+          </div>
+        </div>`;
+      card.querySelector('.add').addEventListener('click', () => { cart[p.name] = qty + 1; updateCart(); render(); });
+      grid.appendChild(card);
+    });
+  }
+  function updateCart() {
+    const n = Object.values(cart).reduce((a, b) => a + b, 0);
+    const total = products.reduce((s, p) => s + (cart[p.name] || 0) * p.price, 0);
+    document.getElementById('cartCount').textContent = n ? `${n} article${n > 1 ? 's' : ''} dans le panier` : 'Panier vide';
+    document.getElementById('cartTotal').textContent = eur(total);
+  }
+  document.getElementById('checkout').addEventListener('click', () => {
+    const n = Object.values(cart).reduce((a, b) => a + b, 0);
+    document.getElementById('cartCount').textContent = n
+      ? 'Démo : la réservation en ligne sera bientôt disponible.'
+      : 'Ajoutez au moins un produit pour réserver.';
+  });
+  render();
+
+  // Club
+  document.getElementById('clubForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const v = document.getElementById('email').value.trim();
+    const msg = document.getElementById('formMsg');
+    msg.textContent = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)
+      ? 'Merci ! Votre inscription est bien prise en compte (démo).'
+      : 'Adresse invalide. Vérifiez le format, par exemple prenom@exemple.fr.';
+  });
+</script>
