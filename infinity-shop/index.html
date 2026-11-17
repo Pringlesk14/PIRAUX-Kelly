@@ -1,384 +1,523 @@
 <title>Infinity Shop</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="theme-color" content="#11100e">
+<meta name="theme-color" content="#0d0c0a">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500&display=swap">
 <style>
-  /* Layout: night band header → cream/dark split hero → cream sections → night footer. Single committed look. */
+  /* Layout: maison de luxe nocturne — hero plein cadre avec ∞ animé, sections éditoriales alternées, vitrines en arche. Look sombre assumé. */
   :root {
-    --ink: #171612;
-    --night: #11100e;
-    --cream: #f5f0e7;
-    --paper: #fbf8f2;
-    --gold: #bd9250;
-    --gold-soft: #d6ad6b;
-    --gold-pale: #f4d69b;
-    --muted: #716c62;
-    --line: rgba(189, 146, 80, .35);
-    --serif: Georgia, "Times New Roman", serif;
-    --sans: Arial, Helvetica, sans-serif;
-    --gutter-l: max(16px, 5vw, env(safe-area-inset-left, 0px));
-    --gutter-r: max(16px, 5vw, env(safe-area-inset-right, 0px));
-    color-scheme: light;
+    --night: #0d0c0a;
+    --night-2: #15130f;
+    --night-3: #1d1a15;
+    --ivory: #f3ece0;
+    --ivory-dim: #b9b0a1;
+    --stone: #7e766a;
+    --gold: #c9a063;
+    --gold-hi: #ecd3a2;
+    --gold-lo: #8a6a3c;
+    --hair: rgba(201, 160, 99, .28);
+    --display: "Cormorant Garamond", "Cormorant", Garamond, Georgia, serif;
+    --body: "Jost", "Futura", "Avenir Next", "Segoe UI", sans-serif;
+    --gl: max(16px, 6vw, env(safe-area-inset-left, 0px));
+    --gr: max(16px, 6vw, env(safe-area-inset-right, 0px));
+    color-scheme: dark;
   }
-
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
-  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; animation: none !important; } }
-  body { margin: 0; color: var(--ink); background: var(--cream); font-family: var(--serif); }
+  body { margin: 0; background: var(--night); color: var(--ivory); font: 300 16px/1.7 var(--body); -webkit-font-smoothing: antialiased; }
   a { color: inherit; text-decoration: none; }
-  a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--gold-soft); outline-offset: 3px; }
-  .wrap { padding-left: var(--gutter-l); padding-right: var(--gutter-r); }
+  ::selection { background: var(--gold); color: var(--night); }
+  :focus-visible { outline: 1px solid var(--gold-hi); outline-offset: 4px; }
+  .wrap { padding-left: var(--gl); padding-right: var(--gr); }
+  .label { font: 400 11px/1.4 var(--body); letter-spacing: .32em; text-transform: uppercase; color: var(--gold); }
+  h1, h2, h3 { font-family: var(--display); font-weight: 300; margin: 0; text-wrap: balance; }
+  em { font-style: italic; color: var(--gold-hi); }
 
-  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--night); }
+  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 50; background: var(--night); }
 
-  /* ---------- Topbar ---------- */
-  .topbar {
-    position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
-    min-height: 76px; padding-block: 16px;
-    display: flex; align-items: center; justify-content: space-between; gap: 24px;
-    color: #fffaf0; background: var(--night); border-bottom: 1px solid var(--line);
+  /* ---------- Header ---------- */
+  header {
+    position: sticky; top: env(safe-area-inset-top, 0px); z-index: 40;
+    display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 20px;
+    padding-block: 18px; background: rgba(13,12,10,.82); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--hair);
   }
-  .brand { display: flex; align-items: center; gap: 13px; font-size: clamp(19px, 2vw, 27px); letter-spacing: .16em; white-space: nowrap; }
-  .brand-mark { color: var(--gold-soft); font-family: var(--sans); font-size: 38px; line-height: 1; }
-  nav { display: flex; align-items: center; gap: clamp(16px, 3vw, 42px); }
-  nav a { font-size: 15px; color: #e9e2d6; }
-  nav a:hover { color: #e2bd7c; }
+  header nav { display: flex; gap: clamp(18px, 2.6vw, 38px); font-size: 12px; letter-spacing: .22em; text-transform: uppercase; color: var(--ivory-dim); }
+  header nav a { transition: color .3s; }
+  header nav a:hover { color: var(--gold-hi); }
+  .logo { display: flex; flex-direction: column; align-items: center; line-height: 1; }
+  .logo .inf { font-family: var(--display); font-size: 34px; color: var(--gold); margin-bottom: -2px; }
+  .logo .word { font: 400 13px/1 var(--body); letter-spacing: .5em; margin-right: -.5em; }
+  .head-right { display: flex; justify-content: flex-end; align-items: center; gap: 22px; }
+  .basket-btn { display: flex; align-items: center; gap: 10px; font-size: 12px; letter-spacing: .22em; text-transform: uppercase; color: var(--ivory); background: none; border: 0; cursor: pointer; font-family: var(--body); }
+  .basket-btn .dot { min-width: 24px; height: 24px; padding: 0 6px; display: grid; place-items: center; border: 1px solid var(--gold); border-radius: 30px; font-size: 11px; letter-spacing: 0; color: var(--gold-hi); font-variant-numeric: tabular-nums; }
 
-  .nav-button, .button {
-    display: inline-block; padding: 12px 21px; color: var(--gold-pale); background: transparent;
-    border: 1px solid var(--gold); border-radius: 3px; transition: .2s ease; cursor: pointer; font: inherit;
-  }
-  .nav-button:hover, .button:hover { color: var(--night); background: #d4ad6c; }
+  /* ---------- Buttons ---------- */
+  .btn { display: inline-flex; align-items: center; gap: 14px; padding: 16px 30px; font: 400 12px/1 var(--body); letter-spacing: .26em; text-transform: uppercase; cursor: pointer;
+    color: var(--night); background: linear-gradient(135deg, var(--gold-hi), var(--gold) 55%, var(--gold-lo)); border: 0; transition: filter .3s, transform .3s; }
+  .btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+  .btn.ghost { color: var(--gold-hi); background: transparent; border: 1px solid var(--gold); }
+  .btn.ghost:hover { background: rgba(201,160,99,.1); }
 
   /* ---------- Hero ---------- */
-  .hero { min-height: 540px; display: grid; grid-template-columns: minmax(300px, .8fr) 1.2fr; background: var(--cream); }
-  .hero-copy { padding-block: clamp(42px, 7vw, 100px); padding-left: max(16px, 7vw, env(safe-area-inset-left, 0px)); padding-right: max(16px, 5vw); align-self: center; }
-  .eyebrow { margin: 0 0 22px; color: #98713a; font: 12px/1.4 var(--sans); letter-spacing: .2em; text-transform: uppercase; }
-  h1 { max-width: 520px; margin: 0; font-size: clamp(43px, 6vw, 78px); font-weight: 400; line-height: .99; letter-spacing: -.045em; text-wrap: balance; }
-  h1 em { color: #b38747; font-weight: 400; }
-  .intro { max-width: 430px; margin: 24px 0 30px; color: #514d45; font-size: 18px; line-height: 1.6; }
-  .hero .button { color: var(--gold-pale); background: var(--night); border-color: var(--night); padding: 15px 23px; }
-  .hero .button:hover { color: var(--night); background: #d4ad6c; border-color: #d4ad6c; }
-  .hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 18px; }
-  .hero-actions .link { color: #514d45; border-bottom: 1px solid var(--gold); padding-bottom: 3px; }
+  .hero { position: relative; overflow: hidden; display: grid; grid-template-columns: 1.05fr .95fr; align-items: center; gap: 40px; padding-block: clamp(56px, 9vw, 120px) clamp(64px, 9vw, 130px);
+    background: radial-gradient(ellipse 60% 70% at 72% 45%, rgba(201,160,99,.16), transparent 70%), var(--night); }
+  .hero-copy { position: relative; z-index: 2; display: grid; gap: 28px; min-width: 0; }
+  .hero h1 { font-size: clamp(52px, 8.4vw, 124px); line-height: .9; letter-spacing: -.02em; }
+  .hero h1 span { display: block; }
+  .hero h1 .indent { padding-left: clamp(24px, 6vw, 96px); }
+  .hero p.lead { max-width: 440px; margin: 0; color: var(--ivory-dim); font-size: 17px; }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 14px; }
+  .hero-art { position: relative; aspect-ratio: 4 / 5; max-width: 100%; width: min(100%, 520px); justify-self: center; }
+  .arch { position: absolute; inset: 0; border-radius: 999px 999px 0 0; overflow: hidden; border: 1px solid var(--hair);
+    background: linear-gradient(180deg, #2a2219 0%, #15120e 60%, #0f0d0a 100%); }
+  .arch canvas { width: 100%; height: 100%; display: block; }
+  .arch-inner { position: absolute; inset: 14px; border-radius: 999px 999px 0 0; border: 1px solid rgba(236,211,162,.18); pointer-events: none; }
+  .hero-tag { position: absolute; left: -18px; bottom: 34px; padding: 18px 22px; background: var(--night-2); border: 1px solid var(--hair); display: grid; gap: 2px; }
+  .hero-tag b { font: 300 30px/1 var(--display); color: var(--gold-hi); }
+  .hero-tag span { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--ivory-dim); }
 
-  .store-art {
-    min-height: 420px; display: grid; place-items: center; padding: 35px; overflow: hidden;
-    background:
-      radial-gradient(ellipse at 50% 15%, rgba(224,174,97,.24), transparent 45%),
-      linear-gradient(135deg, #282119, #100f0d 65%);
+  /* ---------- Marquee ---------- */
+  .marquee { overflow: hidden; border-block: 1px solid var(--hair); background: var(--night-2); }
+  .marquee-track { display: flex; width: max-content; animation: slide 40s linear infinite; }
+  .marquee span { padding: 20px 34px; font: 300 italic 24px/1 var(--display); color: var(--ivory-dim); white-space: nowrap; }
+  .marquee span::after { content: "∞"; margin-left: 68px; font-style: normal; color: var(--gold); }
+  @keyframes slide { to { transform: translateX(-50%); } }
+
+  /* ---------- Manifesto ---------- */
+  .block { padding-block: clamp(80px, 11vw, 160px); }
+  .manifesto { display: grid; grid-template-columns: 220px 1fr; gap: 40px; }
+  .manifesto p.big { margin: 0; font: 300 clamp(28px, 3.6vw, 50px)/1.18 var(--display); max-width: 980px; }
+  .manifesto .sign { margin-top: 36px; display: grid; grid-template-columns: repeat(3, auto); justify-content: start; gap: 18px 60px; }
+  .sign div { display: grid; gap: 2px; }
+  .sign b { font: 300 46px/1 var(--display); color: var(--gold-hi); font-variant-numeric: lining-nums; }
+  .sign span { font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--stone); }
+
+  /* ---------- Collections ---------- */
+  .head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 24px 60px; margin-bottom: 56px; }
+  .head h2 { font-size: clamp(40px, 5.4vw, 76px); line-height: .98; max-width: 720px; }
+  .head p { max-width: 380px; margin: 0; color: var(--ivory-dim); }
+  .collections { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(18px, 2.4vw, 34px); }
+  .coll { display: grid; gap: 18px; align-content: start; }
+  .coll:nth-child(3n+2) { margin-top: 70px; }
+  .photo { position: relative; aspect-ratio: 3 / 4; max-width: 100%; overflow: hidden; border: 1px solid var(--hair); background: var(--night-3); }
+  .photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .photo .scene { position: absolute; inset: 0; transition: transform 1.2s cubic-bezier(.2,.7,.2,1); }
+  .coll:hover .scene { transform: scale(1.05); }
+  .photo .num { position: absolute; top: 16px; left: 18px; font-size: 11px; letter-spacing: .28em; color: var(--gold-hi); }
+  .coll h3 { font-size: 32px; line-height: 1.05; }
+  .coll p { margin: 0; color: var(--ivory-dim); font-size: 15px; }
+  .coll .more { font-size: 11px; letter-spacing: .26em; text-transform: uppercase; color: var(--gold); }
+
+  /* Scènes dessinées (remplaçables par des photos) */
+  .scene { background: radial-gradient(ellipse 80% 55% at 50% 0%, rgba(236,211,162,.22), transparent 70%), linear-gradient(180deg, #241d15, #0f0d0a); }
+  .scene::before { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 26%; background: linear-gradient(180deg, #2b2319, #16120d); border-top: 1px solid rgba(236,211,162,.25); }
+  .obj { position: absolute; bottom: 24%; border-radius: 3px 3px 1px 1px; box-shadow: inset -8px 0 18px rgba(0,0,0,.35), 0 18px 30px rgba(0,0,0,.4); }
+  .obj.glass { background: linear-gradient(90deg, rgba(236,211,162,.15), rgba(236,211,162,.45) 30%, rgba(201,160,99,.2) 70%); border: 1px solid rgba(236,211,162,.4); }
+  .obj.jar { border-radius: 10px 10px 4px 4px; }
+  .obj.round { border-radius: 50%; bottom: 24%; }
+  .obj::after { content: ""; position: absolute; left: 18%; right: 18%; top: 38%; height: 22%; background: var(--ivory); opacity: .85; }
+  .obj.noLabel::after { display: none; }
+
+  /* ---------- Sélection (carte) ---------- */
+  .selection { background: var(--ivory); color: #1b1814; }
+  .selection .label { color: #8a6a3c; }
+  .selection .head p { color: #5e574c; }
+  .selection em { color: #9a7440; }
+  .tabs { display: flex; flex-wrap: wrap; gap: 6px 30px; margin-bottom: 30px; border-bottom: 1px solid rgba(27,24,20,.15); }
+  .tab { padding: 0 0 14px; font: 400 12px/1 var(--body); letter-spacing: .22em; text-transform: uppercase; color: #7a7266; background: none; border: 0; border-bottom: 1px solid transparent; margin-bottom: -1px; cursor: pointer; }
+  .tab[aria-selected="true"] { color: #1b1814; border-bottom-color: #1b1814; }
+  .menu { display: grid; grid-template-columns: 1fr 1fr; gap: 0 70px; }
+  .line { display: grid; grid-template-columns: 1fr auto; gap: 4px 20px; padding: 24px 0; border-bottom: 1px solid rgba(27,24,20,.12); }
+  .line h3 { display: flex; align-items: baseline; gap: 12px; font-size: 26px; line-height: 1.15; min-width: 0; }
+  .line h3::after { content: ""; flex: 1; border-bottom: 1px dotted rgba(27,24,20,.3); transform: translateY(-6px); min-width: 20px; }
+  .line .price { font: 400 26px/1.15 var(--display); font-variant-numeric: tabular-nums lining-nums; }
+  .line .desc { color: #6c6559; font-size: 14px; }
+  .line .unit { color: #8f877a; font-size: 12px; text-align: right; font-variant-numeric: tabular-nums; }
+  .line .add { grid-column: 1 / -1; justify-self: start; margin-top: 8px; padding: 0; font: 400 11px/1 var(--body); letter-spacing: .24em; text-transform: uppercase; color: #8a6a3c; background: none; border: 0; cursor: pointer; }
+  .line .add:hover { color: #1b1814; }
+  .line .add.in { color: #1b1814; }
+
+  /* ---------- Services ---------- */
+  .services { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--hair); }
+  .service { padding: 44px 36px 50px 0; display: grid; gap: 16px; align-content: start; }
+  .service + .service { padding-left: 36px; border-left: 1px solid var(--hair); }
+  .service .ico { width: 44px; height: 44px; }
+  .service h3 { font-size: 30px; }
+  .service p { margin: 0; color: var(--ivory-dim); }
+  .service small { color: var(--gold); font-size: 12px; letter-spacing: .14em; }
+
+  /* ---------- Vitrine split ---------- */
+  .split { display: grid; grid-template-columns: 1fr 1fr; min-height: 560px; background: var(--night-2); border-block: 1px solid var(--hair); }
+  .split .photo { aspect-ratio: auto; border: 0; min-height: 360px; }
+  .split-copy { display: grid; gap: 26px; align-content: center; padding-block: 64px; }
+  .split-copy h2 { font-size: clamp(38px, 4.6vw, 64px); line-height: 1; }
+  .split-copy p { margin: 0; color: var(--ivory-dim); max-width: 460px; }
+  .hours { display: grid; gap: 0; max-width: 420px; }
+  .hours div { display: flex; justify-content: space-between; gap: 20px; padding: 12px 0; border-bottom: 1px solid var(--hair); font-size: 14px; font-variant-numeric: tabular-nums; }
+  .hours span:first-child { color: var(--ivory-dim); letter-spacing: .08em; }
+
+  /* ---------- Club ---------- */
+  .club { text-align: center; display: grid; justify-items: center; gap: 22px; }
+  .club h2 { font-size: clamp(42px, 6vw, 88px); line-height: .95; max-width: 900px; }
+  .club p { margin: 0; max-width: 520px; color: var(--ivory-dim); }
+  .club form { margin-top: 14px; display: flex; flex-wrap: wrap; justify-content: center; gap: 0; width: min(100%, 560px); border-bottom: 1px solid var(--gold); }
+  .club input { flex: 1 1 240px; min-width: 0; padding: 16px 4px; background: transparent; border: 0; color: var(--ivory); font: 300 17px var(--body); }
+  .club input::placeholder { color: var(--stone); }
+  .club input:focus-visible { outline: none; }
+  .club button { padding: 16px 4px 16px 20px; background: none; border: 0; color: var(--gold-hi); font: 400 12px var(--body); letter-spacing: .26em; text-transform: uppercase; cursor: pointer; }
+  .form-msg { min-height: 1.6em; margin: 0; font-size: 14px; color: var(--gold-hi); }
+
+  /* ---------- Footer ---------- */
+  footer { border-top: 1px solid var(--hair); background: var(--night); }
+  .foot { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 40px; padding-block: 70px 50px; }
+  .foot .logo { align-items: flex-start; }
+  .foot p, .foot li { margin: 0; color: var(--ivory-dim); font-size: 14px; }
+  .foot ul { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 6px; }
+  .foot a:hover { color: var(--gold-hi); }
+  .legal { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; padding-block: 22px; border-top: 1px solid var(--hair); font-size: 12px; letter-spacing: .1em; color: var(--stone); }
+
+  /* ---------- Panier (tiroir) ---------- */
+  .drawer { position: fixed; top: 0; right: 0; bottom: 0; z-index: 60; width: min(420px, 100%); display: grid; grid-template-rows: auto 1fr auto;
+    padding: calc(28px + env(safe-area-inset-top, 0px)) max(28px, env(safe-area-inset-right, 0px)) calc(28px + env(safe-area-inset-bottom, 0px)) 28px;
+    background: var(--night-2); border-left: 1px solid var(--hair); transform: translateX(100%); transition: transform .5s cubic-bezier(.2,.7,.2,1); }
+  .drawer.open { transform: none; }
+  .scrim { position: fixed; inset: 0; z-index: 55; background: rgba(0,0,0,.55); opacity: 0; pointer-events: none; transition: opacity .4s; }
+  .scrim.open { opacity: 1; pointer-events: auto; }
+  .drawer-head { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 20px; border-bottom: 1px solid var(--hair); }
+  .drawer-head h3 { font-size: 34px; }
+  .close { background: none; border: 0; color: var(--ivory-dim); font: 400 11px var(--body); letter-spacing: .24em; text-transform: uppercase; cursor: pointer; }
+  .drawer-list { list-style: none; margin: 0; padding: 0; overflow: auto; }
+  .drawer-list li { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; padding: 18px 0; border-bottom: 1px solid var(--hair); }
+  .drawer-list .n { font: 400 21px/1.2 var(--display); }
+  .drawer-list .p { font-variant-numeric: tabular-nums; }
+  .qty { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--ivory-dim); }
+  .qty button { width: 26px; height: 26px; border: 1px solid var(--hair); background: none; color: var(--ivory); cursor: pointer; }
+  .empty { padding: 30px 0; color: var(--stone); }
+  .drawer-foot { display: grid; gap: 16px; padding-top: 20px; border-top: 1px solid var(--hair); }
+  .total { display: flex; justify-content: space-between; align-items: baseline; }
+  .total b { font: 300 34px/1 var(--display); color: var(--gold-hi); font-variant-numeric: tabular-nums lining-nums; }
+  .drawer-foot .btn { justify-content: center; }
+  .drawer-note { margin: 0; font-size: 13px; color: var(--ivory-dim); min-height: 1.4em; }
+
+  /* ---------- Motion ---------- */
+  .rise { animation: rise 1.1s cubic-bezier(.2,.7,.2,1) both; }
+  .rise.d2 { animation-delay: .15s; } .rise.d3 { animation-delay: .3s; } .rise.d4 { animation-delay: .45s; }
+  @keyframes rise { from { opacity: .001; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .rise, .marquee-track { animation: none; }
+    .photo .scene, .drawer, .scrim { transition: none; }
   }
-  .store-frame { width: min(100%, 700px); padding: 13px; border: 1px solid rgba(219,177,107,.75); box-shadow: 0 24px 70px #0008; background: #1a1712; }
-  .store-sign { padding: 13px; color: #dfb96f; text-align: center; font-size: clamp(16px, 2vw, 25px); letter-spacing: .18em; border-bottom: 1px solid #846739; }
-  .aisle { min-height: 310px; display: grid; grid-template-columns: 1fr 1.1fr 1fr; gap: 12px; padding: 16px 4px 4px; }
-  .shelf-unit { display: grid; grid-template-rows: repeat(4, 1fr); gap: 8px; padding: 8px; background: linear-gradient(#211d17, #17140f); border: 1px solid #3b3123; }
-  .shelf { display: flex; align-items: flex-end; gap: 4px; padding: 0 4px 3px; border-bottom: 3px solid #6b5432; }
-  .item { flex: 1; border-radius: 2px 2px 0 0; opacity: .92; }
-  .center-aisle { position: relative; display: grid; align-content: end; justify-items: center; padding-bottom: 14px;
-    background: linear-gradient(180deg, transparent 0%, rgba(214,173,107,.08) 60%, rgba(214,173,107,.2) 100%); }
-  .center-aisle::before { content: ""; position: absolute; inset: 0 22%; background: linear-gradient(180deg, rgba(255,231,185,.18), transparent 70%); clip-path: polygon(35% 0, 65% 0, 100% 100%, 0 100%); }
-  .aisle-label { position: relative; color: #cfae73; font: 11px/1.3 var(--sans); letter-spacing: .22em; text-transform: uppercase; text-align: center; }
-  .aisle-label b { display: block; color: #f4d69b; font-family: var(--serif); font-size: 34px; font-weight: 400; letter-spacing: 0; }
-
-  /* ---------- Strip ---------- */
-  .strip { background: var(--night); color: #e9e2d6; border-block: 1px solid var(--line); }
-  .strip ul { list-style: none; margin: 0; padding-block: 22px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
-  .strip li { font: 13px/1.5 var(--sans); letter-spacing: .06em; }
-  .strip strong { display: block; color: var(--gold-soft); font: 400 22px/1.2 var(--serif); letter-spacing: 0; margin-bottom: 4px; }
-
-  /* ---------- Sections ---------- */
-  section.block { padding-block: clamp(64px, 9vw, 120px); }
-  .section-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 20px 40px; margin-bottom: 44px; }
-  h2 { margin: 0; max-width: 620px; font-size: clamp(32px, 4.2vw, 52px); font-weight: 400; line-height: 1.04; letter-spacing: -.03em; text-wrap: balance; }
-  h2 em { color: #b38747; }
-  .section-head p { max-width: 400px; margin: 0; color: var(--muted); font-size: 17px; line-height: 1.6; }
-
-  .rayons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); }
-  .rayon { background: var(--paper); padding: 30px 28px 34px; display: grid; gap: 12px; align-content: start; transition: background .2s ease; }
-  .rayon:hover { background: #fff; }
-  .rayon .code { color: #98713a; font: 11px/1 var(--sans); letter-spacing: .2em; }
-  .rayon h3 { margin: 0; font-size: 25px; font-weight: 400; }
-  .rayon p { margin: 0; color: #514d45; line-height: 1.6; }
-  .rayon .count { margin-top: 6px; color: var(--muted); font: 13px/1 var(--sans); }
-
-  /* Produits */
-  .products-band { background: var(--night); color: #f3ecdf; }
-  .products-band .section-head p { color: #a9a193; }
-  .filters { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 30px; }
-  .filter { padding: 9px 16px; font: 13px/1 var(--sans); letter-spacing: .06em; color: #e9e2d6; background: transparent; border: 1px solid #4a3d29; border-radius: 40px; cursor: pointer; }
-  .filter[aria-pressed="true"] { color: var(--night); background: var(--gold-soft); border-color: var(--gold-soft); }
-  .products { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
-  .product { display: grid; grid-template-rows: auto 1fr; background: #1a1712; border: 1px solid #33291c; }
-  .product-visual { aspect-ratio: 4 / 3; max-width: 100%; display: grid; place-items: center; background: radial-gradient(circle at 50% 40%, #2c241a, #15120e 70%); border-bottom: 1px solid #33291c; }
-  .product-visual span { font-size: 54px; line-height: 1; color: var(--gold-soft); font-family: var(--serif); }
-  .product-body { padding: 18px 18px 20px; display: grid; gap: 6px; align-content: start; }
-  .product-body small { color: #98713a; font: 11px/1.3 var(--sans); letter-spacing: .18em; text-transform: uppercase; }
-  .product-body h3 { margin: 0; font-size: 19px; font-weight: 400; }
-  .product-body .meta { color: #a9a193; font: 13px/1.4 var(--sans); }
-  .price-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 10px; }
-  .price { font-size: 22px; color: var(--gold-pale); font-variant-numeric: tabular-nums; }
-  .unit { color: #8a8274; font: 12px var(--sans); }
-  .add { padding: 8px 13px; font: 13px/1 var(--sans); }
-
-  .cart-bar { position: sticky; bottom: 0; z-index: 15; margin-top: 34px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px;
-    padding: 16px 20px calc(16px + env(safe-area-inset-bottom, 0px)); background: #201b14; border: 1px solid var(--gold); }
-  .cart-bar p { margin: 0; font: 14px/1.4 var(--sans); color: #e9e2d6; }
-  .cart-bar strong { color: var(--gold-pale); font-family: var(--serif); font-size: 20px; font-weight: 400; font-variant-numeric: tabular-nums; }
-
-  /* Steps */
-  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; counter-reset: step; }
-  .step { display: grid; gap: 12px; padding-top: 22px; border-top: 1px solid var(--gold); }
-  .step-num { color: #b38747; font-size: 44px; line-height: 1; }
-  .step h3 { margin: 0; font-size: 23px; font-weight: 400; }
-  .step p { margin: 0; color: #514d45; line-height: 1.6; }
-
-  /* Newsletter */
-  .club { background: linear-gradient(135deg, #282119, #100f0d 70%); color: #f3ecdf; }
-  .club-inner { display: grid; grid-template-columns: 1.1fr .9fr; gap: 40px; align-items: center; padding-block: clamp(56px, 8vw, 96px); }
-  .club p { color: #a9a193; line-height: 1.6; max-width: 460px; }
-  .club form { display: flex; flex-wrap: wrap; gap: 10px; }
-  .club input { flex: 1 1 220px; min-width: 0; padding: 14px 16px; font: 15px var(--sans); color: #f3ecdf; background: #15120e; border: 1px solid #5a4a31; border-radius: 3px; }
-  .club input::placeholder { color: #7d7466; }
-  .form-msg { flex-basis: 100%; margin: 6px 0 0; font: 14px var(--sans); color: var(--gold-soft); min-height: 1.4em; }
-
-  /* Footer */
-  footer { background: var(--night); color: #a9a193; border-top: 1px solid var(--line); }
-  .foot { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 32px; padding-block: 48px 28px; }
-  .foot h4 { margin: 0 0 12px; color: var(--gold-soft); font: 12px/1 var(--sans); letter-spacing: .2em; text-transform: uppercase; }
-  .foot p, .foot li { margin: 0; font: 14px/1.8 var(--sans); }
-  .foot ul { list-style: none; margin: 0; padding: 0; }
-  .foot .brand { color: #fffaf0; margin-bottom: 12px; }
-  .legal { padding-block: 18px; border-top: 1px solid #2a241b; font: 12px var(--sans); color: #7d7466; }
 
   /* ---------- Responsive ---------- */
-  @media (max-width: 980px) {
-    .products { grid-template-columns: repeat(2, 1fr); }
-    .strip ul { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 1020px) {
+    header { grid-template-columns: auto 1fr; }
+    header nav { display: none; }
+    .logo { align-items: flex-start; }
+    .foot { grid-template-columns: 1fr 1fr; }
+    .manifesto { grid-template-columns: 1fr; gap: 20px; }
   }
   @media (max-width: 860px) {
     .hero { grid-template-columns: 1fr; }
-    .hero-copy { padding-left: var(--gutter-l); padding-right: var(--gutter-r); }
-    .store-art { min-height: 0; padding: 24px 16px; }
-    .rayons, .steps { grid-template-columns: 1fr; }
-    .club-inner, .foot { grid-template-columns: 1fr; }
-    nav a:not(.nav-button) { display: none; }
+    .hero-art { width: min(100%, 420px); }
+    .hero-tag { left: 0; }
+    .collections { grid-template-columns: 1fr 1fr; }
+    .coll:nth-child(3n+2) { margin-top: 0; }
+    .coll:nth-child(even) { margin-top: 50px; }
+    .menu { grid-template-columns: 1fr; }
+    .services { grid-template-columns: 1fr; }
+    .service, .service + .service { padding: 36px 0; border-left: 0; }
+    .service + .service { border-top: 1px solid var(--hair); }
+    .split { grid-template-columns: 1fr; }
   }
-  @media (max-width: 480px) {
-    .products { grid-template-columns: 1fr; }
-    .aisle { min-height: 220px; gap: 6px; }
-    .aisle-label b { font-size: 24px; }
-    .brand { letter-spacing: .1em; }
+  @media (max-width: 520px) {
+    .collections { grid-template-columns: 1fr; }
+    .coll:nth-child(even) { margin-top: 0; }
+    .manifesto .sign { grid-template-columns: 1fr 1fr; gap: 18px 30px; }
+    .foot { grid-template-columns: 1fr; }
+    .basket-btn .txt { display: none; }
+    .line h3 { font-size: 23px; }
   }
 </style>
 
-<header class="topbar wrap">
-  <a class="brand" href="#top"><span class="brand-mark">∞</span> INFINITY SHOP</a>
+<header class="wrap">
   <nav aria-label="Navigation principale">
-    <a href="#rayons">Rayons</a>
-    <a href="#produits">Produits</a>
-    <a href="#fonctionnement">Comment ça marche</a>
-    <a class="nav-button" href="#club">Rejoindre le club</a>
+    <a href="#collections">Collections</a>
+    <a href="#selection">Sélection</a>
+    <a href="#services">Services</a>
   </nav>
+  <a class="logo" href="#top" aria-label="Infinity Shop, accueil"><span class="inf">∞</span><span class="word">INFINITY</span></a>
+  <div class="head-right">
+    <button class="basket-btn" id="openBasket" type="button" aria-controls="drawer"><span class="txt">Panier</span><span class="dot" id="basketCount">0</span></button>
+  </div>
 </header>
 
 <main id="top">
-  <section class="hero">
+  <section class="hero wrap">
     <div class="hero-copy">
-      <p class="eyebrow">Épicerie &amp; essentiels · Ouvert 7j/7</p>
-      <h1>L’achat du quotidien, <em>autrement.</em></h1>
-      <p class="intro">Des produits choisis avec soin, des prix clairs et un service qui vous fait gagner du temps. Faites vos courses en boutique ou réservez en ligne, on prépare tout pour vous.</p>
-      <div class="hero-actions">
-        <a class="button" href="#produits">Découvrir les produits</a>
-        <a class="link" href="#fonctionnement">Retrait en 2 heures</a>
+      <span class="label rise">Maison d’épicerie fine · Ouvert 7j/7</span>
+      <h1 class="rise d2"><span>L’achat</span><span class="indent">du quotidien,</span><span><em>autrement.</em></span></h1>
+      <p class="lead rise d3">Une boutique où chaque produit est choisi avec exigence. Les essentiels de tous les jours, présentés comme ils le méritent, et un service qui prépare tout pour vous.</p>
+      <div class="hero-actions rise d4">
+        <a class="btn" href="#selection">Découvrir la sélection</a>
+        <a class="btn ghost" href="#services">Nos services</a>
       </div>
     </div>
-
-    <div class="store-art" aria-hidden="true">
-      <div class="store-frame">
-        <div class="store-sign">∞ INFINITY SHOP</div>
-        <div class="aisle">
-          <div class="shelf-unit" id="shelfLeft"></div>
-          <div class="center-aisle">
-            <div class="aisle-label">Allée<b>∞</b>Tout, tous les jours</div>
-          </div>
-          <div class="shelf-unit" id="shelfRight"></div>
-        </div>
-      </div>
+    <div class="hero-art rise d3" aria-hidden="true">
+      <div class="arch"><canvas id="infinity"></canvas></div>
+      <div class="arch-inner"></div>
+      <div class="hero-tag"><b>+1 200</b><span>Références choisies</span></div>
     </div>
   </section>
 
-  <div class="strip">
-    <ul class="wrap">
-      <li><strong>8h – 21h</strong>Tous les jours, dimanche compris</li>
-      <li><strong>2 heures</strong>Pour préparer votre commande</li>
-      <li><strong>+1 200</strong>Références en rayon</li>
-      <li><strong>0 €</strong>De frais de retrait en boutique</li>
-    </ul>
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track" id="marquee"></div>
   </div>
 
-  <section class="block wrap" id="rayons">
-    <div class="section-head">
-      <h2>Six rayons pour <em>tout le quotidien.</em></h2>
-      <p>De l’épicerie fine à l’entretien de la maison, chaque rayon est pensé pour aller à l’essentiel sans sacrifier la qualité.</p>
-    </div>
-    <div class="rayons">
-      <article class="rayon"><span class="code">RAYON A</span><h3>Épicerie salée</h3><p>Pâtes, conserves, condiments et produits du monde sélectionnés pour leur rapport qualité-prix.</p><span class="count">320 références</span></article>
-      <article class="rayon"><span class="code">RAYON B</span><h3>Épicerie sucrée</h3><p>Biscuits, chocolats, confitures et petits-déjeuners, avec une sélection artisanale.</p><span class="count">210 références</span></article>
-      <article class="rayon"><span class="code">RAYON C</span><h3>Frais &amp; crèmerie</h3><p>Produits laitiers, fromages à la coupe et traiteur, réapprovisionnés chaque matin.</p><span class="count">180 références</span></article>
-      <article class="rayon"><span class="code">RAYON D</span><h3>Boissons</h3><p>Eaux, jus, sodas, cafés et thés, plus une cave courte mais bien choisie.</p><span class="count">160 références</span></article>
-      <article class="rayon"><span class="code">RAYON E</span><h3>Maison &amp; entretien</h3><p>Lessive, vaisselle, papeterie et petits indispensables pour la maison.</p><span class="count">190 références</span></article>
-      <article class="rayon"><span class="code">RAYON F</span><h3>Hygiène &amp; beauté</h3><p>Soins du quotidien, produits pour bébé et une gamme naturelle en vrac.</p><span class="count">150 références</span></article>
-    </div>
-  </section>
-
-  <section class="block products-band" id="produits">
-    <div class="wrap">
-      <div class="section-head">
-        <h2>Les incontournables <em>de la semaine.</em></h2>
-        <p>Ajoutez des produits à votre panier pour préparer un retrait en boutique.</p>
-      </div>
-      <div class="filters" role="group" aria-label="Filtrer par rayon" id="filters"></div>
-      <div class="products" id="products"></div>
-      <div class="cart-bar" aria-live="polite">
-        <p><span id="cartCount">Panier vide</span></p>
-        <p>Total <strong id="cartTotal">0,00 €</strong></p>
-        <button class="button" id="checkout" type="button">Réserver le retrait</button>
+  <section class="block wrap manifesto">
+    <span class="label">Notre maison</span>
+    <div>
+      <p class="big">Infinity Shop est né d’une idée simple&nbsp;: les courses du quotidien méritent <em>le même soin</em> qu’une belle adresse. Des producteurs choisis, des rayons apaisés, et une équipe qui connaît chaque produit qu’elle vous propose.</p>
+      <div class="sign">
+        <div><b>7j/7</b><span>Ouvert toute la semaine</span></div>
+        <div><b>2 h</b><span>Commande préparée</span></div>
+        <div><b>0 €</b><span>Retrait en boutique</span></div>
       </div>
     </div>
   </section>
 
-  <section class="block wrap" id="fonctionnement">
-    <div class="section-head">
-      <h2>Vos courses prêtes <em>en trois étapes.</em></h2>
-      <p>Commandez quand vous voulez, récupérez quand ça vous arrange.</p>
-    </div>
-    <div class="steps">
-      <article class="step"><span class="step-num">1</span><h3>Composez votre panier</h3><p>Parcourez les rayons en ligne et ajoutez vos produits habituels en quelques clics.</p></article>
-      <article class="step"><span class="step-num">2</span><h3>Choisissez un créneau</h3><p>Sélectionnez l’heure de retrait qui vous convient, au plus tôt deux heures après la commande.</p></article>
-      <article class="step"><span class="step-num">3</span><h3>Récupérez en boutique</h3><p>Votre commande vous attend au comptoir. Vous réglez sur place, sans file d’attente.</p></article>
-    </div>
-  </section>
-
-  <section class="club" id="club">
-    <div class="club-inner wrap">
+  <section class="block wrap" id="collections" style="padding-top:0">
+    <div class="head">
       <div>
-        <p class="eyebrow">Le club Infinity</p>
-        <h2>Recevez les nouveautés <em>avant tout le monde.</em></h2>
-        <p>Une lettre par semaine avec les arrivages, les promotions du moment et une recette simple à faire avec les produits du magasin.</p>
+        <span class="label">Les collections</span>
+        <h2>Six univers, <em>une même exigence.</em></h2>
       </div>
-      <form id="clubForm" novalidate>
-        <label for="email" class="eyebrow" style="flex-basis:100%;margin:0">Votre adresse e-mail</label>
-        <input id="email" name="email" type="email" placeholder="prenom@exemple.fr" autocomplete="email">
-        <button class="button" type="submit">S’inscrire</button>
-        <p class="form-msg" id="formMsg" role="status"></p>
-      </form>
+      <p>De l’épicerie fine à l’entretien de la maison, chaque rayon est composé comme une vitrine.</p>
     </div>
+    <div class="collections" id="collectionsGrid"></div>
+  </section>
+
+  <section class="block selection" id="selection">
+    <div class="wrap">
+      <div class="head">
+        <div>
+          <span class="label">La sélection de la semaine</span>
+          <h2>Nos <em>incontournables.</em></h2>
+        </div>
+        <p>Composez votre panier, nous le préparons en deux heures pour un retrait en boutique.</p>
+      </div>
+      <div class="tabs" role="tablist" id="tabs"></div>
+      <div class="menu" id="menu"></div>
+    </div>
+  </section>
+
+  <section class="block wrap" id="services">
+    <div class="head">
+      <div>
+        <span class="label">Services</span>
+        <h2>Le temps <em>vous appartient.</em></h2>
+      </div>
+    </div>
+    <div class="services">
+      <article class="service">
+        <svg class="ico" viewBox="0 0 44 44" fill="none" stroke="#c9a063" stroke-width="1"><rect x="8" y="14" width="28" height="22"/><path d="M15 14v-3a7 7 0 0 1 14 0v3"/></svg>
+        <h3>Retrait en boutique</h3>
+        <p>Commandez en ligne, votre panier est prêt au comptoir deux heures plus tard. Vous réglez sur place.</p>
+        <small>Gratuit · Jusqu’à 20h30</small>
+      </article>
+      <article class="service">
+        <svg class="ico" viewBox="0 0 44 44" fill="none" stroke="#c9a063" stroke-width="1"><circle cx="22" cy="22" r="14"/><path d="M22 13v9l6 4"/></svg>
+        <h3>Réservation de créneau</h3>
+        <p>Choisissez l’heure qui vous convient. Nous vous prévenons dès que votre commande est prête.</p>
+        <small>Créneaux de 30 minutes</small>
+      </article>
+      <article class="service">
+        <svg class="ico" viewBox="0 0 44 44" fill="none" stroke="#c9a063" stroke-width="1"><path d="M10 34c0-7 5-12 12-12s12 5 12 12"/><circle cx="22" cy="14" r="6"/></svg>
+        <h3>Conseil personnalisé</h3>
+        <p>Un fromage pour ce soir, un café à votre goût, un cadeau à composer : l’équipe vous guide en boutique.</p>
+        <small>Sur place, tous les jours</small>
+      </article>
+    </div>
+  </section>
+
+  <section class="split">
+    <div class="photo" data-photo="boutique">
+      <div class="scene" id="storeScene"></div>
+    </div>
+    <div class="split-copy wrap">
+      <span class="label">La boutique</span>
+      <h2>Venez nous rendre <em>visite.</em></h2>
+      <p>Une lumière douce, des rayons aérés et le temps de choisir. Passez découvrir les arrivages de la semaine.</p>
+      <div class="hours">
+        <div><span>Lundi – Samedi</span><span>8h00 – 21h00</span></div>
+        <div><span>Dimanche</span><span>9h00 – 19h00</span></div>
+        <div><span>Retrait des commandes</span><span>jusqu’à 20h30</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block wrap club" id="club">
+    <span class="label">Le cercle Infinity</span>
+    <h2>Les arrivages, <em>avant tout le monde.</em></h2>
+    <p>Une lettre par semaine : nouveautés, offres réservées aux membres et une recette signée par l’équipe.</p>
+    <form id="clubForm" novalidate>
+      <label for="email" class="label" style="position:absolute;left:-9999px">Adresse e-mail</label>
+      <input id="email" type="email" placeholder="Votre adresse e-mail" autocomplete="email">
+      <button type="submit">S’inscrire</button>
+    </form>
+    <p class="form-msg" id="formMsg" role="status"></p>
   </section>
 </main>
 
 <footer>
   <div class="foot wrap">
     <div>
-      <div class="brand"><span class="brand-mark">∞</span> INFINITY SHOP</div>
-      <p>L’achat du quotidien, autrement. Épicerie, frais et essentiels de la maison.</p>
+      <div class="logo"><span class="inf">∞</span><span class="word">INFINITY</span></div>
+      <p style="margin-top:18px;max-width:280px">L’achat du quotidien, autrement. Épicerie fine, frais et essentiels de la maison.</p>
     </div>
-    <div>
-      <h4>Horaires</h4>
-      <ul><li>Lundi – Samedi : 8h – 21h</li><li>Dimanche : 9h – 19h</li><li>Retrait : jusqu’à 20h30</li></ul>
-    </div>
-    <div>
-      <h4>Explorer</h4>
-      <ul><li><a href="#rayons">Nos rayons</a></li><li><a href="#produits">Produits de la semaine</a></li><li><a href="#fonctionnement">Retrait en boutique</a></li><li><a href="#club">Le club</a></li></ul>
-    </div>
+    <div><span class="label">Explorer</span><ul><li><a href="#collections">Collections</a></li><li><a href="#selection">Sélection</a></li><li><a href="#services">Services</a></li></ul></div>
+    <div><span class="label">Horaires</span><ul><li>Lun – Sam · 8h – 21h</li><li>Dimanche · 9h – 19h</li></ul></div>
+    <div><span class="label">Le cercle</span><ul><li><a href="#club">Recevoir la lettre</a></li><li>Offres membres</li></ul></div>
   </div>
-  <div class="legal wrap">© 2026 Infinity Shop · Tous droits réservés</div>
+  <div class="legal wrap"><span>© 2026 Infinity Shop</span><span>Tous droits réservés</span></div>
 </footer>
 
-<script>
-  // Étagères décoratives
-  const tones = ['#bd9250','#8c6a3a','#d6ad6b','#5c4a32','#a8834a','#efe3cc','#6e5638','#c9a368'];
-  function fillShelf(el, seed) {
-    for (let r = 0; r < 4; r++) {
-      const shelf = document.createElement('div'); shelf.className = 'shelf';
-      const n = 4 + ((seed + r) % 3);
-      for (let i = 0; i < n; i++) {
-        const it = document.createElement('span'); it.className = 'item';
-        it.style.height = (45 + ((seed * 7 + r * 13 + i * 17) % 50)) + '%';
-        it.style.background = tones[(seed + r * 3 + i) % tones.length];
-        shelf.appendChild(it);
-      }
-      el.appendChild(shelf);
-    }
-  }
-  fillShelf(document.getElementById('shelfLeft'), 1);
-  fillShelf(document.getElementById('shelfRight'), 4);
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-label="Panier" aria-hidden="true">
+  <div class="drawer-head"><h3>Votre panier</h3><button class="close" id="closeBasket" type="button">Fermer</button></div>
+  <ul class="drawer-list" id="drawerList"></ul>
+  <div class="drawer-foot">
+    <div class="total"><span class="label">Total</span><b id="total">0,00 €</b></div>
+    <button class="btn" id="reserve" type="button">Réserver le retrait</button>
+    <p class="drawer-note" id="note" role="status"></p>
+  </div>
+</aside>
 
-  // Produits
+<script>
+  /* ---- ∞ animé dans l’arche ---- */
+  (function () {
+    const c = document.getElementById('infinity'), ctx = c.getContext('2d');
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let w, h, t = 0;
+    const dust = Array.from({ length: 70 }, () => ({ x: Math.random(), y: Math.random(), r: Math.random() * 1.4 + .3, s: Math.random() * .0006 + .0002 }));
+    function size() { const r = c.getBoundingClientRect(), d = Math.min(devicePixelRatio || 1, 2); w = r.width; h = r.height; c.width = w * d; c.height = h * d; ctx.setTransform(d, 0, 0, d, 0, 0); }
+    function pt(a, cx, cy, A) { const s = Math.sin(a), k = 1 + s * s; return [cx + A * Math.cos(a) / k, cy + A * s * Math.cos(a) / k]; }
+    function frame() {
+      ctx.clearRect(0, 0, w, h);
+      const g = ctx.createRadialGradient(w / 2, h * .48, 10, w / 2, h * .48, w * .7);
+      g.addColorStop(0, 'rgba(236,211,162,.16)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+      dust.forEach(p => { p.y -= p.s; if (p.y < 0) p.y = 1; ctx.fillStyle = 'rgba(236,211,162,' + (.15 + p.r * .2) + ')'; ctx.beginPath(); ctx.arc(p.x * w, p.y * h, p.r, 0, 7); ctx.fill(); });
+      const cx = w / 2, cy = h * .5, A = w * .38;
+      for (let layer = 0; layer < 3; layer++) {
+        ctx.beginPath();
+        for (let i = 0; i <= 400; i++) { const [x, y] = pt(i / 400 * Math.PI * 2, cx, cy + layer * 1.5, A - layer * 3); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
+        ctx.strokeStyle = ['rgba(201,160,99,.85)', 'rgba(236,211,162,.25)', 'rgba(138,106,60,.4)'][layer];
+        ctx.lineWidth = [1.4, 6, 1][layer]; ctx.stroke();
+      }
+      for (let k = 0; k < 26; k++) { const [x, y] = pt(t - k * .035, cx, cy, A); ctx.fillStyle = 'rgba(255,238,205,' + (1 - k / 26) * .9 + ')'; ctx.beginPath(); ctx.arc(x, y, 3.2 - k * .1, 0, 7); ctx.fill(); }
+      ctx.fillStyle = 'rgba(236,211,162,.7)'; ctx.font = '300 italic ' + Math.round(w * .055) + 'px "Cormorant Garamond", Georgia, serif'; ctx.textAlign = 'center';
+      ctx.fillText('Tout, tous les jours', cx, h * .82);
+      t += .012; if (!reduce) requestAnimationFrame(frame);
+    }
+    size(); addEventListener('resize', size); t = 1.1; frame();
+    document.fonts && document.fonts.ready.then(() => { if (reduce) frame(); });
+  })();
+
+  /* ---- Bandeau défilant ---- */
+  const words = ['Épicerie fine', 'Frais du jour', 'Cave choisie', 'Torréfaction douce', 'Fromages à la coupe', 'Maison & beauté'];
+  document.getElementById('marquee').innerHTML = [...words, ...words].map(w => `<span>${w}</span>`).join('');
+
+  /* ---- Scènes « photo » dessinées ---- */
+  const palettes = ['#6b4f2c', '#3f2f1d', '#c9a063', '#2a3324', '#5a2a22', '#e8dcc6', '#1f2a33', '#8a6a3c'];
+  function scene(seed, el) {
+    const objs = [
+      [ [12, 14, 34, 'jar'], [32, 16, 48, ''], [54, 12, 28, 'round noLabel'], [72, 14, 40, 'glass'] ],
+      [ [10, 18, 38, ''], [33, 12, 54, 'glass'], [50, 20, 26, 'jar'], [74, 12, 46, ''] ],
+      [ [14, 22, 22, 'round noLabel'], [38, 14, 44, 'jar'], [58, 12, 36, ''], [76, 10, 50, 'glass'] ]
+    ][seed % 3];
+    el.innerHTML = objs.map(([l, wd, ht, cls], i) => `<span class="obj ${cls}" style="left:${l}%;width:${wd}%;height:${ht}%;${cls.includes('glass') ? '' : 'background:linear-gradient(90deg,' + palettes[(seed + i) % 8] + ',' + palettes[(seed + i + 3) % 8] + ')'}"></span>`).join('');
+  }
+
+  const collections = [
+    ['Épicerie fine', 'Huiles, pâtes artisanales, condiments et produits du monde choisis chez de petits producteurs.', '320 références'],
+    ['Douceurs', 'Chocolats, biscuits pur beurre, confitures et miels pour le petit-déjeuner et les cadeaux.', '210 références'],
+    ['Frais & crèmerie', 'Fromages à la coupe, produits laitiers fermiers et traiteur, livrés chaque matin.', '180 références'],
+    ['Cave & boissons', 'Une cave courte et soignée, des jus pressés, des cafés et thés d’origine.', '160 références'],
+    ['Maison', 'Linge, entretien écologique et petits objets utiles, sélectionnés pour durer.', '190 références'],
+    ['Beauté & soin', 'Savons, soins naturels et une gamme en vrac pour toute la famille.', '150 références']
+  ];
+  document.getElementById('collectionsGrid').innerHTML = collections.map((c, i) => `
+    <article class="coll">
+      <div class="photo" data-photo="collection-${i + 1}"><div class="scene"></div><span class="num">${String.fromCharCode(65 + i)} · ${c[2]}</span></div>
+      <h3>${c[0]}</h3><p>${c[1]}</p><a class="more" href="#selection">Voir la sélection →</a>
+    </article>`).join('');
+  document.querySelectorAll('#collectionsGrid .scene').forEach((el, i) => scene(i, el));
+  scene(4, document.getElementById('storeScene'));
+
+  /* ---- Sélection + panier ---- */
   const products = [
-    { name: 'Pâtes de blé dur bio', cat: 'Épicerie', meta: 'Paquet de 500 g', price: 1.89, unit: '3,78 €/kg', glyph: 'P' },
-    { name: 'Huile d’olive vierge extra', cat: 'Épicerie', meta: 'Bouteille de 75 cl', price: 8.90, unit: '11,87 €/L', glyph: 'H' },
-    { name: 'Comté 18 mois', cat: 'Frais', meta: 'À la coupe, 250 g', price: 6.40, unit: '25,60 €/kg', glyph: 'C' },
-    { name: 'Yaourts nature fermiers', cat: 'Frais', meta: 'Lot de 4 × 125 g', price: 2.75, unit: '5,50 €/kg', glyph: 'Y' },
-    { name: 'Café en grains, torréfaction douce', cat: 'Boissons', meta: 'Sachet de 1 kg', price: 14.50, unit: '14,50 €/kg', glyph: 'K' },
-    { name: 'Jus de pomme pressé', cat: 'Boissons', meta: 'Bouteille de 1 L', price: 3.20, unit: '3,20 €/L', glyph: 'J' },
-    { name: 'Lessive écologique', cat: 'Maison', meta: 'Bidon de 3 L, 60 lavages', price: 11.90, unit: '0,20 €/lavage', glyph: 'L' },
-    { name: 'Savon de Marseille', cat: 'Maison', meta: 'Pain de 300 g', price: 3.60, unit: '12,00 €/kg', glyph: 'S' }
+    { id: 'pates', n: 'Pâtes de blé dur bio', c: 'Épicerie', d: 'Séchées lentement, paquet de 500 g', p: 3.90, u: '7,80 €/kg' },
+    { id: 'huile', n: 'Huile d’olive vierge extra', c: 'Épicerie', d: 'Première pression à froid, 50 cl', p: 14.50, u: '29,00 €/L' },
+    { id: 'comte', n: 'Comté 24 mois', c: 'Frais', d: 'Affiné en cave, à la coupe, 250 g', p: 9.80, u: '39,20 €/kg' },
+    { id: 'beurre', n: 'Beurre de baratte demi-sel', c: 'Frais', d: 'Motte de 250 g', p: 4.60, u: '18,40 €/kg' },
+    { id: 'cafe', n: 'Café grains, origine Éthiopie', c: 'Boissons', d: 'Torréfaction douce, 500 g', p: 16.00, u: '32,00 €/kg' },
+    { id: 'jus', n: 'Jus de pomme pressé', c: 'Boissons', d: 'Bouteille en verre, 1 L', p: 4.20, u: '4,20 €/L' },
+    { id: 'savon', n: 'Savon de Marseille', c: 'Maison', d: 'Pain de 300 g, huile d’olive', p: 5.90, u: '19,67 €/kg' },
+    { id: 'bougie', n: 'Bougie parfumée figuier', c: 'Maison', d: 'Cire végétale, 40 heures', p: 24.00, u: 'pièce' }
   ];
   const eur = v => v.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
   const cart = {};
-  const cats = ['Tous', ...new Set(products.map(p => p.cat))];
-  let active = 'Tous';
-
-  const filtersEl = document.getElementById('filters');
-  cats.forEach(c => {
-    const b = document.createElement('button');
-    b.type = 'button'; b.className = 'filter'; b.textContent = c;
-    b.setAttribute('aria-pressed', c === active);
-    b.addEventListener('click', () => { active = c; filtersEl.querySelectorAll('.filter').forEach(x => x.setAttribute('aria-pressed', x.textContent === c)); render(); });
-    filtersEl.appendChild(b);
+  let tab = 'Tout';
+  const tabsEl = document.getElementById('tabs'), menuEl = document.getElementById('menu');
+  ['Tout', 'Épicerie', 'Frais', 'Boissons', 'Maison'].forEach(name => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'tab'; b.role = 'tab'; b.textContent = name;
+    b.setAttribute('aria-selected', name === tab);
+    b.onclick = () => { tab = name; tabsEl.querySelectorAll('.tab').forEach(x => x.setAttribute('aria-selected', x.textContent === name)); renderMenu(); };
+    tabsEl.appendChild(b);
   });
-
-  const grid = document.getElementById('products');
-  function render() {
-    grid.innerHTML = '';
-    products.filter(p => active === 'Tous' || p.cat === active).forEach(p => {
-      const card = document.createElement('article'); card.className = 'product';
-      const qty = cart[p.name] || 0;
-      card.innerHTML = `
-        <div class="product-visual"><span>${p.glyph}</span></div>
-        <div class="product-body">
-          <small>${p.cat}</small>
-          <h3>${p.name}</h3>
-          <span class="meta">${p.meta}</span>
-          <div class="price-row">
-            <div><div class="price">${eur(p.price)}</div><div class="unit">${p.unit}</div></div>
-            <button class="button add" type="button">${qty ? 'Ajouté × ' + qty : 'Ajouter'}</button>
-          </div>
-        </div>`;
-      card.querySelector('.add').addEventListener('click', () => { cart[p.name] = qty + 1; updateCart(); render(); });
-      grid.appendChild(card);
-    });
+  function renderMenu() {
+    menuEl.innerHTML = products.filter(p => tab === 'Tout' || p.c === tab).map(p => `
+      <div class="line">
+        <h3>${p.n}</h3><span class="price">${eur(p.p)}</span>
+        <span class="desc">${p.d}</span><span class="unit">${p.u}</span>
+        <button class="add ${cart[p.id] ? 'in' : ''}" data-id="${p.id}" type="button">${cart[p.id] ? 'Dans le panier · ' + cart[p.id] : '+ Ajouter au panier'}</button>
+      </div>`).join('');
   }
-  function updateCart() {
-    const n = Object.values(cart).reduce((a, b) => a + b, 0);
-    const total = products.reduce((s, p) => s + (cart[p.name] || 0) * p.price, 0);
-    document.getElementById('cartCount').textContent = n ? `${n} article${n > 1 ? 's' : ''} dans le panier` : 'Panier vide';
-    document.getElementById('cartTotal').textContent = eur(total);
+  menuEl.addEventListener('click', e => { const b = e.target.closest('.add'); if (!b) return; cart[b.dataset.id] = (cart[b.dataset.id] || 0) + 1; update(); });
+  const drawer = document.getElementById('drawer'), scrim = document.getElementById('scrim'), list = document.getElementById('drawerList');
+  function update() {
+    renderMenu();
+    const items = products.filter(p => cart[p.id]);
+    const count = items.reduce((s, p) => s + cart[p.id], 0);
+    document.getElementById('basketCount').textContent = count;
+    document.getElementById('total').textContent = eur(items.reduce((s, p) => s + cart[p.id] * p.p, 0));
+    list.innerHTML = items.length ? items.map(p => `
+      <li><span class="n">${p.n}</span><span class="p">${eur(p.p * cart[p.id])}</span>
+      <span class="qty"><button type="button" data-q="-1" data-id="${p.id}" aria-label="Retirer un">−</button>${cart[p.id]}<button type="button" data-q="1" data-id="${p.id}" aria-label="Ajouter un">+</button></span></li>`).join('')
+      : '<li class="empty">Votre panier est vide. Parcourez la sélection pour ajouter vos produits.</li>';
   }
-  document.getElementById('checkout').addEventListener('click', () => {
-    const n = Object.values(cart).reduce((a, b) => a + b, 0);
-    document.getElementById('cartCount').textContent = n
+  list.addEventListener('click', e => { const b = e.target.closest('[data-q]'); if (!b) return; const id = b.dataset.id; cart[id] = Math.max(0, cart[id] + +b.dataset.q); if (!cart[id]) delete cart[id]; update(); });
+  function toggle(open) { drawer.classList.toggle('open', open); scrim.classList.toggle('open', open); drawer.setAttribute('aria-hidden', !open); if (open) document.getElementById('closeBasket').focus(); }
+  document.getElementById('openBasket').onclick = () => toggle(true);
+  document.getElementById('closeBasket').onclick = () => toggle(false);
+  scrim.onclick = () => toggle(false);
+  addEventListener('keydown', e => { if (e.key === 'Escape') toggle(false); });
+  document.getElementById('reserve').onclick = () => {
+    document.getElementById('note').textContent = Object.keys(cart).length
       ? 'Démo : la réservation en ligne sera bientôt disponible.'
-      : 'Ajoutez au moins un produit pour réserver.';
-  });
-  render();
+      : 'Ajoutez au moins un produit pour réserver un créneau.';
+  };
+  update();
 
-  // Club
+  /* ---- Cercle ---- */
   document.getElementById('clubForm').addEventListener('submit', e => {
     e.preventDefault();
     const v = document.getElementById('email').value.trim();
-    const msg = document.getElementById('formMsg');
-    msg.textContent = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)
-      ? 'Merci ! Votre inscription est bien prise en compte (démo).'
-      : 'Adresse invalide. Vérifiez le format, par exemple prenom@exemple.fr.';
+    document.getElementById('formMsg').textContent = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)
+      ? 'Bienvenue dans le cercle (démo).'
+      : 'Adresse invalide. Exemple : prenom@exemple.fr';
   });
 </script>
