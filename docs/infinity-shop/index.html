@@ -189,6 +189,74 @@
   .foot nav a:hover { color: var(--gold-hi); }
   .legal { padding-block: 18px; border-top: 1px solid var(--hair); font-size: 12px; letter-spacing: .08em; color: var(--stone); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
 
+  /* ---------- Interactif ---------- */
+  .open-pill b { font-weight: 400; font-variant-numeric: tabular-nums; color: var(--ivory); }
+  .tile { cursor: zoom-in; }
+  .tile:focus-visible { outline: 2px solid var(--gold-hi); outline-offset: 2px; }
+  .tile .zoom { position: absolute; top: 14px; right: 14px; z-index: 2; width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; background: rgba(11,10,8,.7); border: 1px solid var(--hair); color: var(--gold-hi); font-size: 18px; opacity: 0; transition: opacity .3s; }
+  .tile:hover .zoom, .tile:focus-visible .zoom { opacity: 1; }
+
+  dialog.lightbox { width: min(1100px, calc(100% - 32px)); max-height: calc(100% - 32px); padding: 0; border: 1px solid var(--gold); background: var(--night-2); color: var(--ivory); }
+  dialog.lightbox::backdrop { background: rgba(5,4,3,.86); backdrop-filter: blur(4px); }
+  .lb-img { width: 100%; max-height: 70vh; object-fit: contain; background: #000; }
+  .lb-bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 14px 24px; padding: 18px 22px; }
+  .lb-bar h3 { font-size: 30px; }
+  .lb-bar p { margin: 0; color: var(--ivory-dim); font-size: 14px; }
+  .lb-nav { display: flex; gap: 8px; align-items: center; }
+  .lb-nav button, .icon-btn { width: 42px; height: 42px; display: grid; place-items: center; border: 1px solid var(--hair); background: none; color: var(--gold-hi); font-size: 18px; cursor: pointer; }
+  .lb-nav button:hover, .icon-btn:hover { border-color: var(--gold); background: rgba(209,166,90,.1); }
+  .lb-count { min-width: 52px; text-align: center; font-size: 13px; color: var(--stone); font-variant-numeric: tabular-nums; }
+
+  .product { position: relative; }
+  .product .add { margin-top: 10px; justify-self: start; padding: 9px 12px; font: 400 11px/1 var(--body); letter-spacing: .14em; text-transform: uppercase; color: #1d1913; background: none; border: 1px solid rgba(29,25,19,.25); cursor: pointer; transition: .2s; }
+  .product .add:hover { border-color: #1d1913; }
+  .product .add[aria-pressed="true"] { color: #fff; background: #1d1913; border-color: #1d1913; }
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+  .filter { padding: 9px 16px; font: 400 12px/1 var(--body); letter-spacing: .1em; color: #5f574a; background: none; border: 1px solid rgba(29,25,19,.2); border-radius: 40px; cursor: pointer; }
+  .filter[aria-pressed="true"] { color: #fff; background: #1d1913; border-color: #1d1913; }
+
+  .sas-demo { margin-top: 8px; padding: 22px; border: 1px solid var(--hair); background: var(--night); display: grid; gap: 18px; max-width: 520px; }
+  .sas-track { display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 10px; }
+  .sas-step { padding: 14px 12px; border: 1px solid var(--hair); display: grid; gap: 8px; justify-items: center; text-align: center; font-size: 12px; letter-spacing: .08em; color: var(--ivory-dim); transition: .4s; }
+  .sas-step i { width: 14px; height: 14px; border-radius: 50%; background: #3a332a; transition: .4s; }
+  .sas-step.ok { border-color: #3ddc6a; color: var(--ivory); }
+  .sas-step.ok i { background: #3ddc6a; box-shadow: 0 0 12px #3ddc6a; }
+  .sas-step.wait i { background: var(--gold); animation: blink .6s infinite alternate; }
+  @keyframes blink { to { opacity: .3; } }
+  .sas-msg { margin: 0; min-height: 1.6em; font-size: 14px; color: var(--gold-hi); }
+  .demo-note { margin: 0; font-size: 12px; color: var(--stone); }
+
+  .fab { position: fixed; z-index: 45; right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); display: flex; gap: 10px; }
+  .fab .list-btn { display: inline-flex; align-items: center; gap: 10px; padding: 14px 18px; font: 400 12px/1 var(--body); letter-spacing: .16em; text-transform: uppercase; color: var(--night); background: linear-gradient(135deg, var(--gold-hi), var(--gold)); border: 0; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,.5); }
+  .fab .list-btn b { min-width: 22px; height: 22px; display: grid; place-items: center; border-radius: 20px; background: var(--night); color: var(--gold-hi); font-weight: 400; letter-spacing: 0; font-variant-numeric: tabular-nums; }
+  .fab .icon-btn { background: rgba(11,10,8,.85); }
+  .bump { animation: bump .4s; }
+  @keyframes bump { 50% { transform: scale(1.12); } }
+
+  .panel { position: fixed; top: 0; right: 0; bottom: 0; z-index: 60; width: min(420px, 100%); display: grid; grid-template-rows: auto auto 1fr auto; gap: 18px;
+    padding: calc(26px + env(safe-area-inset-top, 0px)) max(24px, env(safe-area-inset-right, 0px)) calc(24px + env(safe-area-inset-bottom, 0px)) 24px;
+    background: var(--night-2); border-left: 1px solid var(--gold); transform: translateX(100%); visibility: hidden; transition: transform .45s cubic-bezier(.2,.7,.2,1), visibility 0s .45s; }
+  .panel.open { transform: none; visibility: visible; transition: transform .45s cubic-bezier(.2,.7,.2,1); }
+  .scrim { position: fixed; inset: 0; z-index: 55; background: rgba(0,0,0,.6); opacity: 0; pointer-events: none; transition: opacity .3s; }
+  .scrim.open { opacity: 1; pointer-events: auto; }
+  .panel-head { display: flex; justify-content: space-between; align-items: center; }
+  .panel-head h3 { font-size: 34px; }
+  .add-row { display: flex; gap: 8px; }
+  .add-row input { flex: 1; min-width: 0; padding: 12px 14px; background: var(--night); border: 1px solid var(--hair); color: var(--ivory); font: 300 15px var(--body); }
+  .add-row input:focus-visible { outline: none; border-color: var(--gold); }
+  .shop-list { list-style: none; margin: 0; padding: 0; overflow: auto; }
+  .shop-list li { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--hair); }
+  .shop-list input[type=checkbox] { width: 20px; height: 20px; accent-color: var(--gold); }
+  .shop-list label { cursor: pointer; }
+  .shop-list li.done label { text-decoration: line-through; color: var(--stone); }
+  .shop-list .rm { background: none; border: 0; color: var(--stone); font-size: 18px; cursor: pointer; }
+  .shop-list .empty { display: block; color: var(--stone); border: 0; }
+  .panel-foot { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; color: var(--ivory-dim); }
+  .panel-foot button { background: none; border: 0; color: var(--gold); font: 400 12px var(--body); letter-spacing: .14em; text-transform: uppercase; cursor: pointer; }
+  .to-top { opacity: 0; pointer-events: none; transition: opacity .3s; }
+  .to-top.show { opacity: 1; pointer-events: auto; }
+  @media (max-width: 620px) { .sas-track { grid-template-columns: 1fr 1fr; } .sas-step.door { grid-column: span 2; } }
+
   /* Motion */
   .rise { animation: rise 1.1s cubic-bezier(.2,.7,.2,1) both; }
   .rise.d2 { animation-delay: .15s; } .rise.d3 { animation-delay: .3s; } .rise.d4 { animation-delay: .45s; }
@@ -237,7 +305,7 @@
     <a href="#services">Services</a>
     <a href="#faq">Questions</a>
   </nav>
-  <span class="open-pill"><i></i>Ouvert 24h/24</span>
+  <span class="open-pill" title="Le magasin est ouvert 24h/24"><i></i>Ouvert · <b id="clock">24h/24</b></span>
 </header>
 
 <main id="top">
@@ -296,13 +364,13 @@
         <p>Une supérette complète, pensée comme une belle boutique : bois, lumière dorée et rayons bien rangés.</p>
       </div>
       <div class="mosaic">
-        <figure class="tile big" style="margin:0"><img src="img/rayon-frais.jpg" alt="Allée du rayon frais" loading="lazy"><figcaption><h3>Rayon frais</h3><span>Charcuterie, fromages, produits laitiers, viandes et volailles</span></figcaption></figure>
-        <figure class="tile" style="margin:0"><img src="img/rayon-boulangerie.jpg" alt="Rayon boulangerie et viennoiseries" loading="lazy"><figcaption><h3>Boulangerie</h3><span>Pains, viennoiseries, produits salés</span></figcaption></figure>
-        <figure class="tile" style="margin:0"><img src="img/rayon-boucherie.jpg" alt="Rayon boucherie" loading="lazy"><figcaption><h3>Boucherie</h3><span>Bœuf, veau, agneau, porc, volaille</span></figcaption></figure>
-        <figure class="tile" style="margin:0"><img src="img/rayon-aperitif.jpg" alt="Rayon apéritif" loading="lazy"><figcaption><h3>Apéritif</h3><span>Chips, biscuits, olives, tartinables</span></figcaption></figure>
-        <figure class="tile" style="margin:0"><img src="img/rayon-fleurs.jpg" alt="Rayon fleurs et plantes" loading="lazy"><figcaption><h3>Fleurs</h3><span>Bouquets, plantes, compositions</span></figcaption></figure>
-        <figure class="tile wide" style="margin:0"><img src="img/rayon-non-alimentaire.jpg" alt="Rayon non alimentaire" loading="lazy"><figcaption><h3>Non alimentaire</h3><span>Papier, hygiène et produits d’entretien</span></figcaption></figure>
-        <figure class="tile wide" style="margin:0"><img src="img/interieur-fruits-legumes.jpg" alt="Fruits et légumes frais" loading="lazy"><figcaption><h3>Fruits & légumes</h3><span>Fraîcheur à toute heure</span></figcaption></figure>
+        <figure class="tile big" style="margin:0" tabindex="0" role="button" aria-label="Agrandir la photo"><img src="img/rayon-frais.jpg" alt="Allée du rayon frais" loading="lazy"><span class="zoom" aria-hidden="true">⤢</span><figcaption><h3>Rayon frais</h3><span>Charcuterie, fromages, produits laitiers, viandes et volailles</span></figcaption></figure>
+        <figure class="tile" style="margin:0" tabindex="0" role="button" aria-label="Agrandir la photo"><img src="img/rayon-boulangerie.jpg" alt="Rayon boulangerie et viennoiseries" loading="lazy"><span class="zoom" aria-hidden="true">⤢</span><figcaption><h3>Boulangerie</h3><span>Pains, viennoiseries, produits salés</span></figcaption></figure>
+        <figure class="tile" style="margin:0" tabindex="0" role="button" aria-label="Agrandir la photo"><img src="img/rayon-boucherie.jpg" alt="Rayon boucherie" loading="lazy"><span class="zoom" aria-hidden="true">⤢</span><figcaption><h3>Boucherie</h3><span>Bœuf, veau, agneau, porc, volaille</span></figcaption></figure>
+        <figure class="tile" style="margin:0" tabindex="0" role="button" aria-label="Agrandir la photo"><img src="img/rayon-aperitif.jpg" alt="Rayon apéritif" loading="lazy"><span class="zoom" aria-hidden="true">⤢</span><figcaption><h3>Apéritif</h3><span>Chips, biscuits, olives, tartinables</span></figcaption></figure>
+        <figure class="tile" style="margin:0" tabindex="0" role="button" aria-label="Agrandir la photo"><img src="img/rayon-fleurs.jpg" alt="Rayon fleurs et plantes" loading="lazy"><span class="zoom" aria-hidden="true">⤢</span><figcaption><h3>Fleurs</h3><span>Bouquets, plantes, compositions</span></figcaption></figure>
+        <figure class="tile wide" style="margin:0" tabindex="0" role="button" aria-label="Agrandir la photo"><img src="img/rayon-non-alimentaire.jpg" alt="Rayon non alimentaire" loading="lazy"><span class="zoom" aria-hidden="true">⤢</span><figcaption><h3>Non alimentaire</h3><span>Papier, hygiène et produits d’entretien</span></figcaption></figure>
+        <figure class="tile wide" style="margin:0" tabindex="0" role="button" aria-label="Agrandir la photo"><img src="img/interieur-fruits-legumes.jpg" alt="Fruits et légumes frais" loading="lazy"><span class="zoom" aria-hidden="true">⤢</span><figcaption><h3>Fruits & légumes</h3><span>Fraîcheur à toute heure</span></figcaption></figure>
       </div>
     </div>
   </section>
@@ -316,8 +384,9 @@
         </div>
         <p>La majorité de nos produits sont de marque Casino : une qualité reconnue pour vos courses de tous les jours.</p>
       </div>
+      <div class="filters" id="filters" role="group" aria-label="Filtrer les produits"></div>
       <div class="products" id="products"></div>
-      <p class="products-note">Quelques exemples parmi les produits disponibles en magasin.</p>
+      <p class="products-note">Quelques exemples parmi les produits disponibles en magasin. Ajoutez-les à votre liste de courses pour ne rien oublier.</p>
     </div>
   </section>
 
@@ -349,6 +418,17 @@
         <li>Magasin sous vidéosurveillance en temps réel</li>
         <li>Paiement uniquement par carte bancaire</li>
       </ul>
+      <div class="sas-demo" id="sasDemo">
+        <span class="label">Essayez le sas</span>
+        <div class="sas-track">
+          <div class="sas-step" id="r1"><i></i>Lecteur 1</div>
+          <div class="sas-step" id="r2"><i></i>Lecteur 2</div>
+          <div class="sas-step door" id="door"><i></i><span id="doorTxt">Porte fermée</span></div>
+        </div>
+        <button class="btn" id="sasBtn" type="button">Valider avec mon téléphone</button>
+        <p class="sas-msg" id="sasMsg" role="status"></p>
+        <p class="demo-note">Simulation pour découvrir le fonctionnement. L’accès réel se fait sur place.</p>
+      </div>
     </div>
   </section>
 
@@ -390,6 +470,35 @@
   <div class="legal wrap"><span>© 2026 Infinity Shopp · Supérette autonome de proximité</span><span>Ouvert 24h/24 · 7j/7 · Paiement CB uniquement</span></div>
 </footer>
 
+<dialog class="lightbox" id="lightbox" aria-label="Photo du rayon">
+  <img class="lb-img" id="lbImg" src="img/logo.jpg" alt="">
+  <div class="lb-bar">
+    <div><h3 id="lbTitle"></h3><p id="lbText"></p></div>
+    <div class="lb-nav">
+      <button type="button" id="lbPrev" aria-label="Photo précédente">←</button>
+      <span class="lb-count" id="lbCount"></span>
+      <button type="button" id="lbNext" aria-label="Photo suivante">→</button>
+      <button type="button" id="lbClose" aria-label="Fermer">✕</button>
+    </div>
+  </div>
+</dialog>
+
+<div class="fab">
+  <button class="icon-btn to-top" id="toTop" type="button" aria-label="Revenir en haut">↑</button>
+  <button class="list-btn" id="listBtn" type="button" aria-controls="panel">Ma liste <b id="listCount">0</b></button>
+</div>
+<div class="scrim" id="scrim"></div>
+<aside class="panel" id="panel" aria-label="Ma liste de courses">
+  <div class="panel-head"><h3>Ma liste de courses</h3><button class="icon-btn" id="panelClose" type="button" aria-label="Fermer la liste">✕</button></div>
+  <form class="add-row" id="addForm">
+    <label for="addInput" class="sr" style="position:absolute;left:-9999px">Ajouter un article</label>
+    <input id="addInput" type="text" placeholder="Ajouter un article (ex. lait, pain…)" autocomplete="off">
+    <button class="icon-btn" type="submit" aria-label="Ajouter">+</button>
+  </form>
+  <ul class="shop-list" id="shopList"></ul>
+  <div class="panel-foot"><span id="listInfo"></span><button type="button" id="clearDone">Effacer les cochés</button></div>
+</aside>
+
 <script>
   const words = ['Rayon frais', 'Boulangerie', 'Boucherie', 'Fruits & légumes', 'Apéritif', 'Fleurs', 'Hygiène & entretien', 'Ouvert 24h/24'];
   document.getElementById('marquee').innerHTML = [...words, ...words].map(w => `<span>${w}</span>`).join('');
@@ -402,9 +511,91 @@
     ['p-eau', 'Boissons', 'Eau de source de montagne', 'Pack de 6 × 1,5 L'],
     ['p-jus', 'Boissons', '100 % pur jus d’orange', 'Bouteille de 1 L']
   ];
-  document.getElementById('products').innerHTML = products.map(([img, c, n, d]) => `
-    <article class="product"><div class="pimg"><img src="img/${img}.jpg" alt="${n}" loading="lazy"></div>
-    <div class="pbody"><small>${c}</small><h3>${n}</h3><span>${d}</span></div></article>`).join('');
+  const $ = id => document.getElementById(id);
+
+  /* Horloge en direct */
+  function tick() { $('clock').textContent = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }); }
+  tick(); setInterval(tick, 15000);
+
+  /* Liste de courses (gardée sur cet appareil) */
+  let list = [];
+  try { list = JSON.parse(localStorage.getItem('infinity-liste') || '[]'); } catch (e) {}
+  const save = () => { try { localStorage.setItem('infinity-liste', JSON.stringify(list)); } catch (e) {} };
+  const has = n => list.some(i => i.n === n);
+  function renderList() {
+    $('listCount').textContent = list.length;
+    $('shopList').innerHTML = list.length ? list.map((it, i) => `
+      <li class="${it.d ? 'done' : ''}"><input type="checkbox" id="it${i}" data-i="${i}" ${it.d ? 'checked' : ''}><label for="it${i}">${it.n.replace(/</g, '&lt;')}</label><button class="rm" data-rm="${i}" type="button" aria-label="Retirer">✕</button></li>`).join('')
+      : '<li class="empty">Votre liste est vide. Ajoutez des produits depuis le site ou tapez un article ci-dessus.</li>';
+    const left = list.filter(i => !i.d).length;
+    $('listInfo').textContent = list.length ? `${left} article${left > 1 ? 's' : ''} à acheter` : '';
+  }
+  function addItem(n) { n = n.trim(); if (!n || has(n)) return; list.push({ n, d: false }); save(); renderList(); bump(); }
+  function removeItem(n) { list = list.filter(i => i.n !== n); save(); renderList(); }
+  function bump() { const b = $('listBtn'); b.classList.remove('bump'); void b.offsetWidth; b.classList.add('bump'); }
+  $('shopList').addEventListener('change', e => { const i = e.target.dataset.i; if (i == null) return; list[i].d = e.target.checked; save(); renderList(); });
+  $('shopList').addEventListener('click', e => { const i = e.target.dataset.rm; if (i == null) return; const n = list[i].n; list.splice(i, 1); save(); renderList(); renderProducts(); });
+  $('addForm').addEventListener('submit', e => { e.preventDefault(); addItem($('addInput').value); $('addInput').value = ''; renderProducts(); });
+  $('clearDone').onclick = () => { list = list.filter(i => !i.d); save(); renderList(); renderProducts(); };
+  function togglePanel(open) { $('panel').classList.toggle('open', open); $('scrim').classList.toggle('open', open); if (open) $('addInput').focus(); }
+  $('listBtn').onclick = () => togglePanel(true);
+  $('panelClose').onclick = () => togglePanel(false);
+  $('scrim').onclick = () => togglePanel(false);
+  addEventListener('keydown', e => { if (e.key === 'Escape') togglePanel(false); });
+
+  /* Produits + filtres */
+  let cat = 'Tous';
+  const cats = ['Tous', ...new Set(products.map(p => p[1]))];
+  $('filters').innerHTML = cats.map(c => `<button class="filter" type="button" aria-pressed="${c === cat}">${c}</button>`).join('');
+  $('filters').addEventListener('click', e => { const b = e.target.closest('.filter'); if (!b) return; cat = b.textContent; $('filters').querySelectorAll('.filter').forEach(x => x.setAttribute('aria-pressed', x === b)); renderProducts(); });
+  function renderProducts() {
+    $('products').innerHTML = products.filter(p => cat === 'Tous' || p[1] === cat).map(([img, c, n, d]) => `
+      <article class="product"><div class="pimg"><img src="img/${img}.jpg" alt="${n}" loading="lazy"></div>
+      <div class="pbody"><small>${c}</small><h3>${n}</h3><span>${d}</span>
+      <button class="add" type="button" data-n="${n}" aria-pressed="${has(n)}">${has(n) ? '✓ Dans ma liste' : '+ Ma liste'}</button></div></article>`).join('');
+  }
+  $('products').addEventListener('click', e => { const b = e.target.closest('.add'); if (!b) return; const n = b.dataset.n; has(n) ? removeItem(n) : addItem(n); renderProducts(); });
+  renderProducts(); renderList();
+
+  /* Visionneuse des rayons */
+  const tiles = [...document.querySelectorAll('.tile')];
+  let cur = 0;
+  function show(i) {
+    cur = (i + tiles.length) % tiles.length; const t = tiles[cur];
+    $('lbImg').src = t.querySelector('img').src; $('lbImg').alt = t.querySelector('img').alt;
+    $('lbTitle').textContent = t.querySelector('h3').textContent; $('lbText').textContent = t.querySelector('figcaption span').textContent;
+    $('lbCount').textContent = `${cur + 1} / ${tiles.length}`;
+  }
+  tiles.forEach((t, i) => {
+    t.addEventListener('click', () => { show(i); $('lightbox').showModal(); });
+    t.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); show(i); $('lightbox').showModal(); } });
+  });
+  $('lbPrev').onclick = () => show(cur - 1);
+  $('lbNext').onclick = () => show(cur + 1);
+  $('lbClose').onclick = () => $('lightbox').close();
+  $('lightbox').addEventListener('click', e => { if (e.target === $('lightbox')) $('lightbox').close(); });
+  $('lightbox').addEventListener('keydown', e => { if (e.key === 'ArrowLeft') show(cur - 1); if (e.key === 'ArrowRight') show(cur + 1); });
+  let sx = null;
+  $('lightbox').addEventListener('touchstart', e => sx = e.touches[0].clientX, { passive: true });
+  $('lightbox').addEventListener('touchend', e => { if (sx == null) return; const dx = e.changedTouches[0].clientX - sx; if (Math.abs(dx) > 40) show(cur + (dx < 0 ? 1 : -1)); sx = null; });
+
+  /* Simulation du sas */
+  let busy = false;
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  $('sasBtn').onclick = async () => {
+    if (busy) return; busy = true;
+    const r1 = $('r1'), r2 = $('r2'), door = $('door'), msg = $('sasMsg');
+    [r1, r2, door].forEach(x => x.className = 'sas-step' + (x === door ? ' door' : '')); $('doorTxt').textContent = 'Porte fermée';
+    r1.classList.add('wait'); msg.textContent = 'Lecture du téléphone sur le lecteur 1…'; await wait(1100);
+    r1.className = 'sas-step ok'; r2.classList.add('wait'); msg.textContent = 'Lecteur 1 validé. Présentez votre téléphone au lecteur 2…'; await wait(1100);
+    r2.className = 'sas-step ok'; door.classList.add('ok'); $('doorTxt').textContent = 'Porte ouverte';
+    msg.textContent = 'Accès autorisé. Bienvenue chez Infinity Shopp !';
+    $('sasBtn').textContent = 'Recommencer'; busy = false;
+  };
+
+  /* Retour en haut */
+  addEventListener('scroll', () => $('toTop').classList.toggle('show', scrollY > 700), { passive: true });
+  $('toTop').onclick = () => scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
 </script>
 
 </body>
