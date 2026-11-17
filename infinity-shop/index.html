@@ -5,7 +5,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500&display=swap">
 <style>
-  /* Layout: maison de luxe nocturne — hero plein cadre avec ∞ animé, sections éditoriales alternées, vitrines en arche. Look sombre assumé. */
+  /* Layout: maison de beauté nocturne — hero en arche photo, collections éditoriales décalées, lookbook défilant, carte ivoire, salon. Look sombre assumé. */
   :root {
     --night: #0d0c0a;
     --night-2: #15130f;
@@ -27,30 +27,26 @@
   html { scroll-behavior: smooth; }
   body { margin: 0; background: var(--night); color: var(--ivory); font: 300 16px/1.7 var(--body); -webkit-font-smoothing: antialiased; }
   a { color: inherit; text-decoration: none; }
+  img { display: block; max-width: 100%; }
   ::selection { background: var(--gold); color: var(--night); }
   :focus-visible { outline: 1px solid var(--gold-hi); outline-offset: 4px; }
   .wrap { padding-left: var(--gl); padding-right: var(--gr); }
   .label { font: 400 11px/1.4 var(--body); letter-spacing: .32em; text-transform: uppercase; color: var(--gold); }
   h1, h2, h3 { font-family: var(--display); font-weight: 300; margin: 0; text-wrap: balance; }
   em { font-style: italic; color: var(--gold-hi); }
-
   body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 50; background: var(--night); }
 
   /* ---------- Header ---------- */
-  header {
-    position: sticky; top: env(safe-area-inset-top, 0px); z-index: 40;
-    display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 20px;
-    padding-block: 18px; background: rgba(13,12,10,.82); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
-    border-bottom: 1px solid var(--hair);
-  }
+  header { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 40; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 20px;
+    padding-block: 18px; background: rgba(13,12,10,.82); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid var(--hair); }
   header nav { display: flex; gap: clamp(18px, 2.6vw, 38px); font-size: 12px; letter-spacing: .22em; text-transform: uppercase; color: var(--ivory-dim); }
   header nav a { transition: color .3s; }
   header nav a:hover { color: var(--gold-hi); }
   .logo { display: flex; flex-direction: column; align-items: center; line-height: 1; }
   .logo .inf { font-family: var(--display); font-size: 34px; color: var(--gold); margin-bottom: -2px; }
   .logo .word { font: 400 13px/1 var(--body); letter-spacing: .5em; margin-right: -.5em; }
-  .head-right { display: flex; justify-content: flex-end; align-items: center; gap: 22px; }
-  .basket-btn { display: flex; align-items: center; gap: 10px; font-size: 12px; letter-spacing: .22em; text-transform: uppercase; color: var(--ivory); background: none; border: 0; cursor: pointer; font-family: var(--body); }
+  .head-right { display: flex; justify-content: flex-end; }
+  .basket-btn { display: flex; align-items: center; gap: 10px; font: 400 12px var(--body); letter-spacing: .22em; text-transform: uppercase; color: var(--ivory); background: none; border: 0; cursor: pointer; }
   .basket-btn .dot { min-width: 24px; height: 24px; padding: 0 6px; display: grid; place-items: center; border: 1px solid var(--gold); border-radius: 30px; font-size: 11px; letter-spacing: 0; color: var(--gold-hi); font-variant-numeric: tabular-nums; }
 
   /* ---------- Buttons ---------- */
@@ -61,22 +57,24 @@
   .btn.ghost:hover { background: rgba(201,160,99,.1); }
 
   /* ---------- Hero ---------- */
-  .hero { position: relative; overflow: hidden; display: grid; grid-template-columns: 1.05fr .95fr; align-items: center; gap: 40px; padding-block: clamp(56px, 9vw, 120px) clamp(64px, 9vw, 130px);
-    background: radial-gradient(ellipse 60% 70% at 72% 45%, rgba(201,160,99,.16), transparent 70%), var(--night); }
+  .hero { position: relative; overflow: hidden; display: grid; grid-template-columns: 1.05fr .95fr; align-items: center; gap: 40px; padding-block: clamp(56px, 8vw, 110px) clamp(64px, 9vw, 120px);
+    background: radial-gradient(ellipse 60% 70% at 72% 45%, rgba(201,160,99,.14), transparent 70%), var(--night); }
   .hero-copy { position: relative; z-index: 2; display: grid; gap: 28px; min-width: 0; }
-  .hero h1 { font-size: clamp(52px, 8.4vw, 124px); line-height: .9; letter-spacing: -.02em; }
+  .hero h1 { font-size: clamp(52px, 8.2vw, 120px); line-height: .9; letter-spacing: -.02em; }
   .hero h1 span { display: block; }
   .hero h1 .indent { padding-left: clamp(24px, 6vw, 96px); }
-  .hero p.lead { max-width: 440px; margin: 0; color: var(--ivory-dim); font-size: 17px; }
+  .hero p.lead { max-width: 450px; margin: 0; color: var(--ivory-dim); font-size: 17px; }
   .hero-actions { display: flex; flex-wrap: wrap; gap: 14px; }
-  .hero-art { position: relative; aspect-ratio: 4 / 5; max-width: 100%; width: min(100%, 520px); justify-self: center; }
-  .arch { position: absolute; inset: 0; border-radius: 999px 999px 0 0; overflow: hidden; border: 1px solid var(--hair);
-    background: linear-gradient(180deg, #2a2219 0%, #15120e 60%, #0f0d0a 100%); }
-  .arch canvas { width: 100%; height: 100%; display: block; }
-  .arch-inner { position: absolute; inset: 14px; border-radius: 999px 999px 0 0; border: 1px solid rgba(236,211,162,.18); pointer-events: none; }
-  .hero-tag { position: absolute; left: -18px; bottom: 34px; padding: 18px 22px; background: var(--night-2); border: 1px solid var(--hair); display: grid; gap: 2px; }
-  .hero-tag b { font: 300 30px/1 var(--display); color: var(--gold-hi); }
+  .hero-art { position: relative; aspect-ratio: 4 / 5; max-width: 100%; width: min(100%, 500px); justify-self: center; }
+  .arch { position: absolute; inset: 0; border-radius: 999px 999px 0 0; overflow: hidden; border: 1px solid var(--hair); background: var(--night-3); }
+  .arch img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; filter: saturate(.85) contrast(1.05); }
+  .arch::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(13,12,10,0) 55%, rgba(13,12,10,.75)), radial-gradient(ellipse at 50% 0%, rgba(236,211,162,.18), transparent 60%); }
+  .arch-inner { position: absolute; inset: 14px; border-radius: 999px 999px 0 0; border: 1px solid rgba(236,211,162,.35); pointer-events: none; z-index: 2; }
+  .hero-tag { position: absolute; left: -22px; bottom: 34px; z-index: 3; padding: 18px 22px; background: var(--night-2); border: 1px solid var(--hair); display: grid; gap: 4px; }
+  .hero-tag b { font: 300 italic 26px/1 var(--display); color: var(--gold-hi); }
   .hero-tag span { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--ivory-dim); }
+  .hero-mini { position: absolute; right: -26px; top: 18%; z-index: 3; width: 34%; aspect-ratio: 3/4; border: 1px solid var(--hair); padding: 6px; background: var(--night); }
+  .hero-mini img { width: 100%; height: 100%; object-fit: cover; }
 
   /* ---------- Marquee ---------- */
   .marquee { overflow: hidden; border-block: 1px solid var(--hair); background: var(--night-2); }
@@ -86,12 +84,12 @@
   @keyframes slide { to { transform: translateX(-50%); } }
 
   /* ---------- Manifesto ---------- */
-  .block { padding-block: clamp(80px, 11vw, 160px); }
+  .block { padding-block: clamp(80px, 11vw, 150px); }
   .manifesto { display: grid; grid-template-columns: 220px 1fr; gap: 40px; }
   .manifesto p.big { margin: 0; font: 300 clamp(28px, 3.6vw, 50px)/1.18 var(--display); max-width: 980px; }
   .manifesto .sign { margin-top: 36px; display: grid; grid-template-columns: repeat(3, auto); justify-content: start; gap: 18px 60px; }
   .sign div { display: grid; gap: 2px; }
-  .sign b { font: 300 46px/1 var(--display); color: var(--gold-hi); font-variant-numeric: lining-nums; }
+  .sign b { font: 300 46px/1 var(--display); color: var(--gold-hi); }
   .sign span { font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--stone); }
 
   /* ---------- Collections ---------- */
@@ -102,59 +100,58 @@
   .coll { display: grid; gap: 18px; align-content: start; }
   .coll:nth-child(3n+2) { margin-top: 70px; }
   .photo { position: relative; aspect-ratio: 3 / 4; max-width: 100%; overflow: hidden; border: 1px solid var(--hair); background: var(--night-3); }
-  .photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .photo .scene { position: absolute; inset: 0; transition: transform 1.2s cubic-bezier(.2,.7,.2,1); }
-  .coll:hover .scene { transform: scale(1.05); }
-  .photo .num { position: absolute; top: 16px; left: 18px; font-size: 11px; letter-spacing: .28em; color: var(--gold-hi); }
+  .photo img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s cubic-bezier(.2,.7,.2,1); }
+  .photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(13,12,10,.35), transparent 30%); pointer-events: none; }
+  .coll:hover .photo img { transform: scale(1.05); }
+  .photo .num { position: absolute; top: 16px; left: 18px; z-index: 2; font-size: 11px; letter-spacing: .28em; color: var(--ivory); }
   .coll h3 { font-size: 32px; line-height: 1.05; }
   .coll p { margin: 0; color: var(--ivory-dim); font-size: 15px; }
   .coll .more { font-size: 11px; letter-spacing: .26em; text-transform: uppercase; color: var(--gold); }
 
-  /* Scènes dessinées (remplaçables par des photos) */
-  .scene { background: radial-gradient(ellipse 80% 55% at 50% 0%, rgba(236,211,162,.22), transparent 70%), linear-gradient(180deg, #241d15, #0f0d0a); }
-  .scene::before { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 26%; background: linear-gradient(180deg, #2b2319, #16120d); border-top: 1px solid rgba(236,211,162,.25); }
-  .obj { position: absolute; bottom: 24%; border-radius: 3px 3px 1px 1px; box-shadow: inset -8px 0 18px rgba(0,0,0,.35), 0 18px 30px rgba(0,0,0,.4); }
-  .obj.glass { background: linear-gradient(90deg, rgba(236,211,162,.15), rgba(236,211,162,.45) 30%, rgba(201,160,99,.2) 70%); border: 1px solid rgba(236,211,162,.4); }
-  .obj.jar { border-radius: 10px 10px 4px 4px; }
-  .obj.round { border-radius: 50%; bottom: 24%; }
-  .obj::after { content: ""; position: absolute; left: 18%; right: 18%; top: 38%; height: 22%; background: var(--ivory); opacity: .85; }
-  .obj.noLabel::after { display: none; }
+  /* ---------- Lookbook ---------- */
+  .lookbook { background: var(--night-2); border-block: 1px solid var(--hair); }
+  .looks { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(220px, 1fr); gap: 16px; overflow-x: auto; padding-bottom: 10px; scroll-snap-type: x mandatory; scrollbar-color: var(--gold-lo) transparent; }
+  .look { scroll-snap-align: start; display: grid; gap: 12px; }
+  .look .photo { aspect-ratio: 4 / 5; }
+  .look h3 { font-size: 24px; }
+  .look span { font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--stone); }
 
   /* ---------- Sélection (carte) ---------- */
   .selection { background: var(--ivory); color: #1b1814; }
   .selection .label { color: #8a6a3c; }
   .selection .head p { color: #5e574c; }
   .selection em { color: #9a7440; }
-  .tabs { display: flex; flex-wrap: wrap; gap: 6px 30px; margin-bottom: 30px; border-bottom: 1px solid rgba(27,24,20,.15); }
+  .tabs { display: flex; flex-wrap: wrap; gap: 6px 30px; margin-bottom: 20px; border-bottom: 1px solid rgba(27,24,20,.15); }
   .tab { padding: 0 0 14px; font: 400 12px/1 var(--body); letter-spacing: .22em; text-transform: uppercase; color: #7a7266; background: none; border: 0; border-bottom: 1px solid transparent; margin-bottom: -1px; cursor: pointer; }
   .tab[aria-selected="true"] { color: #1b1814; border-bottom-color: #1b1814; }
   .menu { display: grid; grid-template-columns: 1fr 1fr; gap: 0 70px; }
-  .line { display: grid; grid-template-columns: 1fr auto; gap: 4px 20px; padding: 24px 0; border-bottom: 1px solid rgba(27,24,20,.12); }
-  .line h3 { display: flex; align-items: baseline; gap: 12px; font-size: 26px; line-height: 1.15; min-width: 0; }
+  .line { display: grid; grid-template-columns: 76px 1fr auto; gap: 4px 20px; padding: 22px 0; border-bottom: 1px solid rgba(27,24,20,.12); align-items: start; }
+  .line .thumb { grid-row: 1 / span 3; width: 76px; aspect-ratio: 4/5; object-fit: cover; }
+  .line h3 { display: flex; align-items: baseline; gap: 12px; font-size: 25px; line-height: 1.15; min-width: 0; }
   .line h3::after { content: ""; flex: 1; border-bottom: 1px dotted rgba(27,24,20,.3); transform: translateY(-6px); min-width: 20px; }
-  .line .price { font: 400 26px/1.15 var(--display); font-variant-numeric: tabular-nums lining-nums; }
+  .line .price { font: 400 25px/1.15 var(--display); font-variant-numeric: tabular-nums lining-nums; }
   .line .desc { color: #6c6559; font-size: 14px; }
-  .line .unit { color: #8f877a; font-size: 12px; text-align: right; font-variant-numeric: tabular-nums; }
-  .line .add { grid-column: 1 / -1; justify-self: start; margin-top: 8px; padding: 0; font: 400 11px/1 var(--body); letter-spacing: .24em; text-transform: uppercase; color: #8a6a3c; background: none; border: 0; cursor: pointer; }
-  .line .add:hover { color: #1b1814; }
-  .line .add.in { color: #1b1814; }
+  .line .unit { color: #8f877a; font-size: 12px; text-align: right; }
+  .line .add { grid-column: 2 / -1; justify-self: start; margin-top: 6px; padding: 0; font: 400 11px/1 var(--body); letter-spacing: .24em; text-transform: uppercase; color: #8a6a3c; background: none; border: 0; cursor: pointer; }
+  .line .add:hover, .line .add.in { color: #1b1814; }
 
-  /* ---------- Services ---------- */
-  .services { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--hair); }
-  .service { padding: 44px 36px 50px 0; display: grid; gap: 16px; align-content: start; }
-  .service + .service { padding-left: 36px; border-left: 1px solid var(--hair); }
-  .service .ico { width: 44px; height: 44px; }
-  .service h3 { font-size: 30px; }
-  .service p { margin: 0; color: var(--ivory-dim); }
-  .service small { color: var(--gold); font-size: 12px; letter-spacing: .14em; }
+  /* ---------- Salon ---------- */
+  .salon { display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(16px, 2vw, 28px); }
+  .svc { display: grid; gap: 14px; align-content: start; }
+  .svc .photo { aspect-ratio: 1 / 1; }
+  .svc .photo img { filter: saturate(.8); }
+  .svc h3 { font-size: 27px; }
+  .svc p { margin: 0; color: var(--ivory-dim); font-size: 15px; }
+  .svc small { color: var(--gold); font-size: 12px; letter-spacing: .14em; }
 
-  /* ---------- Vitrine split ---------- */
-  .split { display: grid; grid-template-columns: 1fr 1fr; min-height: 560px; background: var(--night-2); border-block: 1px solid var(--hair); }
-  .split .photo { aspect-ratio: auto; border: 0; min-height: 360px; }
+  /* ---------- Visite ---------- */
+  .split { display: grid; grid-template-columns: 1fr 1fr; min-height: 580px; background: var(--night-2); border-block: 1px solid var(--hair); }
+  .split .photo { aspect-ratio: auto; border: 0; min-height: 380px; }
+  .split .photo img { object-position: 50% 30%; }
   .split-copy { display: grid; gap: 26px; align-content: center; padding-block: 64px; }
   .split-copy h2 { font-size: clamp(38px, 4.6vw, 64px); line-height: 1; }
   .split-copy p { margin: 0; color: var(--ivory-dim); max-width: 460px; }
-  .hours { display: grid; gap: 0; max-width: 420px; }
+  .hours { display: grid; max-width: 420px; }
   .hours div { display: flex; justify-content: space-between; gap: 20px; padding: 12px 0; border-bottom: 1px solid var(--hair); font-size: 14px; font-variant-numeric: tabular-nums; }
   .hours span:first-child { color: var(--ivory-dim); letter-spacing: .08em; }
 
@@ -162,15 +159,16 @@
   .club { text-align: center; display: grid; justify-items: center; gap: 22px; }
   .club h2 { font-size: clamp(42px, 6vw, 88px); line-height: .95; max-width: 900px; }
   .club p { margin: 0; max-width: 520px; color: var(--ivory-dim); }
-  .club form { margin-top: 14px; display: flex; flex-wrap: wrap; justify-content: center; gap: 0; width: min(100%, 560px); border-bottom: 1px solid var(--gold); }
+  .club form { margin-top: 14px; display: flex; flex-wrap: wrap; justify-content: center; width: min(100%, 560px); border-bottom: 1px solid var(--gold); }
   .club input { flex: 1 1 240px; min-width: 0; padding: 16px 4px; background: transparent; border: 0; color: var(--ivory); font: 300 17px var(--body); }
   .club input::placeholder { color: var(--stone); }
   .club input:focus-visible { outline: none; }
   .club button { padding: 16px 4px 16px 20px; background: none; border: 0; color: var(--gold-hi); font: 400 12px var(--body); letter-spacing: .26em; text-transform: uppercase; cursor: pointer; }
   .form-msg { min-height: 1.6em; margin: 0; font-size: 14px; color: var(--gold-hi); }
+  .sr { position: absolute; left: -9999px; }
 
   /* ---------- Footer ---------- */
-  footer { border-top: 1px solid var(--hair); background: var(--night); }
+  footer { border-top: 1px solid var(--hair); }
   .foot { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 40px; padding-block: 70px 50px; }
   .foot .logo { align-items: flex-start; }
   .foot p, .foot li { margin: 0; color: var(--ivory-dim); font-size: 14px; }
@@ -178,23 +176,24 @@
   .foot a:hover { color: var(--gold-hi); }
   .legal { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; padding-block: 22px; border-top: 1px solid var(--hair); font-size: 12px; letter-spacing: .1em; color: var(--stone); }
 
-  /* ---------- Panier (tiroir) ---------- */
+  /* ---------- Panier ---------- */
   .drawer { position: fixed; top: 0; right: 0; bottom: 0; z-index: 60; width: min(420px, 100%); display: grid; grid-template-rows: auto 1fr auto;
     padding: calc(28px + env(safe-area-inset-top, 0px)) max(28px, env(safe-area-inset-right, 0px)) calc(28px + env(safe-area-inset-bottom, 0px)) 28px;
-    background: var(--night-2); border-left: 1px solid var(--hair); transform: translateX(100%); transition: transform .5s cubic-bezier(.2,.7,.2,1); }
-  .drawer.open { transform: none; }
+    background: var(--night-2); border-left: 1px solid var(--hair); transform: translateX(100%); visibility: hidden; transition: transform .5s cubic-bezier(.2,.7,.2,1), visibility 0s .5s; }
+  .drawer.open { transform: none; visibility: visible; transition: transform .5s cubic-bezier(.2,.7,.2,1); }
   .scrim { position: fixed; inset: 0; z-index: 55; background: rgba(0,0,0,.55); opacity: 0; pointer-events: none; transition: opacity .4s; }
   .scrim.open { opacity: 1; pointer-events: auto; }
   .drawer-head { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 20px; border-bottom: 1px solid var(--hair); }
   .drawer-head h3 { font-size: 34px; }
   .close { background: none; border: 0; color: var(--ivory-dim); font: 400 11px var(--body); letter-spacing: .24em; text-transform: uppercase; cursor: pointer; }
   .drawer-list { list-style: none; margin: 0; padding: 0; overflow: auto; }
-  .drawer-list li { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; padding: 18px 0; border-bottom: 1px solid var(--hair); }
-  .drawer-list .n { font: 400 21px/1.2 var(--display); }
+  .drawer-list li { display: grid; grid-template-columns: 52px 1fr auto; gap: 4px 14px; padding: 16px 0; border-bottom: 1px solid var(--hair); align-items: center; }
+  .drawer-list img { grid-row: 1 / span 2; width: 52px; aspect-ratio: 4/5; object-fit: cover; }
+  .drawer-list .n { font: 400 20px/1.2 var(--display); }
   .drawer-list .p { font-variant-numeric: tabular-nums; }
   .qty { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--ivory-dim); }
   .qty button { width: 26px; height: 26px; border: 1px solid var(--hair); background: none; color: var(--ivory); cursor: pointer; }
-  .empty { padding: 30px 0; color: var(--stone); }
+  .drawer-list li.empty { display: block; padding: 30px 0; color: var(--stone); }
   .drawer-foot { display: grid; gap: 16px; padding-top: 20px; border-top: 1px solid var(--hair); }
   .total { display: flex; justify-content: space-between; align-items: baseline; }
   .total b { font: 300 34px/1 var(--display); color: var(--gold-hi); font-variant-numeric: tabular-nums lining-nums; }
@@ -208,7 +207,7 @@
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     .rise, .marquee-track { animation: none; }
-    .photo .scene, .drawer, .scrim { transition: none; }
+    .photo img, .drawer, .scrim { transition: none; }
   }
 
   /* ---------- Responsive ---------- */
@@ -218,35 +217,37 @@
     .logo { align-items: flex-start; }
     .foot { grid-template-columns: 1fr 1fr; }
     .manifesto { grid-template-columns: 1fr; gap: 20px; }
+    .salon { grid-template-columns: 1fr 1fr; }
   }
   @media (max-width: 860px) {
     .hero { grid-template-columns: 1fr; }
     .hero-art { width: min(100%, 420px); }
     .hero-tag { left: 0; }
+    .hero-mini { right: 0; }
     .collections { grid-template-columns: 1fr 1fr; }
     .coll:nth-child(3n+2) { margin-top: 0; }
     .coll:nth-child(even) { margin-top: 50px; }
     .menu { grid-template-columns: 1fr; }
-    .services { grid-template-columns: 1fr; }
-    .service, .service + .service { padding: 36px 0; border-left: 0; }
-    .service + .service { border-top: 1px solid var(--hair); }
     .split { grid-template-columns: 1fr; }
   }
   @media (max-width: 520px) {
     .collections { grid-template-columns: 1fr; }
     .coll:nth-child(even) { margin-top: 0; }
     .manifesto .sign { grid-template-columns: 1fr 1fr; gap: 18px 30px; }
-    .foot { grid-template-columns: 1fr; }
+    .foot, .salon { grid-template-columns: 1fr; }
     .basket-btn .txt { display: none; }
-    .line h3 { font-size: 23px; }
+    .line { grid-template-columns: 64px 1fr auto; }
+    .line .thumb { width: 64px; }
+    .line h3 { font-size: 21px; }
+    .line h3::after { display: none; }
   }
 </style>
 
 <header class="wrap">
   <nav aria-label="Navigation principale">
     <a href="#collections">Collections</a>
-    <a href="#selection">Sélection</a>
-    <a href="#services">Services</a>
+    <a href="#selection">Boutique</a>
+    <a href="#salon">Salon</a>
   </nav>
   <a class="logo" href="#top" aria-label="Infinity Shop, accueil"><span class="inf">∞</span><span class="word">INFINITY</span></a>
   <div class="head-right">
@@ -257,33 +258,32 @@
 <main id="top">
   <section class="hero wrap">
     <div class="hero-copy">
-      <span class="label rise">Maison d’épicerie fine · Ouvert 7j/7</span>
+      <span class="label rise">Cheveux · Beauté · Soin</span>
       <h1 class="rise d2"><span>L’achat</span><span class="indent">du quotidien,</span><span><em>autrement.</em></span></h1>
-      <p class="lead rise d3">Une boutique où chaque produit est choisi avec exigence. Les essentiels de tous les jours, présentés comme ils le méritent, et un service qui prépare tout pour vous.</p>
+      <p class="lead rise d3">Mèches, perruques, maquillage et soins choisis avec exigence, et un salon pour sublimer le tout. Une adresse où la beauté de tous les jours devient un moment à part.</p>
       <div class="hero-actions rise d4">
-        <a class="btn" href="#selection">Découvrir la sélection</a>
-        <a class="btn ghost" href="#services">Nos services</a>
+        <a class="btn" href="#selection">Découvrir la boutique</a>
+        <a class="btn ghost" href="#salon">Le salon</a>
       </div>
     </div>
-    <div class="hero-art rise d3" aria-hidden="true">
-      <div class="arch"><canvas id="infinity"></canvas></div>
+    <div class="hero-art rise d3">
+      <div class="arch"><img src="img/hero.jpg" alt="Portrait d’une femme aux cheveux afro volumineux" fetchpriority="high"></div>
       <div class="arch-inner"></div>
-      <div class="hero-tag"><b>+1 200</b><span>Références choisies</span></div>
+      <div class="hero-mini"><img src="img/me-bodywave.jpg" alt="Femme aux longues mèches ondulées" loading="lazy"></div>
+      <div class="hero-tag"><b>Tout, tous les jours</b><span>Mèches · Perruques · Beauté</span></div>
     </div>
   </section>
 
-  <div class="marquee" aria-hidden="true">
-    <div class="marquee-track" id="marquee"></div>
-  </div>
+  <div class="marquee" aria-hidden="true"><div class="marquee-track" id="marquee"></div></div>
 
   <section class="block wrap manifesto">
     <span class="label">Notre maison</span>
     <div>
-      <p class="big">Infinity Shop est né d’une idée simple&nbsp;: les courses du quotidien méritent <em>le même soin</em> qu’une belle adresse. Des producteurs choisis, des rayons apaisés, et une équipe qui connaît chaque produit qu’elle vous propose.</p>
+      <p class="big">Infinity Shop est né d’une idée simple&nbsp;: votre beauté du quotidien mérite <em>le même soin</em> qu’une grande maison. Des cheveux de qualité, des produits que l’on connaît par cœur, et une équipe qui prend le temps de vous conseiller.</p>
       <div class="sign">
-        <div><b>7j/7</b><span>Ouvert toute la semaine</span></div>
-        <div><b>2 h</b><span>Commande préparée</span></div>
-        <div><b>0 €</b><span>Retrait en boutique</span></div>
+        <div><b>6</b><span>Univers beauté</span></div>
+        <div><b>1</b><span>Salon sur place</span></div>
+        <div><b>∞</b><span>Conseils personnalisés</span></div>
       </div>
     </div>
   </section>
@@ -294,76 +294,69 @@
         <span class="label">Les collections</span>
         <h2>Six univers, <em>une même exigence.</em></h2>
       </div>
-      <p>De l’épicerie fine à l’entretien de la maison, chaque rayon est composé comme une vitrine.</p>
+      <p>Des mèches aux soins du visage, chaque collection est composée comme une vitrine.</p>
     </div>
     <div class="collections" id="collectionsGrid"></div>
+  </section>
+
+  <section class="block lookbook">
+    <div class="wrap">
+      <div class="head">
+        <div>
+          <span class="label">Lookbook</span>
+          <h2>Trouvez <em>votre style.</em></h2>
+        </div>
+        <p>Afro, carré, cuivré, court ou couleur : nos perruques et mèches s’adaptent à toutes les envies.</p>
+      </div>
+      <div class="looks" id="looks"></div>
+    </div>
   </section>
 
   <section class="block selection" id="selection">
     <div class="wrap">
       <div class="head">
         <div>
-          <span class="label">La sélection de la semaine</span>
+          <span class="label">La boutique</span>
           <h2>Nos <em>incontournables.</em></h2>
         </div>
-        <p>Composez votre panier, nous le préparons en deux heures pour un retrait en boutique.</p>
+        <p>Composez votre panier, nous le préparons pour un retrait en boutique.</p>
       </div>
       <div class="tabs" role="tablist" id="tabs"></div>
       <div class="menu" id="menu"></div>
     </div>
   </section>
 
-  <section class="block wrap" id="services">
+  <section class="block wrap" id="salon">
     <div class="head">
       <div>
-        <span class="label">Services</span>
-        <h2>Le temps <em>vous appartient.</em></h2>
+        <span class="label">Le salon</span>
+        <h2>Prenez place, <em>on s’occupe de tout.</em></h2>
       </div>
+      <p>Pose de mèches et de perruques, coupe, barbe et ongles : le salon accueille toute la famille.</p>
     </div>
-    <div class="services">
-      <article class="service">
-        <svg class="ico" viewBox="0 0 44 44" fill="none" stroke="#c9a063" stroke-width="1"><rect x="8" y="14" width="28" height="22"/><path d="M15 14v-3a7 7 0 0 1 14 0v3"/></svg>
-        <h3>Retrait en boutique</h3>
-        <p>Commandez en ligne, votre panier est prêt au comptoir deux heures plus tard. Vous réglez sur place.</p>
-        <small>Gratuit · Jusqu’à 20h30</small>
-      </article>
-      <article class="service">
-        <svg class="ico" viewBox="0 0 44 44" fill="none" stroke="#c9a063" stroke-width="1"><circle cx="22" cy="22" r="14"/><path d="M22 13v9l6 4"/></svg>
-        <h3>Réservation de créneau</h3>
-        <p>Choisissez l’heure qui vous convient. Nous vous prévenons dès que votre commande est prête.</p>
-        <small>Créneaux de 30 minutes</small>
-      </article>
-      <article class="service">
-        <svg class="ico" viewBox="0 0 44 44" fill="none" stroke="#c9a063" stroke-width="1"><path d="M10 34c0-7 5-12 12-12s12 5 12 12"/><circle cx="22" cy="14" r="6"/></svg>
-        <h3>Conseil personnalisé</h3>
-        <p>Un fromage pour ce soir, un café à votre goût, un cadeau à composer : l’équipe vous guide en boutique.</p>
-        <small>Sur place, tous les jours</small>
-      </article>
-    </div>
+    <div class="salon" id="salonGrid"></div>
   </section>
 
   <section class="split">
-    <div class="photo" data-photo="boutique">
-      <div class="scene" id="storeScene"></div>
-    </div>
+    <div class="photo"><img src="img/look.jpg" alt="Maquillage des yeux et des lèvres, gros plan" loading="lazy"></div>
     <div class="split-copy wrap">
       <span class="label">La boutique</span>
       <h2>Venez nous rendre <em>visite.</em></h2>
-      <p>Une lumière douce, des rayons aérés et le temps de choisir. Passez découvrir les arrivages de la semaine.</p>
+      <p>Une lumière douce, des miroirs, et le temps d’essayer. Passez découvrir les nouveautés et prendre rendez-vous au salon.</p>
       <div class="hours">
-        <div><span>Lundi – Samedi</span><span>8h00 – 21h00</span></div>
-        <div><span>Dimanche</span><span>9h00 – 19h00</span></div>
-        <div><span>Retrait des commandes</span><span>jusqu’à 20h30</span></div>
+        <div><span>Lundi – Samedi</span><span>9h30 – 19h30</span></div>
+        <div><span>Dimanche</span><span>Fermé</span></div>
+        <div><span>Salon</span><span>Sur rendez-vous</span></div>
       </div>
     </div>
   </section>
 
   <section class="block wrap club" id="club">
     <span class="label">Le cercle Infinity</span>
-    <h2>Les arrivages, <em>avant tout le monde.</em></h2>
-    <p>Une lettre par semaine : nouveautés, offres réservées aux membres et une recette signée par l’équipe.</p>
+    <h2>Les nouveautés, <em>avant tout le monde.</em></h2>
+    <p>Une lettre par mois : arrivages de mèches et perruques, offres réservées aux membres et conseils beauté de l’équipe.</p>
     <form id="clubForm" novalidate>
-      <label for="email" class="label" style="position:absolute;left:-9999px">Adresse e-mail</label>
+      <label for="email" class="sr">Adresse e-mail</label>
       <input id="email" type="email" placeholder="Votre adresse e-mail" autocomplete="email">
       <button type="submit">S’inscrire</button>
     </form>
@@ -375,17 +368,17 @@
   <div class="foot wrap">
     <div>
       <div class="logo"><span class="inf">∞</span><span class="word">INFINITY</span></div>
-      <p style="margin-top:18px;max-width:280px">L’achat du quotidien, autrement. Épicerie fine, frais et essentiels de la maison.</p>
+      <p style="margin-top:18px;max-width:280px">Cheveux, beauté et soin. Boutique et salon.</p>
     </div>
-    <div><span class="label">Explorer</span><ul><li><a href="#collections">Collections</a></li><li><a href="#selection">Sélection</a></li><li><a href="#services">Services</a></li></ul></div>
-    <div><span class="label">Horaires</span><ul><li>Lun – Sam · 8h – 21h</li><li>Dimanche · 9h – 19h</li></ul></div>
+    <div><span class="label">Boutique</span><ul><li><a href="#collections">Collections</a></li><li><a href="#selection">Incontournables</a></li><li><a href="#looks">Lookbook</a></li></ul></div>
+    <div><span class="label">Salon</span><ul><li><a href="#salon">Prestations</a></li><li>Sur rendez-vous</li></ul></div>
     <div><span class="label">Le cercle</span><ul><li><a href="#club">Recevoir la lettre</a></li><li>Offres membres</li></ul></div>
   </div>
   <div class="legal wrap"><span>© 2026 Infinity Shop</span><span>Tous droits réservés</span></div>
 </footer>
 
 <div class="scrim" id="scrim"></div>
-<aside class="drawer" id="drawer" aria-label="Panier" aria-hidden="true">
+<aside class="drawer" id="drawer" aria-label="Panier">
   <div class="drawer-head"><h3>Votre panier</h3><button class="close" id="closeBasket" type="button">Fermer</button></div>
   <ul class="drawer-list" id="drawerList"></ul>
   <div class="drawer-foot">
@@ -396,128 +389,96 @@
 </aside>
 
 <script>
-  /* ---- ∞ animé dans l’arche ---- */
-  (function () {
-    const c = document.getElementById('infinity'), ctx = c.getContext('2d');
-    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let w, h, t = 0;
-    const dust = Array.from({ length: 70 }, () => ({ x: Math.random(), y: Math.random(), r: Math.random() * 1.4 + .3, s: Math.random() * .0006 + .0002 }));
-    function size() { const r = c.getBoundingClientRect(), d = Math.min(devicePixelRatio || 1, 2); w = r.width; h = r.height; c.width = w * d; c.height = h * d; ctx.setTransform(d, 0, 0, d, 0, 0); }
-    function pt(a, cx, cy, A) { const s = Math.sin(a), k = 1 + s * s; return [cx + A * Math.cos(a) / k, cy + A * s * Math.cos(a) / k]; }
-    function frame() {
-      ctx.clearRect(0, 0, w, h);
-      const g = ctx.createRadialGradient(w / 2, h * .48, 10, w / 2, h * .48, w * .7);
-      g.addColorStop(0, 'rgba(236,211,162,.16)'); g.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
-      dust.forEach(p => { p.y -= p.s; if (p.y < 0) p.y = 1; ctx.fillStyle = 'rgba(236,211,162,' + (.15 + p.r * .2) + ')'; ctx.beginPath(); ctx.arc(p.x * w, p.y * h, p.r, 0, 7); ctx.fill(); });
-      const cx = w / 2, cy = h * .5, A = w * .38;
-      for (let layer = 0; layer < 3; layer++) {
-        ctx.beginPath();
-        for (let i = 0; i <= 400; i++) { const [x, y] = pt(i / 400 * Math.PI * 2, cx, cy + layer * 1.5, A - layer * 3); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
-        ctx.strokeStyle = ['rgba(201,160,99,.85)', 'rgba(236,211,162,.25)', 'rgba(138,106,60,.4)'][layer];
-        ctx.lineWidth = [1.4, 6, 1][layer]; ctx.stroke();
-      }
-      for (let k = 0; k < 26; k++) { const [x, y] = pt(t - k * .035, cx, cy, A); ctx.fillStyle = 'rgba(255,238,205,' + (1 - k / 26) * .9 + ')'; ctx.beginPath(); ctx.arc(x, y, 3.2 - k * .1, 0, 7); ctx.fill(); }
-      ctx.fillStyle = 'rgba(236,211,162,.7)'; ctx.font = '300 italic ' + Math.round(w * .055) + 'px "Cormorant Garamond", Georgia, serif'; ctx.textAlign = 'center';
-      ctx.fillText('Tout, tous les jours', cx, h * .82);
-      t += .012; if (!reduce) requestAnimationFrame(frame);
-    }
-    size(); addEventListener('resize', size); t = 1.1; frame();
-    document.fonts && document.fonts.ready.then(() => { if (reduce) frame(); });
-  })();
+  const $ = id => document.getElementById(id);
 
-  /* ---- Bandeau défilant ---- */
-  const words = ['Épicerie fine', 'Frais du jour', 'Cave choisie', 'Torréfaction douce', 'Fromages à la coupe', 'Maison & beauté'];
-  document.getElementById('marquee').innerHTML = [...words, ...words].map(w => `<span>${w}</span>`).join('');
-
-  /* ---- Scènes « photo » dessinées ---- */
-  const palettes = ['#6b4f2c', '#3f2f1d', '#c9a063', '#2a3324', '#5a2a22', '#e8dcc6', '#1f2a33', '#8a6a3c'];
-  function scene(seed, el) {
-    const objs = [
-      [ [12, 14, 34, 'jar'], [32, 16, 48, ''], [54, 12, 28, 'round noLabel'], [72, 14, 40, 'glass'] ],
-      [ [10, 18, 38, ''], [33, 12, 54, 'glass'], [50, 20, 26, 'jar'], [74, 12, 46, ''] ],
-      [ [14, 22, 22, 'round noLabel'], [38, 14, 44, 'jar'], [58, 12, 36, ''], [76, 10, 50, 'glass'] ]
-    ][seed % 3];
-    el.innerHTML = objs.map(([l, wd, ht, cls], i) => `<span class="obj ${cls}" style="left:${l}%;width:${wd}%;height:${ht}%;${cls.includes('glass') ? '' : 'background:linear-gradient(90deg,' + palettes[(seed + i) % 8] + ',' + palettes[(seed + i + 3) % 8] + ')'}"></span>`).join('');
-  }
+  const words = ['Mèches naturelles', 'Perruques', 'Maquillage', 'Soin du visage', 'Onglerie', 'Barbier'];
+  $('marquee').innerHTML = [...words, ...words].map(w => `<span>${w}</span>`).join('');
 
   const collections = [
-    ['Épicerie fine', 'Huiles, pâtes artisanales, condiments et produits du monde choisis chez de petits producteurs.', '320 références'],
-    ['Douceurs', 'Chocolats, biscuits pur beurre, confitures et miels pour le petit-déjeuner et les cadeaux.', '210 références'],
-    ['Frais & crèmerie', 'Fromages à la coupe, produits laitiers fermiers et traiteur, livrés chaque matin.', '180 références'],
-    ['Cave & boissons', 'Une cave courte et soignée, des jus pressés, des cafés et thés d’origine.', '160 références'],
-    ['Maison', 'Linge, entretien écologique et petits objets utiles, sélectionnés pour durer.', '190 références'],
-    ['Beauté & soin', 'Savons, soins naturels et une gamme en vrac pour toute la famille.', '150 références']
+    ['cat-meches', 'Mèches & extensions', 'Lisses, ondulées ou à clips, en plusieurs longueurs et nuances pour un volume naturel.'],
+    ['cat-perruques', 'Perruques', 'Carré, frange, afro, couleur : des perruques confortables, prêtes à porter ou à personnaliser.'],
+    ['cat-maquillage', 'Maquillage', 'Teint, regard et lèvres : palettes, gloss, mascaras et pinceaux de qualité professionnelle.'],
+    ['cat-soin', 'Soin', 'Sérums, huiles, masques et crèmes pour le visage, le corps et les cheveux.'],
+    ['mq-vernis-noir', 'Ongles', 'Vernis, French et nail art, en boutique ou directement au salon.'],
+    ['fl-barber', 'Barbier', 'Coupe homme, taille de barbe et finitions au rasoir, pour tous les âges.']
   ];
-  document.getElementById('collectionsGrid').innerHTML = collections.map((c, i) => `
+  $('collectionsGrid').innerHTML = collections.map(([img, t, d], i) => `
     <article class="coll">
-      <div class="photo" data-photo="collection-${i + 1}"><div class="scene"></div><span class="num">${String.fromCharCode(65 + i)} · ${c[2]}</span></div>
-      <h3>${c[0]}</h3><p>${c[1]}</p><a class="more" href="#selection">Voir la sélection →</a>
+      <div class="photo"><img src="img/${img}.jpg" alt="${t}" loading="lazy"><span class="num">${String.fromCharCode(65 + i)} · COLLECTION</span></div>
+      <h3>${t}</h3><p>${d}</p><a class="more" href="${i < 4 ? '#selection' : '#salon'}">${i < 4 ? 'Voir la boutique' : 'Voir le salon'} →</a>
     </article>`).join('');
-  document.querySelectorAll('#collectionsGrid .scene').forEach((el, i) => scene(i, el));
-  scene(4, document.getElementById('storeScene'));
 
-  /* ---- Sélection + panier ---- */
+  const looks = [['pe-afro', 'Afro naturel', 'Perruque'], ['pe-bob', 'Carré lisse', 'Perruque'], ['me-cuivre', 'Cuivré', 'Mèches'], ['pe-courte', 'Courte texturée', 'Perruque'], ['p-pe-2', 'Ondulé lavande', 'Perruque'], ['me-lisse60', 'Lisse 60 cm', 'Mèches']];
+  $('looks').innerHTML = looks.map(([img, t, k]) => `
+    <figure class="look" style="margin:0"><div class="photo"><img src="img/${img}.jpg" alt="${t}" loading="lazy"></div><h3>${t}</h3><span>${k}</span></figure>`).join('');
+
+  const services = [
+    ['me-pose', 'Pose & coiffure', 'Pose de mèches, tissage, perruque, brushing et coiffure de soirée.', 'Sur rendez-vous'],
+    ['fl-barber', 'Barbier', 'Coupe homme, dégradé, taille et entretien de la barbe.', 'Homme'],
+    ['fl-enfant', 'Enfants', 'Coupes et tresses pour les plus jeunes, dans le calme.', 'Enfants'],
+    ['fl-ongles', 'Onglerie', 'Manucure, pose de vernis, French et nail art.', 'Mains']
+  ];
+  $('salonGrid').innerHTML = services.map(([img, t, d, s]) => `
+    <article class="svc"><div class="photo"><img src="img/${img}.jpg" alt="${t}" loading="lazy"></div><small>${s}</small><h3>${t}</h3><p>${d}</p></article>`).join('');
+
+  /* ---- Boutique + panier ---- */
   const products = [
-    { id: 'pates', n: 'Pâtes de blé dur bio', c: 'Épicerie', d: 'Séchées lentement, paquet de 500 g', p: 3.90, u: '7,80 €/kg' },
-    { id: 'huile', n: 'Huile d’olive vierge extra', c: 'Épicerie', d: 'Première pression à froid, 50 cl', p: 14.50, u: '29,00 €/L' },
-    { id: 'comte', n: 'Comté 24 mois', c: 'Frais', d: 'Affiné en cave, à la coupe, 250 g', p: 9.80, u: '39,20 €/kg' },
-    { id: 'beurre', n: 'Beurre de baratte demi-sel', c: 'Frais', d: 'Motte de 250 g', p: 4.60, u: '18,40 €/kg' },
-    { id: 'cafe', n: 'Café grains, origine Éthiopie', c: 'Boissons', d: 'Torréfaction douce, 500 g', p: 16.00, u: '32,00 €/kg' },
-    { id: 'jus', n: 'Jus de pomme pressé', c: 'Boissons', d: 'Bouteille en verre, 1 L', p: 4.20, u: '4,20 €/L' },
-    { id: 'savon', n: 'Savon de Marseille', c: 'Maison', d: 'Pain de 300 g, huile d’olive', p: 5.90, u: '19,67 €/kg' },
-    { id: 'bougie', n: 'Bougie parfumée figuier', c: 'Maison', d: 'Cire végétale, 40 heures', p: 24.00, u: 'pièce' }
+    { id: 'bw', img: 'me-bodywave', n: 'Mèches Body Wave', c: 'Mèches', d: 'Ondulation souple, 60 cm', p: 89 },
+    { id: 'ls', img: 'me-lisse60', n: 'Mèches lisses', c: 'Mèches', d: 'Lisse naturel, 60 cm', p: 79 },
+    { id: 'cl', img: 'me-clip', n: 'Extensions à clips', c: 'Mèches', d: 'Pose rapide, sans colle', p: 65 },
+    { id: 'bob', img: 'pe-bob', n: 'Perruque carré', c: 'Perruques', d: 'Carré lisse châtain', p: 149 },
+    { id: 'afro', img: 'pe-afro', n: 'Perruque afro', c: 'Perruques', d: 'Volume naturel, bouclé serré', p: 169 },
+    { id: 'lav', img: 'p-pe-2', n: 'Perruque ondulée lavande', c: 'Perruques', d: 'Longue, couleur pastel', p: 159 },
+    { id: 'pal', img: 'mq-palette', n: 'Palette yeux', c: 'Maquillage', d: '35 teintes mates et nacrées', p: 39 },
+    { id: 'gl', img: 'mq-gloss', n: 'Gloss lèvres', c: 'Maquillage', d: 'Effet repulpant, rose nude', p: 18 },
+    { id: 'vn', img: 'mq-vernis-nude', n: 'Vernis nude', c: 'Maquillage', d: 'Tenue longue durée', p: 12 },
+    { id: 'ser', img: 'so-serum', n: 'Sérum visage', c: 'Soin', d: 'Hydratant, 30 ml', p: 34 },
+    { id: 'hu', img: 'so-huile', n: 'Huile nourrissante', c: 'Soin', d: 'Cheveux et corps, 50 ml', p: 28 },
+    { id: 'yx', img: 'so-yeux', n: 'Crème contour des yeux', c: 'Soin', d: 'Texture légère, 15 ml', p: 32 }
   ];
   const eur = v => v.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
   const cart = {};
   let tab = 'Tout';
-  const tabsEl = document.getElementById('tabs'), menuEl = document.getElementById('menu');
-  ['Tout', 'Épicerie', 'Frais', 'Boissons', 'Maison'].forEach(name => {
-    const b = document.createElement('button'); b.type = 'button'; b.className = 'tab'; b.role = 'tab'; b.textContent = name;
+  ['Tout', 'Mèches', 'Perruques', 'Maquillage', 'Soin'].forEach(name => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'tab'; b.setAttribute('role', 'tab'); b.textContent = name;
     b.setAttribute('aria-selected', name === tab);
-    b.onclick = () => { tab = name; tabsEl.querySelectorAll('.tab').forEach(x => x.setAttribute('aria-selected', x.textContent === name)); renderMenu(); };
-    tabsEl.appendChild(b);
+    b.onclick = () => { tab = name; $('tabs').querySelectorAll('.tab').forEach(x => x.setAttribute('aria-selected', x.textContent === name)); renderMenu(); };
+    $('tabs').appendChild(b);
   });
   function renderMenu() {
-    menuEl.innerHTML = products.filter(p => tab === 'Tout' || p.c === tab).map(p => `
+    $('menu').innerHTML = products.filter(p => tab === 'Tout' || p.c === tab).map(p => `
       <div class="line">
+        <img class="thumb" src="img/${p.img}.jpg" alt="" loading="lazy">
         <h3>${p.n}</h3><span class="price">${eur(p.p)}</span>
-        <span class="desc">${p.d}</span><span class="unit">${p.u}</span>
+        <span class="desc">${p.d}</span><span class="unit">${p.c}</span>
         <button class="add ${cart[p.id] ? 'in' : ''}" data-id="${p.id}" type="button">${cart[p.id] ? 'Dans le panier · ' + cart[p.id] : '+ Ajouter au panier'}</button>
       </div>`).join('');
   }
-  menuEl.addEventListener('click', e => { const b = e.target.closest('.add'); if (!b) return; cart[b.dataset.id] = (cart[b.dataset.id] || 0) + 1; update(); });
-  const drawer = document.getElementById('drawer'), scrim = document.getElementById('scrim'), list = document.getElementById('drawerList');
+  $('menu').addEventListener('click', e => { const b = e.target.closest('.add'); if (!b) return; cart[b.dataset.id] = (cart[b.dataset.id] || 0) + 1; update(); });
   function update() {
     renderMenu();
     const items = products.filter(p => cart[p.id]);
-    const count = items.reduce((s, p) => s + cart[p.id], 0);
-    document.getElementById('basketCount').textContent = count;
-    document.getElementById('total').textContent = eur(items.reduce((s, p) => s + cart[p.id] * p.p, 0));
-    list.innerHTML = items.length ? items.map(p => `
-      <li><span class="n">${p.n}</span><span class="p">${eur(p.p * cart[p.id])}</span>
+    $('basketCount').textContent = items.reduce((s, p) => s + cart[p.id], 0);
+    $('total').textContent = eur(items.reduce((s, p) => s + cart[p.id] * p.p, 0));
+    $('drawerList').innerHTML = items.length ? items.map(p => `
+      <li><img src="img/${p.img}.jpg" alt=""><span class="n">${p.n}</span><span class="p">${eur(p.p * cart[p.id])}</span>
       <span class="qty"><button type="button" data-q="-1" data-id="${p.id}" aria-label="Retirer un">−</button>${cart[p.id]}<button type="button" data-q="1" data-id="${p.id}" aria-label="Ajouter un">+</button></span></li>`).join('')
-      : '<li class="empty">Votre panier est vide. Parcourez la sélection pour ajouter vos produits.</li>';
+      : '<li class="empty">Votre panier est vide. Parcourez la boutique pour ajouter vos produits.</li>';
   }
-  list.addEventListener('click', e => { const b = e.target.closest('[data-q]'); if (!b) return; const id = b.dataset.id; cart[id] = Math.max(0, cart[id] + +b.dataset.q); if (!cart[id]) delete cart[id]; update(); });
-  function toggle(open) { drawer.classList.toggle('open', open); scrim.classList.toggle('open', open); drawer.setAttribute('aria-hidden', !open); if (open) document.getElementById('closeBasket').focus(); }
-  document.getElementById('openBasket').onclick = () => toggle(true);
-  document.getElementById('closeBasket').onclick = () => toggle(false);
-  scrim.onclick = () => toggle(false);
+  $('drawerList').addEventListener('click', e => { const b = e.target.closest('[data-q]'); if (!b) return; const id = b.dataset.id; cart[id] = Math.max(0, cart[id] + +b.dataset.q); if (!cart[id]) delete cart[id]; update(); });
+  function toggle(open) { $('drawer').classList.toggle('open', open); $('scrim').classList.toggle('open', open); if (open) $('closeBasket').focus(); }
+  $('openBasket').onclick = () => toggle(true);
+  $('closeBasket').onclick = () => toggle(false);
+  $('scrim').onclick = () => toggle(false);
   addEventListener('keydown', e => { if (e.key === 'Escape') toggle(false); });
-  document.getElementById('reserve').onclick = () => {
-    document.getElementById('note').textContent = Object.keys(cart).length
-      ? 'Démo : la réservation en ligne sera bientôt disponible.'
-      : 'Ajoutez au moins un produit pour réserver un créneau.';
+  $('reserve').onclick = () => {
+    $('note').textContent = Object.keys(cart).length ? 'Démo : la réservation en ligne sera bientôt disponible.' : 'Ajoutez au moins un produit pour réserver.';
   };
   update();
 
-  /* ---- Cercle ---- */
-  document.getElementById('clubForm').addEventListener('submit', e => {
+  $('clubForm').addEventListener('submit', e => {
     e.preventDefault();
-    const v = document.getElementById('email').value.trim();
-    document.getElementById('formMsg').textContent = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)
-      ? 'Bienvenue dans le cercle (démo).'
-      : 'Adresse invalide. Exemple : prenom@exemple.fr';
+    const v = $('email').value.trim();
+    $('formMsg').textContent = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? 'Bienvenue dans le cercle (démo).' : 'Adresse invalide. Exemple : prenom@exemple.fr';
   });
 </script>
