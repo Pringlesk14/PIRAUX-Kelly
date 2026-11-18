@@ -941,21 +941,32 @@ function liveData(c,d){const code=codeOf(c);if(!code||!d||typeof d!=='object')re
  if(d.t==='msg'&&typeof d.x==='string'){lPush(code,{f:'them',x:d.x.slice(0,1000)});if(V.name==='lchat'&&V.p===code){render();window.scrollTo(0,document.body.scrollHeight)}else toast(`Message de ${lName(code)}`);return}
  if(d.t==='voice'&&d.b){const m=String(d.m||'');if(!m.startsWith('audio/'))return;const id='v'+Date.now()+Math.random().toString(36).slice(2,6);LIVE.voices[id]=URL.createObjectURL(new Blob([d.b],{type:m}));lPush(code,{f:'them',v:id,d:Math.min(60,+d.d||0)});
   if(V.name==='lchat'&&V.p===code){render();window.scrollTo(0,document.body.scrollHeight)}else toast(`Vocal de ${lName(code)}`)}}
-const micErr=e=>e&&e.name==='NotAllowedError'?'Micro refusé : autorise le micro dans ton navigateur pour parler.':'Micro indisponible sur cet appareil.';
+const micErr=e=>{const n=e&&e.name;if(n==='NotAllowedError'||n==='SecurityError')return 'Micro refusé. Touche le cadenas à gauche de l’adresse, puis Autorisations, puis Micro : Autoriser. Recharge ensuite la page.';if(n==='NotFoundError')return 'Aucun micro trouvé sur cet appareil.';if(n==='NotReadableError')return 'Le micro est déjà utilisé par une autre appli (un appel en cours ?). Ferme-la puis réessaie.';return 'Micro indisponible ('+(n||'erreur')+'). Ouvre la démo dans Chrome ou Safari à jour.'};
+function envIssue(){if(!window.PULSE_SITE)return '';let inFrame=false;try{inFrame=window.top!==window.self}catch(e){inFrame=true}if(inFrame)return 'frame';const ua=navigator.userAgent||'';
+ if(/FBAN|FBAV|Instagram|Snapchat|musical_ly|TikTok|Line\/|LinkedInApp|Pinterest/i.test(ua)||/; wv\)/.test(ua))return 'inapp';if(!window.isSecureContext)return 'insecure';if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return 'nomic';if(!window.MediaRecorder)return 'norec';return ''}
+const ENVMSG={frame:'tu es dans un aperçu (par exemple l’onglet « Aperçu » de Netlify), où le micro est bloqué. Ouvre l’adresse du site directement dans Chrome ou Safari.',inapp:'tu as ouvert la démo dans le navigateur d’une appli (Instagram, Snapchat, Facebook…), où le micro est souvent bloqué. Touche les trois points puis « Ouvrir dans Chrome » ou « Ouvrir dans Safari ».',insecure:'la page doit être ouverte avec une adresse en https.',nomic:'ce navigateur ne donne pas accès au micro. Ouvre la démo dans Chrome ou Safari à jour.',norec:'ce navigateur ne sait pas enregistrer de vocaux. Mets à jour Chrome ou Safari.'};
+function envBanner(){const k=envIssue();return k?`<div class="demo-note" style="border-color:var(--live)">${ic('info')}<span><b style="color:var(--live)">Micro bloqué ici :</b> ${ENVMSG[k]} <a class="link" href="${esc(location.href.split('#')[0])}" target="_blank" rel="noopener">Ouvrir dans le navigateur</a></span></div>`:''}
+let AUNL=false;
+function unlockAudio(){if(AUNL)return;AUNL=true;try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume()}catch(e){}}
+document.addEventListener('pointerdown',unlockAudio,true);
+function playStream(a,rs){a.srcObject=rs;a.muted=false;a.volume=1;const pr=a.play();if(pr)pr.catch(()=>{sheet(`<h2>Activer le son</h2><p class="muted">Ton téléphone attend ton accord pour diffuser la voix de ton ami.</p><button class="btn btn-p" data-a="audio-on">${ic('speaker')} Activer le son</button>`)})}
+function diagHTML(r){const L=(ok,t,fix)=>`<div class="list-item" style="align-items:flex-start"><span style="font-size:18px">${ok===true?'✅':ok===false?'❌':'⏳'}</span><div class="grow"><b>${t}</b>${fix?`<div class="small muted">${fix}</div>`:''}</div></div>`;
+ return `${L(!r.env,'Navigateur',r.env?ENVMSG[r.env]:'')}${L(r.mic,'Micro autorisé',r.mic===false?esc(r.err):'')}${L(r.lvl,'Ta voix est captée',r.lvl===false?'La barre n’a pas bougé : vérifie que le micro n’est pas couvert ou utilisé par une autre appli.':'')}${L(r.rec,'Enregistrement des vocaux',r.rec===false?'Mets à jour Chrome ou Safari.':'')}${L(r.net,'Connexion au service',r.net===false?'Recharge la page. Si ça persiste, change de réseau (Wi-Fi).':'')}`}
 async function getMic(){if(LIVE.stream&&LIVE.stream.active)return LIVE.stream;LIVE.stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});return LIVE.stream}
 function micRelease(){if(LIVE.call||LIVE.tw||LIVE.rec||Object.keys(LIVE.roomCalls||{}).length)return;if(LIVE.stream){LIVE.stream.getTracks().forEach(t=>t.stop());LIVE.stream=null}}
 async function liveCall(code){if(LIVE.call)return toast('Tu es déjà en appel.');if(!lOnline(code))return toast(`${lName(code)} n’a pas la démo ouverte en ce moment.`);
  try{const s2=await getMic();s2.getAudioTracks().forEach(t=>t.enabled=true);const call=LIVE.peer.call(pid(code),s2,{metadata:{kind:'call'}});LIVE.call={call,code,st:'ring',t0:Date.now(),muted:false};wireCall(call);go('lcall')}catch(e){toast(micErr(e))}}
-function wireCall(call){call.on('stream',rs=>{const a=document.getElementById('remote-audio');a.srcObject=rs;a.play().catch(()=>{});if(LIVE.call&&LIVE.call.call===call&&LIVE.call.st!=='on'){LIVE.call.st='on';LIVE.call.t0=Date.now();reLive()}});
+function watchIce(call){const chk=()=>{const pc=call.peerConnection;if(!pc)return setTimeout(chk,300);pc.addEventListener('iceconnectionstatechange',()=>{if(pc.iceConnectionState==='failed'){if(LIVE.call&&LIVE.call.call===call){LIVE.call.noAudio=1;reLive()}toast('Le son ne passe pas sur ce réseau. Essayez tous les deux en Wi-Fi.')}})};chk()}
+function wireCall(call){watchIce(call);setTimeout(()=>{if(LIVE.call&&LIVE.call.call===call&&LIVE.call.st!=='on'&&LIVE.call.answered){LIVE.call.noAudio=1;reLive()}},12000);call.on('error',e=>toast('Appel : '+((e&&e.type)||'erreur')));call.on('stream',rs=>{const a=document.getElementById('remote-audio');playStream(a,rs);if(LIVE.call&&LIVE.call.call===call&&LIVE.call.st!=='on'){LIVE.call.st='on';LIVE.call.t0=Date.now();reLive()}});
  call.on('close',()=>{if(LIVE.call&&LIVE.call.call===call){LIVE.call=null;micRelease();toast('Appel terminé');if(V.name==='lcall')back();else reLive()}});call.on('error',()=>{})}
 function liveIncoming(call){const code=codeOf(call);const kind=call.metadata&&call.metadata.kind;
  if(kind==='room'){const rid=call.metadata&&call.metadata.room;if(!R||R.id!==rid){call.close();return}call.answer();LIVE.roomIn[code]=call;call.on('stream',rs=>roomAudio(code,rs));call.on('close',()=>{if(LIVE.roomIn[code]===call)delete LIVE.roomIn[code];const a=document.getElementById('ra-'+code);if(a)a.remove()});return}
- if(kind==='talkie'){if(S.dnd||!lContact(code)){call.close();return}call.answer();call.on('stream',rs=>{const a=document.getElementById('tw-audio');a.srcObject=rs;a.play().catch(()=>{})});toast(`Talkie-walkie ouvert avec ${lName(code)}`);return}
+ if(kind==='talkie'){if(S.dnd||!lContact(code)){call.close();return}call.answer();call.on('stream',rs=>{const a=document.getElementById('tw-audio');playStream(a,rs)});toast(`Talkie-walkie ouvert avec ${lName(code)}`);return}
  if(LIVE.call||!lContact(code)){call.close();return}
  UI.inCall=call;sheet(`<div class="stack" style="align-items:center;text-align:center">${avatar(lContact(code).av,96)}<h2>${esc(lName(code))} t’appelle</h2><p class="small muted">Appel vocal réel</p></div><div class="row"><button class="btn btn-g" style="flex:1" data-a="lc-no">Refuser</button><button class="btn btn-p" style="flex:1" data-a="lc-yes">${ic('phone')} Répondre</button></div>`);
  call.on('close',()=>{if(UI.inCall===call){UI.inCall=null;closeSheet()}})}
 async function twStart(){const code=UI.ltw;if(!code||!lOnline(code)){toast(`${lName(code)} n’a pas la démo ouverte en ce moment.`);return false}
- try{const s2=await getMic();if(!LIVE.tw||LIVE.tw.code!==code){if(LIVE.tw)LIVE.tw.call.close();const call=LIVE.peer.call(pid(code),s2,{metadata:{kind:'talkie'}});LIVE.tw={code,call};call.on('close',()=>{if(LIVE.tw&&LIVE.tw.call===call){LIVE.tw=null;micRelease()}});call.on('stream',rs=>{const a=document.getElementById('tw-audio');a.srcObject=rs;a.play().catch(()=>{})})}
+ try{const s2=await getMic();if(!LIVE.tw||LIVE.tw.code!==code){if(LIVE.tw)LIVE.tw.call.close();const call=LIVE.peer.call(pid(code),s2,{metadata:{kind:'talkie'}});LIVE.tw={code,call};call.on('close',()=>{if(LIVE.tw&&LIVE.tw.call===call){LIVE.tw=null;micRelease()}});call.on('stream',rs=>{const a=document.getElementById('tw-audio');playStream(a,rs)})}
   s2.getAudioTracks().forEach(t=>t.enabled=true);return true}catch(e){toast(micErr(e));return false}}
 function twStop(){if(LIVE.stream)LIVE.stream.getAudioTracks().forEach(t=>t.enabled=false)}
 /* annuaire des testeurs en ligne : le premier connecté sert d'annuaire, un autre prend le relais s'il part */
@@ -983,7 +994,7 @@ function onlineHTML(lim){if(!window.PULSE_SITE)return '';const L=dirList();
  return `<div class="sec-h"><h2>En ligne maintenant <span class="count">(${L.length})</span></h2><button class="link" data-a="live-open">Par code ${ic('arrow')}</button></div>
   ${LIVE.st!=='on'?'<p class="small muted">Connexion…</p>':L.length?L.slice(0,lim||20).map(dirRow).join(''):`<div class="card small muted">Personne d’autre en ligne pour l’instant. Partage le lien de la démo : les testeurs connectés apparaîtront ici.</div>`}`}
 function onDir(){document.querySelectorAll('[data-online]').forEach(el=>{el.innerHTML=onlineHTML(+el.dataset.online)});const rp=document.getElementById('real-peers');if(rp&&V.name==='room')rp.innerHTML=realPeers(V.p);const rc=document.getElementById('rc-count');if(rc&&V.name==='room'){const r=room(V.p);if(r)rc.textContent=countTxt(r)}syncRoomCalls()}
-function roomAudio(code,stream){let box=document.getElementById('room-audio');let a=document.getElementById('ra-'+code);if(!a){a=document.createElement('audio');a.id='ra-'+code;a.autoplay=true;a.setAttribute('playsinline','');box.appendChild(a)}a.srcObject=stream;a.play().catch(()=>{})}
+function roomAudio(code,stream){let box=document.getElementById('room-audio');let a=document.getElementById('ra-'+code);if(!a){a=document.createElement('audio');a.id='ra-'+code;a.autoplay=true;a.setAttribute('playsinline','');box.appendChild(a)}playStream(a,stream)}
 function syncRoomCalls(){if(typeof LIVE==='undefined'||!LIVE.peer||LIVE.st!=='on')return;const rid=R&&R.id;const speaking=!!(R&&R.role!=='listener'&&!R.muted);
  for(const code in LIVE.roomCalls){const e=LIVE.dir[code];if(!speaking||!rid||!e||e.room!==rid){try{LIVE.roomCalls[code].close()}catch(_){}delete LIVE.roomCalls[code]}}
  for(const code in LIVE.roomIn){const c=LIVE.roomIn[code];if(!rid||!c.metadata||c.metadata.room!==rid){try{c.close()}catch(_){}delete LIVE.roomIn[code];const a=document.getElementById('ra-'+code);if(a)a.remove()}}
@@ -991,8 +1002,8 @@ function syncRoomCalls(){if(typeof LIVE==='undefined'||!LIVE.peer||LIVE.st!=='on
  const targets=dirList().filter(e=>e.room===rid&&!LIVE.roomCalls[e.code]);if(!targets.length)return;
  getMic().then(s2=>{s2.getAudioTracks().forEach(t=>t.enabled=true);targets.forEach(e=>{if(LIVE.roomCalls[e.code])return;const call=LIVE.peer.call(pid(e.code),s2,{metadata:{kind:'room',room:rid}});LIVE.roomCalls[e.code]=call;call.on('close',()=>{if(LIVE.roomCalls[e.code]===call)delete LIVE.roomCalls[e.code]});call.on('error',()=>{})})}).catch(e=>toast(micErr(e)))}
 /* enregistreur de vocaux */
-async function recStart(max,onDone){try{const s2=await getMic();const mime=['audio/webm;codecs=opus','audio/mp4','audio/webm'].find(m=>window.MediaRecorder&&MediaRecorder.isTypeSupported(m))||'';const r=new MediaRecorder(s2,mime?{mimeType:mime}:{});const parts=[];const t0=Date.now();
- r.ondataavailable=e=>{if(e.data&&e.data.size)parts.push(e.data)};r.onstop=()=>{LIVE.rec=null;micRelease();const b=new Blob(parts,{type:r.mimeType||mime||'audio/webm'});onDone(b,Math.max(1,Math.round((Date.now()-t0)/1000)))};
+async function recStart(max,onDone){try{const s2=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});const mime=['audio/mp4','audio/webm;codecs=opus','audio/webm'].find(m=>window.MediaRecorder&&MediaRecorder.isTypeSupported(m))||'';const r=new MediaRecorder(s2,mime?{mimeType:mime}:{});const parts=[];const t0=Date.now();
+ r.ondataavailable=e=>{if(e.data&&e.data.size)parts.push(e.data)};r.onstop=()=>{LIVE.rec=null;s2.getTracks().forEach(t=>t.stop());micRelease();const b=new Blob(parts,{type:r.mimeType||mime||'audio/webm'});onDone(b,Math.max(1,Math.round((Date.now()-t0)/1000)))};
  LIVE.rec={r,timer:setTimeout(()=>{if(r.state==='recording')r.stop()},max*1000)};r.start();return true}catch(e){toast(micErr(e));return false}}
 function recStop(){if(LIVE.rec){clearTimeout(LIVE.rec.timer);if(LIVE.rec.r.state==='recording')LIVE.rec.r.stop()}}
 const blobToData=b=>new Promise(res=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.readAsDataURL(b)});
@@ -1345,6 +1356,8 @@ watch:()=>{const W=UI.w||(UI.w={t:0,playing:false,dur:150,next:18,yt:null});cons
 live:()=>{if(!liveOK())return `<div class="scr">${topBar('Tester en vrai')}<div class="card stack"><h3>Disponible sur le site de démo en ligne</h3><p class="muted small">Les vrais appels, vocaux et messages entre testeurs marchent sur l’adresse Netlify de la démo, pas dans cet aperçu.</p></div>${nav('')}</div>`;
  if(!LIVE.peer)liveStart();const cs=S.lcontacts||[];
  return `<div class="scr">${topBar('Tester en vrai')}
+ ${envBanner()}
+ <button class="btn btn-g btn-sm" style="align-self:flex-start" data-a="diag">${ic('mic')} Vérifier mon micro et le son</button>
  <div class="card stack" style="align-items:center;text-align:center"><span class="eyebrow">Ton code PULSE</span><div class="code-big">${liveCode().replace(/(\d{3})(\d{3})/,'$1 $2')}</div>
   <span class="st ${LIVE.st==='on'?'on':'soon'}">${LIVE.st==='on'?'En ligne : tes amis peuvent te joindre':LIVE.st==='connecting'?'Connexion…':'Hors ligne'+(LIVE.err?' ('+esc(LIVE.err)+')':'')}</span>
   <button class="btn btn-g btn-sm" data-a="lcode-copy">Copier mon code</button></div>
@@ -1360,21 +1373,26 @@ live:()=>{if(!liveOK())return `<div class="scr">${topBar('Tester en vrai')}<div 
 lchat:(code)=>{const c=lContact(code);if(!c)return VIEWS.live();const L=(S.lmsgs&&S.lmsgs[code])||[];
  return `<div class="scr" style="padding-bottom:110px">
  <div class="top"><button class="back" data-a="back" aria-label="Retour">${ic('back')}</button><div class="row" style="flex:1;min-width:0">${avatar(c.av,40)}<div style="min-width:0"><div style="font-weight:800">${esc(c.n)}</div><span class="small" style="color:${lOnline(code)?'var(--ok)':'var(--muted)'}">● ${lOnline(code)?'En ligne':'Hors ligne'}</span></div></div><button class="icon-btn" data-a="ltw" data-v="${code}" aria-label="Talkie-walkie">${ic('speaker')}</button><button class="icon-btn" data-a="lcall" data-v="${code}" aria-label="Appeler">${ic('phone')}</button></div>
- <div class="bubbles">${L.map(m=>`<div class="bub ${m.f}">${m.v?(LIVE.voices[m.v]?`<span class="vnote">${ic('mic')}<audio controls preload="metadata" src="${LIVE.voices[m.v]}"></audio><span class="small">${m.d}s</span></span>`:`<span class="small">Vocal (${m.d}s) · disponible tant que la page reste ouverte</span>`):esc(m.x)}${m.pend?'<span class="small" style="display:block;opacity:.7">en attente de connexion</span>':''}</div>`).join('')||'<p class="small muted" style="text-align:center">Écris le premier message, ou garde le micro appuyé pour un vocal.</p>'}</div></div>
- <form class="composer" id="lcomposer"><button type="button" class="icon-btn hold" id="lrec" aria-label="Maintenir pour enregistrer un vocal">${ic('mic')}</button><input id="lmsg-in" placeholder="${LIVE.rec?'Enregistrement… relâche pour envoyer':'Message…'}" autocomplete="off" aria-label="Message"><button class="icon-btn" type="submit" aria-label="Envoyer" style="background:linear-gradient(135deg,var(--primary),var(--accent))">${ic('send')}</button></form>`},
+ ${envBanner()}
+ <div class="bubbles">${L.map(m=>`<div class="bub ${m.f}">${m.v?(LIVE.voices[m.v]?`<span class="vnote">${ic('mic')}<audio controls preload="metadata" src="${LIVE.voices[m.v]}"></audio><span class="small">${m.d}s</span></span>`:`<span class="small">Vocal (${m.d}s) · disponible tant que la page reste ouverte</span>`):esc(m.x)}${m.pend?'<span class="small" style="display:block;opacity:.7">en attente de connexion</span>':''}</div>`).join('')||'<p class="small muted" style="text-align:center">Écris le premier message, ou touche le micro pour enregistrer un vocal, puis touche à nouveau pour l’envoyer.</p>'}</div></div>
+ <form class="composer" id="lcomposer"><button type="button" class="icon-btn" id="lrec2" data-a="lrec" aria-label="${LIVE.rec?'Arrêter et envoyer le vocal':'Enregistrer un vocal'}" style="${LIVE.rec?'background:var(--live);border-color:var(--live)':''}">${ic(LIVE.rec?'send':'mic')}</button><input id="lmsg-in" placeholder="${LIVE.rec?'🔴 Enregistrement… touche le bouton rouge pour envoyer':'Message…'}" autocomplete="off" aria-label="Message"><button class="icon-btn" type="submit" aria-label="Envoyer" style="background:linear-gradient(135deg,var(--primary),var(--accent))">${ic('send')}</button></form>`},
 
 lcall:()=>{const L=LIVE.call;if(!L)return VIEWS.live();const c=lContact(L.code)||{n:'Ami',av:S.av};const tt=Math.floor((Date.now()-L.t0)/1000);
  return `<div class="scr" style="gap:18px">${topBar('Appel réel')}
  <div class="stack" style="align-items:center;text-align:center;gap:10px"><div class="duo-face"><div class="seat"><div class="av ${!L.muted&&L.st==='on'?'speaking':''}">${avatar(S.av,96)}</div><span>Toi</span></div>${ic('phone')}<div class="seat"><div class="av ${L.st==='on'?'speaking':''}">${avatar(c.av,96)}</div><span>${esc(c.n)}</span></div></div>
   <div class="timer" id="lcall-t">${L.st==='on'?Math.floor(tt/60)+':'+String(tt%60).padStart(2,'0'):'Ça sonne…'}</div><span class="st ${L.st==='on'?'on':'soon'}">${L.st==='on'?'En appel, en vrai':'En attente de réponse'}</span></div>
+ ${envBanner()}
  <div class="call-ctr"><button class="rb ${L.muted?'on':''}" data-a="lc-mute" aria-pressed="${L.muted}" aria-label="${L.muted?'Réactiver le micro':'Couper le micro'}">${ic(L.muted?'micoff':'mic')}</button><button class="rb" data-a="lchat" data-v="${L.code}" aria-label="Messages">${ic('message')}</button><button class="rb end" data-a="lc-end" aria-label="Raccrocher">${ic('phone')}</button></div>
+ ${L.noAudio?`<div class="demo-note" style="border-color:var(--live)">${ic('info')}<span><b style="color:var(--live)">Le son ne passe pas.</b> Vérifiez tous les deux que le micro est autorisé, puis essayez en Wi-Fi. <button class="link" data-a="diag">Vérifier mon micro et le son</button></span></div>`:''}
+ <button class="btn btn-g btn-sm" style="align-self:center" data-a="audio-on">${ic('speaker')} Je n’entends rien</button>
  <p class="small muted" style="text-align:center">Mets des écouteurs pour éviter l’écho. Tu peux aller ailleurs dans l’appli : l’appel continue.</p>
  ${nav('')}</div>`},
 
 ltalkie:()=>{const code=UI.ltw;const c=lContact(code);if(!c)return VIEWS.live();
- return `<div class="scr">${topBar('Talkie-walkie')}
+ return `<div class="scr">${topBar('Talkie-walkie')}${envBanner()}
  <div class="stack" style="align-items:center;gap:6px">${avatar(c.av,96)}<b>${esc(c.n)}</b><span class="st ${lOnline(code)?'on':'soon'}">${lOnline(code)?'En ligne':'Hors ligne'}</span></div>
- <button class="mic ptt hold" id="lptt" aria-label="Maintenir pour parler à ${esc(c.n)}">${ic('mic')}</button>
+ ${UI.micOK?'':`<button class="btn btn-p" data-a="mic-auth">${ic('mic')} Autoriser le micro d’abord</button>`}
+ <button class="mic ptt hold" id="lptt" aria-label="Maintenir pour parler à ${esc(c.n)}" style="-webkit-touch-callout:none">${ic('mic')}</button>
  <p class="mic-state" id="lptt-state">Maintiens pour parler : ${esc(c.n)} t’entend en direct</p>
  <button class="set-row" data-a="dnd" style="padding:6px 0"><span><span style="font-weight:700">Ne pas déranger</span><br><span class="small muted">Plus personne ne peut te parler en direct</span></span><span class="toggle ${S.dnd?'on':''}" role="switch" aria-checked="${!!S.dnd}"></span></button>
  <p class="small muted">Vrai talkie-walkie : ta voix part pendant que tu appuies. Mets des écouteurs pour éviter l’écho.</p>
@@ -1666,9 +1684,22 @@ const ACT={
  lchat:v=>{UI.lcode=v;if(!lOnline(v))liveConnect(v,true);go('lchat',v);window.scrollTo(0,document.body.scrollHeight)},
  lcall:v=>{liveCall(v)},
  ltw:v=>{UI.ltw=v;if(!lOnline(v))liveConnect(v,true);go('ltalkie')},
- 'lc-yes':async()=>{const call=UI.inCall;UI.inCall=null;closeSheet();if(!call)return;try{const s2=await getMic();s2.getAudioTracks().forEach(t=>t.enabled=true);call.answer(s2);LIVE.call={call,code:codeOf(call),st:'ring',t0:Date.now(),muted:false};wireCall(call);go('lcall')}catch(e){toast(micErr(e));call.close()}},
+ 'lc-yes':async()=>{const call=UI.inCall;UI.inCall=null;closeSheet();if(!call)return;try{const s2=await getMic();s2.getAudioTracks().forEach(t=>t.enabled=true);call.answer(s2);LIVE.call={call,code:codeOf(call),st:'ring',t0:Date.now(),muted:false,answered:1};wireCall(call);go('lcall')}catch(e){toast(micErr(e));call.close()}},
  'lc-no':()=>{const call=UI.inCall;UI.inCall=null;closeSheet();if(call)call.close()},
  'lc-end':()=>{if(LIVE.call)LIVE.call.call.close()},
+ lrec:async()=>{if(LIVE.rec){recStop();return}const code=V.p;
+  const ok=await recStart(60,async(b,d)=>{if(b.size<500){toast('Vocal trop court ou micro muet.');render();return}const id='v'+Date.now();LIVE.voices[id]=URL.createObjectURL(b);const c=LIVE.conns[code];
+   if(c&&c.open){try{c.send({t:'voice',b:await b.arrayBuffer(),m:b.type,d});lPush(code,{f:'me',v:id,d});toast('Vocal envoyé')}catch(e){toast('Le vocal n’a pas pu partir.')}}else{lPush(code,{f:'me',v:id,d});toast('Ton ami n’est pas en ligne : le vocal n’a pas pu partir.')}if(V.name==='lchat'){render();window.scrollTo(0,document.body.scrollHeight)}});
+  if(ok){render();toast('Enregistrement… touche le bouton rouge pour envoyer')}},
+ 'audio-on':()=>{closeSheet();unlockAudio();document.querySelectorAll('#remote-audio,#tw-audio,#room-audio audio').forEach(a=>{a.muted=false;a.volume=1;const pr=a.play();if(pr)pr.catch(()=>{})});toast('Son activé')},
+ 'mic-auth':async()=>{try{await getMic();UI.micOK=1;micRelease();toast('Micro autorisé');render()}catch(e){toast(micErr(e))}},
+ diag:async()=>{const r={env:envIssue(),mic:null,lvl:null,rec:!!window.MediaRecorder,net:LIVE.st==='on'?true:(LIVE.st==='connecting'?null:false),err:''};
+  sheet(`<h2>Vérifier mon micro et le son</h2><div class="stack" id="dg">${diagHTML(r)}</div><div class="lvl"><i id="dg-l" style="width:0%"></i></div><p class="small muted" id="dg-h">Autorise le micro si ton téléphone le demande, puis parle pendant 5 secondes.</p><button class="btn btn-g" data-a="dg-beep">${ic('speaker')} Tester le haut-parleur</button><button class="btn btn-p" data-a="close">Fermer</button>`);
+  try{const s2=await navigator.mediaDevices.getUserMedia({audio:true});r.mic=true;const ctx=new (window.AudioContext||window.webkitAudioContext)();const an=ctx.createAnalyser();ctx.createMediaStreamSource(s2).connect(an);const buf=new Uint8Array(an.fftSize);let n=0,mx=0;
+   const it=setInterval(()=>{an.getByteTimeDomainData(buf);let m=0;for(const v of buf)m=Math.max(m,Math.abs(v-128));mx=Math.max(mx,m);const l=document.getElementById('dg-l');if(l)l.style.width=Math.min(100,m*1.6)+'%';
+    if(++n>50){clearInterval(it);try{ctx.close()}catch(e){}s2.getTracks().forEach(t=>t.stop());r.lvl=mx>2;const g=document.getElementById('dg');if(g)g.innerHTML=diagHTML(r);const h=document.getElementById('dg-h');if(h)h.textContent=r.lvl&&!r.env?'Ton micro fonctionne. Si ton ami ne t’entend pas, faites-lui faire la même vérification.':'Corrige les points en rouge, recharge la page, puis refais la vérification.'}},100)}
+  catch(e){r.mic=false;r.err=micErr(e);const g=document.getElementById('dg');if(g)g.innerHTML=diagHTML(r)}},
+ 'dg-beep':()=>{const was=S.sound;S.sound=1;playMelody('lune');S.sound=was;toast('Tu dois entendre une petite mélodie.')},
  'lc-mute':()=>{const L=LIVE.call;if(!L)return;L.muted=!L.muted;if(LIVE.stream)LIVE.stream.getAudioTracks().forEach(t=>t.enabled=!L.muted);render()},
  'call-start':v=>{if(S.blocked.includes(v))return;CALL={who:v,t0:Date.now(),st:'ring',muted:false,li:0};go('call');setTimeout(()=>{if(CALL&&CALL.who===v&&CALL.st==='ring'){CALL.st='on';CALL.t0=Date.now();render();speak('Allô ! Ça fait plaisir de t’entendre.',v,true)}},1800)},
  'call-open':()=>{if(CALL)CALL.bubble=false;go('call')},
@@ -1863,6 +1894,8 @@ document.addEventListener('pointerdown',async e=>{const t=e.target.closest('#lpt
   const ok=await recStart(60,async(b,d)=>{if(b.size<800){toast('Vocal trop court.');return}const id='v'+Date.now();LIVE.voices[id]=URL.createObjectURL(b);const c=LIVE.conns[code];
    if(c&&c.open){c.send({t:'voice',b:await b.arrayBuffer(),m:b.type,d});lPush(code,{f:'me',v:id,d})}else{lPush(code,{f:'me',v:id,d});toast('Ton ami n’est pas en ligne : le vocal n’a pas pu partir.')}if(V.name==='lchat')render()});
   if(ok&&!UI.lrecDown)recStop()}});
+const lpttEnd=()=>{if(UI.lpttDown){UI.lpttDown=0;twStop();const b=document.getElementById('lptt');if(b)b.classList.remove('hot');const st=document.getElementById('lptt-state');if(st)st.textContent='Maintiens pour parler'}};
+document.addEventListener('pointercancel',lpttEnd);
 document.addEventListener('pointerup',()=>{if(UI.lpttDown){UI.lpttDown=0;twStop();const b=document.getElementById('lptt');if(b)b.classList.remove('hot');const st=document.getElementById('lptt-state');if(st)st.textContent='Maintiens pour parler'}
  if(UI.lrecDown){UI.lrecDown=0;recStop()}});
 let pttT0=0;
