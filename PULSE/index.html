@@ -1,0 +1,945 @@
+<title>PULSE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Manrope:wght@400;500;600;700;800&display=swap">
+<style>
+/* Mise en page : une colonne mobile (max 440px) sur fond cosmique, barre basse à 5 entrées avec micro PULSE central. */
+:root{
+  --bg:#10071F; --surface:#1B1030; --surface2:#251744; --primary:#873BFF; --electric:#A855F7;
+  --accent:#FF4FD8; --blue:#4F7BFF; --cyan:#22D3EE; --text:#FFFFFF; --text2:#C9C1D6;
+  --muted:#8E83A6; --line:rgba(201,193,214,.14); --live:#FF4F7B; --ok:#34D399; --warn:#FFC93C;
+  --f-display:'Unbounded','Space Grotesk',system-ui,sans-serif;
+  --f-body:'Manrope',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --r-card:22px; --r-pill:999px;
+  color-scheme:dark;
+}
+/* Piste Ocean Signal : proposition modernisée, codes non validés par Kelly */
+:root[data-skin="ocean"]{
+  --bg:#04161D; --surface:#0A2630; --surface2:#0F3441; --primary:#0FA3A3; --electric:#2FE0D6;
+  --accent:#FFC93C; --blue:#1E88B8; --cyan:#7DF9FF; --text2:#B5D2D8; --muted:#7FA2AA;
+  --line:rgba(181,210,216,.14); --live:#FF6B5B;
+}
+html,body{height:100%}
+body{background:var(--bg);color:var(--text);font-family:var(--f-body);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+   radial-gradient(60% 40% at 85% 0%, color-mix(in srgb,var(--primary) 38%,transparent), transparent 70%),
+   radial-gradient(50% 35% at 0% 30%, color-mix(in srgb,var(--blue) 22%,transparent), transparent 70%),
+   radial-gradient(45% 30% at 100% 85%, color-mix(in srgb,var(--accent) 16%,transparent), transparent 70%);}
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.7}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:2px;border-radius:10px}
+#app{position:relative;z-index:1;max-width:440px;margin:0 auto;min-height:100%}
+.scr{padding-block:14px 130px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:22px}
+.scr.no-nav{padding-bottom:40px}
+body.has-room .scr:not(.no-nav){padding-bottom:200px}
+.scr.in-room{padding-bottom:190px}
+:root[data-skin="ocean"] .cat,:root[data-skin="ocean"] .room-card .cover{filter:hue-rotate(-75deg) saturate(.9)}
+h1,h2,h3{font-family:var(--f-display);font-weight:700;letter-spacing:-.01em;text-wrap:balance;margin:0}
+h1{font-size:26px;line-height:1.15}
+h2{font-size:17px}
+h3{font-size:14px}
+p{margin:0}
+.muted{color:var(--text2)}
+.small{font-size:12.5px}
+.eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text2);font-weight:700}
+.row{display:flex;align-items:center;gap:10px}
+.between{justify-content:space-between}
+.wrap{flex-wrap:wrap}
+.stack{display:flex;flex-direction:column;gap:12px}
+.sec-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.link{color:var(--electric);font-weight:700;font-size:13px}
+.ico{width:22px;height:22px;flex:none;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+
+/* Logo */
+.logo{display:inline-flex;align-items:center;gap:8px;font-family:var(--f-display);font-weight:800;letter-spacing:.06em}
+.logo svg{height:1em;width:auto}
+.logo .wm{background:linear-gradient(90deg,#fff,var(--text2) 40%,var(--electric) 75%,var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* Boutons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:0 22px;border-radius:var(--r-pill);font-weight:800;font-size:15px;transition:transform .15s, filter .15s}
+.btn:active{transform:scale(.97)}
+.btn-p{background:linear-gradient(100deg,var(--primary),var(--electric) 55%,var(--accent));color:#fff;box-shadow:0 8px 28px -8px color-mix(in srgb,var(--electric) 70%,transparent)}
+.btn-g{background:color-mix(in srgb,var(--surface2) 80%,transparent);border:1px solid var(--line)}
+.btn-sm{min-height:34px;padding:0 14px;font-size:13px}
+.btn-block{width:100%}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.icon-btn{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb,var(--surface2) 70%,transparent);border:1px solid var(--line);position:relative}
+.dot{position:absolute;top:8px;right:9px;width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent)}
+
+/* Puces */
+.chip{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:var(--r-pill);font-size:13px;font-weight:700;background:color-mix(in srgb,var(--surface2) 70%,transparent);border:1px solid var(--line);white-space:nowrap}
+.chip.on{background:color-mix(in srgb,var(--primary) 35%,transparent);border-color:var(--electric);color:#fff}
+.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.chips::-webkit-scrollbar{display:none}
+.tag{white-space:nowrap;font-size:11px;font-weight:800;padding:3px 8px;border-radius:var(--r-pill);background:rgba(255,255,255,.08);color:var(--text2);letter-spacing:.04em}
+.live{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:color-mix(in srgb,var(--live) 85%,transparent);padding:4px 9px;border-radius:var(--r-pill)}
+.live::before{content:"";width:6px;height:6px;border-radius:50%;background:#fff;animation:blink 1.4s infinite}
+.plus{font-size:10px;font-weight:800;letter-spacing:.06em;padding:3px 7px;border-radius:var(--r-pill);background:linear-gradient(90deg,var(--warn),var(--accent));color:#1a0b2e}
+@keyframes blink{50%{opacity:.3}}
+
+/* Cartes */
+.card{background:linear-gradient(160deg,color-mix(in srgb,var(--surface2) 90%,transparent),color-mix(in srgb,var(--surface) 92%,transparent));border:1px solid var(--line);border-radius:var(--r-card);padding:16px}
+.hero{position:relative;overflow:hidden;border-radius:26px;padding:22px 20px;min-height:190px;display:flex;flex-direction:column;justify-content:flex-end;gap:10px;border:1px solid color-mix(in srgb,var(--electric) 40%,transparent);
+  background:radial-gradient(120% 90% at 100% 0%, color-mix(in srgb,var(--accent) 45%,transparent), transparent 55%),linear-gradient(150deg,color-mix(in srgb,var(--primary) 70%,var(--bg)),var(--surface) 70%)}
+.hero .planet{position:absolute;right:-30px;top:-30px;width:170px;height:170px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, #fff 0, color-mix(in srgb,var(--accent) 70%,#fff) 8%, var(--electric) 35%, var(--primary) 65%, transparent 72%);
+  box-shadow:0 0 60px 10px color-mix(in srgb,var(--electric) 45%,transparent);opacity:.85}
+.hero .ring{position:absolute;right:-60px;top:40px;width:230px;height:46px;border-radius:50%;border:2px solid color-mix(in srgb,var(--cyan) 55%,transparent);transform:rotate(-18deg)}
+.hero>*:not(.planet):not(.ring){position:relative}
+.hscroll{display:grid;grid-auto-flow:column;grid-auto-columns:78%;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin-inline:-16px;padding-inline:16px}
+.hscroll::-webkit-scrollbar{display:none}
+.hscroll>*{scroll-snap-align:start}
+.room-card{display:flex;flex-direction:column;gap:12px;text-align:left;min-width:0}
+.room-card .cover{height:92px;border-radius:16px;position:relative;overflow:hidden;display:flex;align-items:flex-end;padding:10px}
+.room-card .cover .ico{position:absolute;right:12px;top:12px;width:44px;height:44px;opacity:.9;stroke-width:1.5}
+.faces{display:flex}
+.faces>*{margin-left:-8px;border-radius:50%;border:2px solid var(--surface);background:var(--surface)}
+.faces>*:first-child{margin-left:0}
+.count{font-size:12px;color:var(--text2);font-variant-numeric:tabular-nums}
+.list-item{display:flex;align-items:center;gap:12px;padding:12px;border-radius:18px;text-align:left;width:100%;background:color-mix(in srgb,var(--surface) 70%,transparent);border:1px solid var(--line);min-width:0}
+.list-item .grow{flex:1;min-width:0}
+.ellip{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.cat{aspect-ratio:1/1;border-radius:20px;display:flex;flex-direction:column;justify-content:space-between;padding:12px;text-align:left;position:relative;overflow:hidden;font-weight:800;font-size:12.5px;line-height:1.2;max-width:100%}
+.cat .ico{width:30px;height:30px;stroke-width:1.7}
+.cat::after{content:"";position:absolute;inset:auto -20% -40% auto;width:80%;aspect-ratio:1;border-radius:50%;background:rgba(255,255,255,.12)}
+.search{display:flex;align-items:center;gap:10px;padding:0 16px;height:50px;border-radius:var(--r-pill);background:color-mix(in srgb,var(--surface) 85%,transparent);border:1px solid var(--line)}
+.search input{flex:1;min-width:0;background:none;border:0;outline:0;font-size:15px}
+.search input::placeholder{color:var(--muted)}
+.demo-note{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;color:var(--text2);padding:10px 12px;border-radius:14px;border:1px dashed color-mix(in srgb,var(--warn) 50%,transparent);background:color-mix(in srgb,var(--warn) 7%,transparent)}
+.demo-note b{color:var(--warn)}
+.tabs{display:flex;gap:4px;padding:4px;border-radius:var(--r-pill);background:color-mix(in srgb,var(--surface) 85%,transparent);border:1px solid var(--line)}
+.tabs button{flex:1;padding:9px 6px;border-radius:var(--r-pill);font-weight:800;font-size:13px;color:var(--text2)}
+.tabs button.on{background:linear-gradient(100deg,var(--primary),var(--electric));color:#fff}
+
+/* En-tête */
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.back{display:flex;align-items:center;gap:6px;font-weight:800}
+
+/* Navigation basse */
+.nav{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:min(100%,440px);z-index:20;padding:0 max(12px,env(safe-area-inset-left,0px)) calc(10px + env(safe-area-inset-bottom,0px))}
+.nav-in{display:grid;grid-template-columns:repeat(5,1fr);align-items:end;height:70px;border-radius:26px;padding:0 6px 8px;
+  background:color-mix(in srgb,var(--surface) 88%,transparent);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid var(--line);box-shadow:0 -10px 40px -10px rgba(0,0,0,.6)}
+.nav-b{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;font-weight:700;color:var(--muted);padding-top:8px}
+.nav-b.on{color:#fff}
+.nav-b.on .ico{stroke:var(--electric);filter:drop-shadow(0 0 6px var(--electric))}
+.mic-wrap{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;font-weight:800;letter-spacing:.08em}
+.mic{position:relative;width:68px;height:68px;border-radius:50%;margin-top:-34px;display:grid;place-items:center;color:#fff;
+  background:radial-gradient(circle at 35% 30%, color-mix(in srgb,#fff 35%,var(--accent)), var(--electric) 45%, var(--primary) 80%);
+  box-shadow:0 0 0 5px var(--bg),0 0 28px 4px color-mix(in srgb,var(--electric) 70%,transparent)}
+.mic .ico{width:30px;height:30px;stroke-width:2.1}
+.mic::before,.mic::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid color-mix(in srgb,var(--accent) 70%,transparent);opacity:0;animation:ring 2.6s infinite}
+.mic::after{animation-delay:1.3s}
+.mic.hot{background:radial-gradient(circle at 35% 30%, #fff, var(--accent) 40%, var(--live) 90%)}
+.mic.hot::before,.mic.hot::after{animation-duration:1.1s;border-color:var(--accent)}
+.mic.off{background:radial-gradient(circle at 35% 30%, #5d5376, #2c2244 80%);box-shadow:0 0 0 5px var(--bg)}
+.mic.off::before,.mic.off::after{display:none}
+@keyframes ring{0%{transform:scale(.9);opacity:.8}100%{transform:scale(1.55);opacity:0}}
+.mini-room{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(92px + env(safe-area-inset-bottom,0px));width:min(calc(100% - 24px),416px);z-index:19;display:flex;align-items:center;gap:10px;padding:8px 10px 8px 14px;border-radius:18px;
+  background:linear-gradient(100deg,color-mix(in srgb,var(--primary) 60%,var(--surface)),var(--surface));border:1px solid color-mix(in srgb,var(--electric) 50%,transparent);text-align:left}
+
+/* Salon vocal */
+.stage{display:grid;grid-template-columns:repeat(3,1fr);gap:16px 8px;justify-items:center}
+.seat{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;font-weight:700;text-align:center;min-width:0;max-width:100%}
+.seat .av{position:relative;border-radius:50%}
+.seat .av.speaking{box-shadow:0 0 0 3px var(--accent),0 0 22px 4px color-mix(in srgb,var(--accent) 60%,transparent);animation:talk 1s ease-in-out infinite}
+@keyframes talk{50%{box-shadow:0 0 0 4px var(--electric),0 0 30px 8px color-mix(in srgb,var(--electric) 55%,transparent)}}
+.seat .badge{position:absolute;bottom:-2px;right:-2px;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--surface);border:1px solid var(--line)}
+.seat .badge .ico{width:14px;height:14px}
+.role{font-size:10.5px;color:var(--text2);font-weight:700}
+.room-bar{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:min(100%,440px);z-index:20;padding:0 max(12px,env(safe-area-inset-left,0px)) calc(10px + env(safe-area-inset-bottom,0px))}
+.room-bar .in{display:grid;grid-template-columns:1fr auto 1fr;align-items:end;gap:8px;padding:8px 12px 10px;border-radius:26px;background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid var(--line)}
+.mic-state{text-align:center;font-size:12px;font-weight:700;margin-top:6px;max-width:150px}
+.reacts{display:flex;gap:4px}
+.reacts button{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.06);font-size:18px}
+.floaty{position:fixed;z-index:30;font-size:28px;pointer-events:none;animation:floatUp 1.6s ease-out forwards}
+@keyframes floatUp{to{transform:translateY(-180px) scale(1.3);opacity:0}}
+.wave{display:flex;gap:3px;align-items:center;height:18px}
+.wave i{width:3px;border-radius:2px;background:var(--accent);animation:wv .9s ease-in-out infinite}
+.wave i:nth-child(2){animation-delay:.15s}.wave i:nth-child(3){animation-delay:.3s}.wave i:nth-child(4){animation-delay:.45s}
+@keyframes wv{0%,100%{height:4px}50%{height:18px}}
+
+/* Feuilles (bottom sheets) */
+.sheet-bg{position:fixed;inset:0;z-index:40;background:rgba(5,2,12,.6);backdrop-filter:blur(4px);display:flex;align-items:flex-end;justify-content:center}
+.sheet{width:min(100%,440px);max-height:88%;overflow:auto;border-radius:28px 28px 0 0;padding:10px max(18px,env(safe-area-inset-left,0px)) calc(24px + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg,var(--surface2),var(--surface));border:1px solid var(--line);border-bottom:0;display:flex;flex-direction:column;gap:14px;animation:up .25s ease-out}
+.sheet .grab{width:42px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 4px}
+@keyframes up{from{transform:translateY(40px);opacity:0}}
+.opt{display:flex;align-items:center;gap:12px;padding:14px;border-radius:18px;text-align:left;width:100%;background:rgba(255,255,255,.04);border:1px solid var(--line)}
+.opt[disabled]{opacity:.5;cursor:not-allowed}
+.opt .ic-b{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--primary),var(--accent));flex:none}
+.toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:60;max-width:min(92%,400px);padding:12px 16px;border-radius:16px;background:var(--surface2);border:1px solid color-mix(in srgb,var(--electric) 50%,transparent);font-weight:700;font-size:13.5px;box-shadow:0 10px 30px rgba(0,0,0,.5);animation:up .2s ease-out}
+
+/* Formulaires */
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:13px;font-weight:800;color:var(--text2)}
+.inp{height:50px;padding:0 16px;border-radius:16px;background:color-mix(in srgb,var(--surface) 85%,transparent);border:1px solid var(--line);outline:0;font-size:15px;width:100%}
+textarea.inp{height:auto;min-height:90px;padding:12px 16px;resize:vertical}
+.inp:focus{border-color:var(--electric)}
+.err{color:var(--live);font-size:13px;font-weight:700}
+.steps{display:flex;gap:6px}
+.steps i{flex:1;height:4px;border-radius:2px;background:var(--line)}
+.steps i.on{background:linear-gradient(90deg,var(--primary),var(--accent))}
+.toggle{width:48px;height:28px;border-radius:14px;background:var(--line);position:relative;flex:none;transition:background .2s}
+.toggle::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:transform .2s}
+.toggle.on{background:linear-gradient(90deg,var(--primary),var(--accent))}
+.toggle.on::after{transform:translateX(20px)}
+.set-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 0;border-bottom:1px solid var(--line);text-align:left;width:100%}
+.set-row:last-child{border-bottom:0}
+
+/* Avatar éditeur */
+.av-stage{display:grid;place-items:center;padding:8px 0}
+.swatches{display:flex;gap:10px;flex-wrap:wrap}
+.sw{width:34px;height:34px;border-radius:50%;border:2px solid transparent;box-shadow:inset 0 0 0 2px rgba(0,0,0,.25)}
+.sw.on{border-color:#fff;box-shadow:0 0 12px var(--electric)}
+.pick-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.pick{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 8px;border-radius:20px;background:rgba(255,255,255,.04);border:1.5px solid var(--line);text-align:center;position:relative;min-width:0}
+.pick.on{border-color:var(--electric);background:color-mix(in srgb,var(--primary) 22%,transparent);box-shadow:0 0 18px -4px var(--electric)}
+.pick .nm{font-weight:800;font-size:13.5px}
+.pick .ds{font-size:11.5px;color:var(--text2)}
+.pick .plus{position:absolute;top:8px;right:8px}
+.acc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.acc-grid .pick{padding:10px 6px}
+.acc-grid svg{width:100%;max-width:84px;height:auto;aspect-ratio:1}
+
+/* Chat */
+.bubbles{display:flex;flex-direction:column;gap:8px}
+.bub{max-width:80%;padding:10px 14px;border-radius:20px;font-size:14.5px;overflow-wrap:anywhere}
+.bub.them{background:var(--surface2);border-bottom-left-radius:6px;align-self:flex-start}
+.bub.me{background:linear-gradient(110deg,var(--primary),var(--electric));border-bottom-right-radius:6px;align-self:flex-end}
+.bub .tr{display:block;margin-top:6px;padding-top:6px;border-top:1px solid var(--line);font-size:13px;color:var(--text2)}
+.voice{display:flex;align-items:center;gap:10px}
+.composer{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:min(100%,440px);z-index:20;display:flex;gap:8px;align-items:center;padding:10px max(12px,env(safe-area-inset-left,0px)) calc(12px + env(safe-area-inset-bottom,0px));background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line)}
+.composer input{flex:1;min-width:0;height:46px;border-radius:var(--r-pill);padding:0 16px;background:var(--surface);border:1px solid var(--line);outline:0}
+
+/* Accueil bienvenue */
+.welcome{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;justify-content:space-between;padding-block:40px 36px;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px));gap:28px;text-align:center}
+.big-mic{position:relative;width:180px;height:180px;margin:0 auto;display:grid;place-items:center}
+.big-mic .core{width:120px;height:120px;border-radius:50%;display:grid;place-items:center;color:#fff;
+  background:radial-gradient(circle at 35% 30%, color-mix(in srgb,#fff 40%,var(--accent)), var(--electric) 45%, var(--primary) 85%);
+  box-shadow:0 0 50px 8px color-mix(in srgb,var(--electric) 65%,transparent), inset 0 0 20px rgba(255,255,255,.3)}
+.big-mic .core .ico{width:52px;height:52px;stroke-width:1.8}
+.big-mic span{position:absolute;inset:0;border-radius:50%;border:2px solid color-mix(in srgb,var(--cyan) 60%,transparent);animation:ring 3s infinite}
+.big-mic span:nth-child(2){animation-delay:1s;border-color:color-mix(in srgb,var(--accent) 60%,transparent)}
+.big-mic span:nth-child(3){animation-delay:2s}
+.status-list li{margin-bottom:6px}
+.pill-status{font-size:11px;font-weight:800;padding:3px 8px;border-radius:var(--r-pill)}
+.st-ok{background:color-mix(in srgb,var(--ok) 20%,transparent);color:var(--ok)}
+.st-demo{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
+.st-no{background:rgba(255,255,255,.08);color:var(--text2)}
+:root[data-calm="1"] *, :root[data-calm="1"] *::before, :root[data-calm="1"] *::after{animation:none!important;transition:none!important}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+
+<canvas id="stars" aria-hidden="true"></canvas>
+<div id="app"></div>
+<div id="layer"></div>
+
+<script>
+(function(){
+"use strict";
+/* ---------- Icônes ---------- */
+const P={
+home:'<path d="M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z"/>',
+compass:'<circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/>',
+message:'<path d="M21 12a8 8 0 0 1-11.6 7.1L4 21l1.9-5.1A8 8 0 1 1 21 12z"/>',
+user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+bell:'<path d="M6 16v-5a6 6 0 1 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/>',
+search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>',
+mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',
+micoff:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M3 3l18 18"/>',
+music:'<path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/>',
+ball:'<circle cx="12" cy="12" r="9"/><path d="M5.6 5.6c3.5 3.5 3.5 9.3 0 12.8M18.4 5.6c-3.5 3.5-3.5 9.3 0 12.8"/>',
+gamepad:'<path d="M6 8h12a4 4 0 0 1 4 4v1a4 4 0 0 1-7 2.6L14 14h-4l-1 1.6A4 4 0 0 1 2 13v-1a4 4 0 0 1 4-4z"/><path d="M7 10.5v3M5.5 12h3M16 11h.01M18 13h.01"/>',
+film:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v16M17 4v16M3 9h4M3 15h4M17 9h4M17 15h4"/>',
+book:'<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19a2 2 0 0 1 2-2h13"/>',
+globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>',
+leaf:'<path d="M5 19c0-9 6-14 15-14 0 9-5 15-14 15"/><path d="M5 19l7-7"/>',
+cpu:'<rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/>',
+chat:'<path d="M4 5h16v10H9l-5 4z"/>',
+plus:'<path d="M12 5v14M5 12h14"/>',
+hand:'<path d="M8 13V5a1.5 1.5 0 0 1 3 0v6M11 10V3.5a1.5 1.5 0 0 1 3 0V10M14 10V5a1.5 1.5 0 0 1 3 0v8a7 7 0 0 1-7 7h-.5A6.5 6.5 0 0 1 4 15.5L3.2 12a1.5 1.5 0 0 1 2.7-1.2L8 13"/>',
+x:'<path d="M6 6l12 12M18 6 6 18"/>',
+flag:'<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>',
+lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/>',
+send:'<path d="M4 12 20 4l-4 16-4-7z"/><path d="M12 13l8-9"/>',
+back:'<path d="M15 5l-7 7 7 7"/>',
+speaker:'<path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 9a4 4 0 0 1 0 6"/>',
+shield:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/>',
+trophy:'<path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 20h8"/>',
+sparkle:'<path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/>',
+translate:'<path d="M4 5h8M8 3v2M6 5c0 4 3 7 6 8M10 5c0 3-2 6-6 8M13 21l4-9 4 9M14.5 18h5"/>',
+userplus:'<circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0M19 8v6M16 11h6"/>',
+logout:'<path d="M10 4H5v16h5M14 8l4 4-4 4M18 12H9"/>',
+heart:'<path d="M12 20s-8-4.5-8-10a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.5-8 10-8 10z"/>',
+calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+check:'<path d="M5 12l5 5 9-10"/>',
+dots:'<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>',
+info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/>',
+users:'<circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M16 4a4 4 0 0 1 0 8M22 21a7 7 0 0 0-4-6.3"/>',
+duo:'<circle cx="8" cy="9" r="3.5"/><circle cx="16" cy="9" r="3.5"/><path d="M2 20a6 6 0 0 1 12 0M10 20a6 6 0 0 1 12 0"/>',
+play:'<path d="M7 4v16l13-8z"/>'
+};
+const ic=(n,cls='')=>`<svg class="ico ${cls}" viewBox="0 0 24 24" aria-hidden="true">${P[n]||''}</svg>`;
+const waveLogo=`<svg viewBox="0 0 40 24" aria-hidden="true"><defs><linearGradient id="lg" x1="0" x2="1"><stop offset="0" stop-color="var(--cyan)"/><stop offset=".5" stop-color="var(--electric)"/><stop offset="1" stop-color="var(--accent)"/></linearGradient></defs><path d="M1 12h7l3-8 4 16 4-12 3 8 3-4h14" fill="none" stroke="url(#lg)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const logo=(size=22)=>`<span class="logo" style="font-size:${size}px">${waveLogo}<span class="wm">PULSE</span></span>`;
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ---------- Langues ---------- */
+const LANGS=[['fr','Français'],['en','English'],['es','Español'],['it','Italiano'],['de','Deutsch'],['pt','Português']];
+const T={
+fr:{slogan:'Ta voix, ton univers.',hook:'Des passions à partager, des rencontres à vivre, des voix à découvrir.',start:'Commencer',home:'Accueil',discover:'Découvrir',messages:'Messages',profile:'Profil',day:'Bonjour',eve:'Bonsoir',reco:'Salons pour toi',acts:'Activités',seeall:'Voir tout',join:'Rejoindre',member:'Membre',live:'En direct',soon:'À venir',done:'Terminées',search:'Salons, communautés, personnes…',cats:'Catégories',people:'Personnes à découvrir',rooms:'Salons',create:'Créer un salon',settings:'Réglages',lang:'Langue',leave:'Quitter',raise:'Lever la main',micOff:'Micro coupé : personne ne t’entend',micOn:'Micro ouvert : le salon t’entend',listening:'Tu écoutes',editAv:'Modifier mon avatar',next:'Continuer',stage:'La scène est à toi'},
+en:{slogan:'Your voice, your universe.',hook:'Passions to share, people to meet, voices to discover.',start:'Get started',home:'Home',discover:'Discover',messages:'Messages',profile:'Profile',day:'Hello',eve:'Good evening',reco:'Rooms for you',acts:'Activities',seeall:'See all',join:'Join',member:'Member',live:'Live',soon:'Upcoming',done:'Finished',search:'Rooms, communities, people…',cats:'Categories',people:'People to discover',rooms:'Rooms',create:'Create a room',settings:'Settings',lang:'Language',leave:'Leave',raise:'Raise hand',micOff:'Mic off: nobody can hear you',micOn:'Mic on: the room can hear you',listening:'You are listening',editAv:'Edit my avatar',next:'Continue',stage:'The stage is yours'},
+es:{slogan:'Tu voz, tu universo.',hook:'Pasiones para compartir, encuentros por vivir, voces por descubrir.',start:'Empezar',home:'Inicio',discover:'Descubrir',messages:'Mensajes',profile:'Perfil',day:'Hola',eve:'Buenas noches',reco:'Salas para ti',acts:'Actividades',seeall:'Ver todo',join:'Unirme',member:'Miembro',live:'En directo',soon:'Próximas',done:'Terminadas',search:'Salas, comunidades, personas…',cats:'Categorías',people:'Personas por descubrir',rooms:'Salas',create:'Crear una sala',settings:'Ajustes',lang:'Idioma',leave:'Salir',raise:'Levantar la mano',micOff:'Micro apagado: nadie te oye',micOn:'Micro abierto: la sala te oye',listening:'Estás escuchando',editAv:'Editar mi avatar',next:'Continuar',stage:'El escenario es tuyo'},
+it:{slogan:'La tua voce, il tuo universo.',hook:'Passioni da condividere, incontri da vivere, voci da scoprire.',start:'Inizia',home:'Home',discover:'Scopri',messages:'Messaggi',profile:'Profilo',day:'Ciao',eve:'Buonasera',reco:'Stanze per te',acts:'Attività',seeall:'Vedi tutto',join:'Entra',member:'Membro',live:'In diretta',soon:'In arrivo',done:'Concluse',search:'Stanze, community, persone…',cats:'Categorie',people:'Persone da scoprire',rooms:'Stanze',create:'Crea una stanza',settings:'Impostazioni',lang:'Lingua',leave:'Esci',raise:'Alza la mano',micOff:'Microfono spento: nessuno ti sente',micOn:'Microfono acceso: la stanza ti sente',listening:'Stai ascoltando',editAv:'Modifica il mio avatar',next:'Continua',stage:'Il palco è tuo'},
+de:{slogan:'Deine Stimme, dein Universum.',hook:'Leidenschaften teilen, Begegnungen erleben, Stimmen entdecken.',start:'Los geht’s',home:'Start',discover:'Entdecken',messages:'Nachrichten',profile:'Profil',day:'Hallo',eve:'Guten Abend',reco:'Räume für dich',acts:'Aktivitäten',seeall:'Alle',join:'Beitreten',member:'Mitglied',live:'Live',soon:'Demnächst',done:'Beendet',search:'Räume, Communities, Personen…',cats:'Kategorien',people:'Menschen entdecken',rooms:'Räume',create:'Raum erstellen',settings:'Einstellungen',lang:'Sprache',leave:'Verlassen',raise:'Hand heben',micOff:'Mikro aus: niemand hört dich',micOn:'Mikro an: der Raum hört dich',listening:'Du hörst zu',editAv:'Avatar bearbeiten',next:'Weiter',stage:'Die Bühne gehört dir'},
+pt:{slogan:'A tua voz, o teu universo.',hook:'Paixões para partilhar, encontros para viver, vozes para descobrir.',start:'Começar',home:'Início',discover:'Descobrir',messages:'Mensagens',profile:'Perfil',day:'Olá',eve:'Boa noite',reco:'Salas para ti',acts:'Atividades',seeall:'Ver tudo',join:'Entrar',member:'Membro',live:'Ao vivo',soon:'Em breve',done:'Terminadas',search:'Salas, comunidades, pessoas…',cats:'Categorias',people:'Pessoas para descobrir',rooms:'Salas',create:'Criar uma sala',settings:'Definições',lang:'Idioma',leave:'Sair',raise:'Levantar a mão',micOff:'Micro desligado: ninguém te ouve',micOn:'Micro ligado: a sala ouve-te',listening:'Estás a ouvir',editAv:'Editar o meu avatar',next:'Continuar',stage:'O palco é teu'}
+};
+const t=k=>(T[S.ui]&&T[S.ui][k])||T.fr[k]||k;
+
+/* ---------- Données de démonstration ---------- */
+const CATS=[
+ {id:'musique',name:'Musique',icon:'music',g:['#873BFF','#FF4FD8']},
+ {id:'sport',name:'Sport',icon:'ball',g:['#2F6BFF','#22D3EE']},
+ {id:'jeux',name:'Jeux vidéo',icon:'gamepad',g:['#6D28D9','#2F6BFF']},
+ {id:'cinema',name:'Cinéma & séries',icon:'film',g:['#FF4F7B','#873BFF']},
+ {id:'lecture',name:'Lecture',icon:'book',g:['#9333EA','#F59E0B']},
+ {id:'voyages',name:'Voyages',icon:'globe',g:['#0891B2','#3B82F6']},
+ {id:'bienetre',name:'Santé & bien-être',icon:'leaf',g:['#059669','#06B6D4']},
+ {id:'tech',name:'Technologie',icon:'cpu',g:['#4F46E5','#22D3EE']},
+ {id:'discussions',name:'Discussions',icon:'chat',g:['#DB2777','#F59E0B']}
+];
+const cat=id=>CATS.find(c=>c.id===id)||CATS[0];
+const grad=c=>`linear-gradient(135deg,${c.g[0]},${c.g[1]})`;
+const COMS=[
+ {id:'musique',name:'Musique',tagline:'Chanter, écouter, partager ses découvertes.',tags:['Français','International','Chant','Blind test'],members:12400,about:'La communauté de celles et ceux qui vivent la musique à voix haute : karaoké libre, auditions à l’aveugle, blind tests et discussions autour des artistes que vous aimez.',rules:['Respect des chanteurs et chanteuses, quel que soit le niveau.','Pas de diffusion de musique protégée sans autorisation.','L’hôte organise les prises de parole.']},
+ {id:'sport',name:'Sport & pronos',tagline:'Débats, pronostics et débriefs de match.',tags:['Français','Football','Basket','Pronos'],members:8900,about:'Les débriefs à chaud, les pronos du week-end et les quiz de culture sport.',rules:['On débat des équipes, pas des personnes.','Pas de paris d’argent organisés ici.']},
+ {id:'jeux',name:'Gaming Lounge',tagline:'Trouver une team, parler stratégie.',tags:['International','Coop','Compétitif'],members:15200,about:'Pour trouver des coéquipiers, partager ses parties et lancer des défis voix.',rules:['Pas de triche ni de vente de comptes.','Chacun son niveau, tout le monde est bienvenu.']},
+ {id:'cinema',name:'Ciné-club',tagline:'Films, séries et quiz entre passionnés.',tags:['Français','Séries','Quiz'],members:7300,about:'Échanges après les sorties, quiz cinéma et soirées thématiques.',rules:['Prévenir avant les révélations d’intrigue.']},
+ {id:'lecture',name:'Club Lecture',tagline:'Partager ses coups de cœur littéraires.',tags:['Français','Romans','Club'],members:4100,about:'Clubs de lecture, échanges sur les livres et lectures collectives de textes libres de droits ou autorisés.',rules:['Lectures à voix haute : uniquement des textes autorisés.']},
+ {id:'voyages',name:'Globe-trotteurs',tagline:'Récits, conseils et rencontres du monde entier.',tags:['International','Conseils','Langues'],members:6800,about:'Préparer un voyage, raconter le sien, rencontrer des gens sur place.',rules:['Ne jamais partager d’adresse précise en public.']},
+ {id:'bienetre',name:'Bien-être & entraide',tagline:'Un espace calme pour souffler et s’entraider.',tags:['Français','Méditation','Soutien'],members:3900,about:'Méditations guidées, discussions bienveillantes et entraide. Cet espace ne remplace pas un professionnel de santé.',rules:['Bienveillance obligatoire : modération renforcée.','En cas d’urgence, contacter les services d’urgence de ton pays.','Aucun conseil médical présenté comme avis professionnel.']},
+ {id:'tech',name:'Tech Talk',tagline:'IA, code, gadgets et nouvelles idées.',tags:['International','IA','Dev'],members:5600,about:'Discussions tech accessibles à tous, du débutant à l’expert.',rules:['Pas d’auto-promotion abusive.']},
+ {id:'discussions',name:'Café des langues',tagline:'Pratiquer une langue en parlant avec des natifs.',tags:['International','Échange linguistique'],members:10100,about:'Des salons par langue pour pratiquer en douceur avec des personnes du monde entier.',rules:['Patience et bienveillance envers celles et ceux qui apprennent.']}
+];
+const com=id=>COMS.find(c=>c.id===id);
+
+/* Palettes avatar */
+const SKIN={human:['#F6D2B8','#E8B48F','#C98B62','#8D5A3B','#5E3A26','#F2C7A5'],droid:['#C9D2E3','#8FA3C7','#E4D3FF','#9BE7F0','#FFD48A','#6B7591'],cosmic:['#8A7DFF','#55D6C2','#FF8FD8','#6CB8FF','#B2F27A','#FFB86B'],animal:['#F28C3A','#C9C9D1','#8A5A3B','#F4E1C1','#3A3640','#E8A0BF']};
+const HAIR=['#2B1B14','#6B3E26','#D9A441','#E9E4F0','#FF4FD8','#3BA7FF','#A855F7','#111018'];
+const AURA=['#A855F7','#FF4FD8','#22D3EE','#FFC93C','#34D399','#6366F1'];
+const ARCH=[
+ {id:'human',name:'Humain·e',ds:'Visage, coiffure et carnation au choix',heads:['Courts','Longs','Bouclés','Chignon']},
+ {id:'droid',name:'Androïde',ds:'Visière lumineuse, look chromé',heads:['Antenne','Double antenne','Crête','Disques']},
+ {id:'cosmic',name:'Être cosmique',ds:'Venu d’une autre galaxie',heads:['Antennes','Cornes','Troisième œil','Nageoires']},
+ {id:'animal',name:'Animal totem',ds:'Ton esprit animal',heads:['Renard','Chat','Ours','Lapin']}
+];
+const ACC=[
+ {id:'guitare',slot:'hand',name:'Guitare',vb:'14 104 136 136'},
+ {id:'micro',slot:'hand',name:'Micro',vb:'118 106 76 84'},
+ {id:'manette',slot:'hand',name:'Manette',vb:'58 150 84 56'},
+ {id:'casque',slot:'head',name:'Casque audio',vb:'40 28 120 90'},
+ {id:'couronne',slot:'head',name:'Couronne',vb:'60 8 80 46',plus:1},
+ {id:'chapeau',slot:'head',name:'Chapeau',vb:'42 4 116 62'},
+ {id:'bonnet',slot:'head',name:'Bonnet',vb:'52 6 96 66'},
+ {id:'lunettes',slot:'face',name:'Lunettes',vb:'66 62 68 40'},
+ {id:'ailes',slot:'back',name:'Ailes',vb:'2 40 196 120',plus:1},
+ {id:'papillon',slot:'extra',name:'Papillon',vb:'128 38 46 46'}
+];
+const SLOTN={hand:'Tenu en main',head:'Sur la tête',face:'Visage',back:'Dans le dos',extra:'Compagnon'};
+
+let UID=0;
+function accSVG(id,c){
+ switch(id){
+ case 'guitare': return `<g transform="translate(64 194) rotate(48)">
+   <rect x="-4" y="-78" width="8" height="58" rx="2" fill="#5B3A1E"/>
+   <rect x="-7" y="-94" width="14" height="18" rx="3" fill="#3B2412"/>
+   <circle cx="-9" cy="-90" r="2" fill="#E5E7EB"/><circle cx="9" cy="-90" r="2" fill="#E5E7EB"/><circle cx="-9" cy="-82" r="2" fill="#E5E7EB"/><circle cx="9" cy="-82" r="2" fill="#E5E7EB"/>
+   <path d="M0 -26c13 0 17 8 15 15-2 6 5 9 6 17 2 14-9 24-21 24s-23-10-21-24c1-8 8-11 6-17-2-7 2-15 15-15z" fill="#E8862A" stroke="#7A3E0F" stroke-width="2"/>
+   <circle cx="0" cy="0" r="7" fill="#2B1608"/>
+   <rect x="-9" y="16" width="18" height="4" rx="1.5" fill="#3B2412"/>
+   <g stroke="#F3F4F6" stroke-width=".7"><path d="M-2 -78V18M0 -78V18M2 -78V18"/></g></g>`;
+ case 'micro': return `<g transform="translate(150 140) rotate(-22)">
+   <rect x="-5" y="10" width="10" height="34" rx="4" fill="#26203A"/><rect x="-6" y="6" width="12" height="7" rx="2" fill="#9CA3AF"/>
+   <circle cx="0" cy="-4" r="13" fill="#D1D5DB"/><path d="M-12 -4h24M0 -17v26M-9 -12l18 16M9 -12l-18 16" stroke="#6B7280" stroke-width="1.2"/>
+   <circle cx="0" cy="-4" r="13" fill="none" stroke="#F9FAFB" stroke-width="1.5"/></g>`;
+ case 'manette': return `<g transform="translate(100 178)">
+   <path d="M-24 -16h48c10 0 16 8 16 18 0 10-5 16-11 16-5 0-8-4-11-8h-36c-3 4-6 8-11 8-6 0-11-6-11-16 0-10 6-18 16-18z" fill="#2E2A3D" stroke="${c}" stroke-width="2"/>
+   <path d="M-24 -6v12M-30 0h12" stroke="#E5E7EB" stroke-width="3.5" stroke-linecap="round"/>
+   <circle cx="22" cy="-5" r="3.2" fill="#FF4F7B"/><circle cx="29" cy="1" r="3.2" fill="#22D3EE"/><circle cx="15" cy="1" r="3.2" fill="#FFC93C"/><circle cx="22" cy="7" r="3.2" fill="#34D399"/></g>`;
+ case 'casque': return `<g><path d="M56 92C56 38 144 38 144 92" fill="none" stroke="#1F1B2E" stroke-width="9" stroke-linecap="round"/>
+   <path d="M56 92C56 38 144 38 144 92" fill="none" stroke="${c}" stroke-width="3" stroke-linecap="round"/>
+   <rect x="44" y="78" width="22" height="34" rx="10" fill="#1F1B2E" stroke="${c}" stroke-width="2"/><rect x="134" y="78" width="22" height="34" rx="10" fill="#1F1B2E" stroke="${c}" stroke-width="2"/>
+   <rect x="49" y="85" width="12" height="20" rx="5" fill="${c}" opacity=".55"/><rect x="139" y="85" width="12" height="20" rx="5" fill="${c}" opacity=".55"/></g>`;
+ case 'couronne': return `<g><path d="M66 48 70 20 86 34 100 12 114 34 130 20 134 48z" fill="#FFC93C" stroke="#B7791F" stroke-width="2" stroke-linejoin="round"/>
+   <rect x="66" y="44" width="68" height="8" rx="2" fill="#F59E0B"/><circle cx="100" cy="36" r="4" fill="#FF4F7B"/><circle cx="82" cy="40" r="3" fill="#22D3EE"/><circle cx="118" cy="40" r="3" fill="#22D3EE"/></g>`;
+ case 'chapeau': return `<g><ellipse cx="100" cy="52" rx="54" ry="10" fill="#2A2238"/>
+   <path d="M70 52C70 26 78 12 100 12s30 14 30 40z" fill="#3A2F52"/><path d="M84 14c6 4 26 4 32 0" stroke="#2A2238" stroke-width="3" fill="none"/>
+   <rect x="71" y="40" width="58" height="9" fill="${c}"/></g>`;
+ case 'bonnet': return `<g><path d="M60 62C60 22 140 22 140 62z" fill="${c}"/><path d="M75 30v30M90 25v35M110 25v35M125 30v30" stroke="rgba(0,0,0,.18)" stroke-width="3"/>
+   <rect x="56" y="54" width="88" height="15" rx="7" fill="#F3F4F6"/><circle cx="100" cy="20" r="10" fill="#F3F4F6"/></g>`;
+ case 'lunettes': return `<g fill="rgba(34,211,238,.25)" stroke="#111018" stroke-width="3.5"><rect x="72" y="70" width="25" height="19" rx="7"/><rect x="103" y="70" width="25" height="19" rx="7"/><path d="M97 78h6M72 76l-4-2M128 76l4-2" fill="none"/></g>`;
+ case 'ailes': return `<g opacity=".95"><path d="M64 140C26 128 6 92 8 52c18 18 32 22 46 28-10 4-14 10-12 18 10-2 18 0 24 6-8 6-10 14-6 22 6-2 12 0 16 4z" fill="#F5F3FF" stroke="${c}" stroke-width="2"/>
+   <path d="M136 140c38-12 58-48 56-88-18 18-32 22-46 28 10 4 14 10 12 18-10-2-18 0-24 6 8 6 10 14 6 22-6-2-12 0-16 4z" fill="#F5F3FF" stroke="${c}" stroke-width="2"/>
+   <path d="M24 70c12 14 26 22 38 24M30 100c10 8 22 12 34 12M176 70c-12 14-26 22-38 24M170 100c-10 8-22 12-34 12" stroke="${c}" stroke-width="1.5" fill="none" opacity=".7"/></g>`;
+ case 'papillon': return `<g transform="translate(151 61) rotate(-15)"><ellipse cx="-9" cy="-7" rx="10" ry="12" fill="#FF4FD8" transform="rotate(-25 -9 -7)"/><ellipse cx="9" cy="-7" rx="10" ry="12" fill="#22D3EE" transform="rotate(25 9 -7)"/>
+   <ellipse cx="-7" cy="9" rx="7" ry="8" fill="#A855F7"/><ellipse cx="7" cy="9" rx="7" ry="8" fill="#FFC93C"/><rect x="-1.5" y="-14" width="3" height="28" rx="1.5" fill="#1F1B2E"/>
+   <path d="M0 -14-5 -21M0 -14 5 -21" stroke="#1F1B2E" stroke-width="1.3" fill="none"/></g>`;
+ }return '';
+}
+function headSVG(a,id){
+ const skin=SKIN[a.arch][a.tint]||SKIN[a.arch][0], hair=HAIR[a.hair]||HAIR[0], h=a.head, glow=AURA[a.aura];
+ let back='',head='',front='';
+ if(a.arch==='human'){
+  if(h===1) back=`<path d="M58 82C56 38 144 38 142 82l6 58c-18 10-78 10-96 0z" fill="${hair}"/>`;
+  if(h===2) back=[[70,52],[100,40],[130,52],[62,78],[138,78],[78,40],[122,40]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="20" fill="${hair}"/>`).join('');
+  if(h===3) back=`<circle cx="100" cy="30" r="15" fill="${hair}"/>`;
+  head=`<ellipse cx="100" cy="82" rx="36" ry="40" fill="${skin}"/><ellipse cx="64" cy="86" rx="5" ry="8" fill="${skin}"/><ellipse cx="136" cy="86" rx="5" ry="8" fill="${skin}"/>`;
+  const fringe=h===2?`<path d="M66 70c4-22 64-22 68 0-14-10-54-10-68 0z" fill="${hair}"/>`:`<path d="M64 78C62 44 88 36 104 38c22 0 36 14 32 40-6-16-18-22-36-22-16 0-28 8-36 22z" fill="${hair}"/>`;
+  front=fringe+`<circle cx="87" cy="84" r="4.2" fill="#1A1326"/><circle cx="113" cy="84" r="4.2" fill="#1A1326"/><circle cx="88.4" cy="82.6" r="1.3" fill="#fff"/><circle cx="114.4" cy="82.6" r="1.3" fill="#fff"/>
+   <ellipse cx="80" cy="96" rx="6" ry="3.5" fill="#FF7FA8" opacity=".35"/><ellipse cx="120" cy="96" rx="6" ry="3.5" fill="#FF7FA8" opacity=".35"/><path d="M90 101q10 8 20 0" stroke="#7A2E3A" stroke-width="2.6" fill="none" stroke-linecap="round"/>`;
+ } else if(a.arch==='droid'){
+  if(h===0) back=`<path d="M100 44V22" stroke="#9CA3AF" stroke-width="3"/><circle cx="100" cy="20" r="6" fill="${glow}"/>`;
+  if(h===1) back=`<path d="M84 46 76 22M116 46l8-24" stroke="#9CA3AF" stroke-width="3"/><circle cx="76" cy="20" r="5" fill="${glow}"/><circle cx="124" cy="20" r="5" fill="${glow}"/>`;
+  if(h===2) back=`<path d="M86 48c0-18 28-18 28 0z" fill="${glow}"/>`;
+  head=`<rect x="62" y="44" width="76" height="78" rx="24" fill="${skin}"/><rect x="62" y="44" width="76" height="78" rx="24" fill="url(#sh${id})"/>`;
+  if(h===3) head+=`<circle cx="60" cy="84" r="10" fill="#6B7280"/><circle cx="60" cy="84" r="5" fill="${glow}"/><circle cx="140" cy="84" r="10" fill="#6B7280"/><circle cx="140" cy="84" r="5" fill="${glow}"/>`;
+  front=`<rect x="70" y="70" width="60" height="24" rx="12" fill="#120C22"/><rect x="80" y="78" width="14" height="7" rx="3.5" fill="${glow}"/><rect x="106" y="78" width="14" height="7" rx="3.5" fill="${glow}"/>
+   <path d="M88 106h24" stroke="#4B5563" stroke-width="3" stroke-linecap="round"/><path d="M92 112h16" stroke="#4B5563" stroke-width="2" stroke-linecap="round" opacity=".6"/>`;
+ } else if(a.arch==='cosmic'){
+  if(h===0) back=`<path d="M86 46c-4-12-10-18-16-22M114 46c4-12 10-18 16-22" stroke="${skin}" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="69" cy="23" r="6" fill="${glow}"/><circle cx="131" cy="23" r="6" fill="${glow}"/>`;
+  if(h===1) back=`<path d="M76 54 70 28 88 46zM124 54l6-26-18 18z" fill="#F5F3FF"/>`;
+  if(h===3) back=`<path d="M64 76 40 60l6 30zM136 76l24-16-6 30z" fill="${glow}" opacity=".8"/>`;
+  head=`<path d="M100 40c36 0 42 36 36 56-6 20-24 28-36 28s-30-8-36-28c-6-20 0-56 36-56z" fill="${skin}"/><path d="M100 40c36 0 42 36 36 56-6 20-24 28-36 28s-30-8-36-28c-6-20 0-56 36-56z" fill="url(#sh${id})"/>`;
+  front=`<ellipse cx="85" cy="84" rx="10" ry="13" fill="#120C22" transform="rotate(-12 85 84)"/><ellipse cx="115" cy="84" rx="10" ry="13" fill="#120C22" transform="rotate(12 115 84)"/>
+   <circle cx="88" cy="80" r="3" fill="${glow}"/><circle cx="118" cy="80" r="3" fill="${glow}"/><path d="M93 108q7 5 14 0" stroke="#120C22" stroke-width="2.4" fill="none" stroke-linecap="round"/>`;
+  if(h===2) front+=`<path d="M100 54l6 8-6 8-6-8z" fill="${glow}"/>`;
+ } else {
+  const inner='#FFD6E0';
+  if(h===0) back=`<path d="M66 66 62 26 92 52zM134 66l4-40-30 26z" fill="${skin}"/><path d="M70 58 68 36 84 50zM130 58l2-22-16 14z" fill="${inner}"/>`;
+  if(h===1) back=`<path d="M66 64 68 38 90 52zM134 64l-2-26-22 14z" fill="${skin}"/><path d="M71 57 72 44 83 52zM129 57l-1-13-11 8z" fill="${inner}"/>`;
+  if(h===2) back=`<circle cx="70" cy="52" r="14" fill="${skin}"/><circle cx="130" cy="52" r="14" fill="${skin}"/><circle cx="70" cy="52" r="7" fill="${inner}"/><circle cx="130" cy="52" r="7" fill="${inner}"/>`;
+  if(h===3) back=`<ellipse cx="82" cy="30" rx="10" ry="28" fill="${skin}" transform="rotate(-10 82 30)"/><ellipse cx="118" cy="30" rx="10" ry="28" fill="${skin}" transform="rotate(10 118 30)"/><ellipse cx="82" cy="32" rx="5" ry="20" fill="${inner}" transform="rotate(-10 82 32)"/><ellipse cx="118" cy="32" rx="5" ry="20" fill="${inner}" transform="rotate(10 118 32)"/>`;
+  head=`<circle cx="100" cy="84" r="38" fill="${skin}"/>`;
+  front=`<ellipse cx="100" cy="100" rx="18" ry="13" fill="#FFF7EE" opacity=".9"/><path d="M95 94h10l-5 6z" fill="#1A1326"/><path d="M100 100v4M94 106q6 4 12 0" stroke="#1A1326" stroke-width="2" fill="none" stroke-linecap="round"/>
+   <circle cx="86" cy="80" r="4.5" fill="#1A1326"/><circle cx="114" cy="80" r="4.5" fill="#1A1326"/><circle cx="87.5" cy="78.5" r="1.4" fill="#fff"/><circle cx="115.5" cy="78.5" r="1.4" fill="#fff"/>`;
+ }
+ return {back,head,front};
+}
+function avatar(a,size=120,opt={}){
+ const id=++UID, glow=AURA[a.aura]||AURA[0], acc=a.acc||{};
+ const lvl=a.auraLvl??1;
+ const hp=headSVG(a,id);
+ const skin=SKIN[a.arch][a.tint]||SKIN[a.arch][0];
+ const neck=a.arch==='droid'?'#6B7280':skin;
+ const auraC=lvl?`<circle cx="100" cy="100" r="${lvl===2?98:90}" fill="url(#au${id})"/>`:'';
+ const bg=opt.bg===false?'':`<circle cx="100" cy="100" r="100" fill="url(#bg${id})"/>`;
+ return `<svg viewBox="0 0 200 200" width="${size}" height="${size}" role="img" aria-label="Avatar" style="display:block;border-radius:50%">
+  <defs><radialGradient id="bg${id}" cx=".5" cy=".35" r=".7"><stop offset="0" stop-color="#2E1C55"/><stop offset="1" stop-color="#140A28"/></radialGradient>
+  <radialGradient id="au${id}"><stop offset=".45" stop-color="${glow}" stop-opacity="${lvl===2?.75:.45}"/><stop offset="1" stop-color="${glow}" stop-opacity="0"/></radialGradient>
+  <linearGradient id="ou${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${glow}"/><stop offset="1" stop-color="#1A1030"/></linearGradient>
+  <linearGradient id="sh${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset=".6" stop-color="#fff" stop-opacity="0"/></linearGradient>
+  <clipPath id="cl${id}"><circle cx="100" cy="100" r="100"/></clipPath></defs>
+  <g clip-path="url(#cl${id})">${bg}${auraC}
+  ${acc.back?accSVG(acc.back,glow):''}
+  ${hp.back}<rect x="88" y="112" width="24" height="26" fill="${neck}"/>
+  <path d="M38 204c0-48 30-70 62-70s62 22 62 70z" fill="url(#ou${id})"/>
+  <path d="M84 136l16 14 16-14" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="2.5"/>
+  ${hp.head}${hp.front}
+  ${acc.face?accSVG(acc.face,glow):''}${acc.head?accSVG(acc.head,glow):''}
+  ${acc.hand?accSVG(acc.hand,glow):''}${acc.extra?accSVG(acc.extra,glow):''}
+  </g></svg>`;
+}
+const accTile=(x,col)=>`<svg viewBox="${x.vb}" aria-hidden="true">${accSVG(x.id,col)}</svg>`;
+
+const PEOPLE={
+ lea:{name:'Léa',age:27,country:'FR',city:'Lyon',langs:['FR','EN'],int:['musique','voyages'],av:{arch:'human',tint:1,head:1,hair:1,aura:1,auraLvl:1,acc:{hand:'micro'}}},
+ marco:{name:'Marco',age:31,country:'IT',city:'Milan',langs:['IT','FR','EN'],int:['musique','sport'],av:{arch:'human',tint:2,head:0,hair:0,aura:2,auraLvl:1,acc:{head:'casque'}}},
+ sofia:{name:'Sofia',age:24,country:'ES',city:'Valence',langs:['ES','EN'],int:['cinema','discussions'],av:{arch:'cosmic',tint:2,head:0,hair:0,aura:0,auraLvl:1,acc:{extra:'papillon'}}},
+ jonas:{name:'Jonas',age:29,country:'DE',city:'Berlin',langs:['DE','EN'],int:['jeux','tech'],av:{arch:'droid',tint:1,head:0,hair:0,aura:2,auraLvl:1,acc:{hand:'manette'}}},
+ ana:{name:'Ana',age:33,country:'PT',city:'Porto',langs:['PT','ES','FR'],int:['lecture','bienetre'],av:{arch:'animal',tint:0,head:0,hair:0,aura:4,auraLvl:1,acc:{face:'lunettes'}}},
+ sam:{name:'Sam',age:26,country:'GB',city:'Manchester',langs:['EN'],int:['sport','cinema'],av:{arch:'human',tint:4,head:2,hair:7,aura:3,auraLvl:1,acc:{head:'bonnet'}}},
+ nora:{name:'Nora',age:22,country:'FR',city:'Bordeaux',langs:['FR'],int:['musique'],av:{arch:'human',tint:0,head:3,hair:2,aura:1,auraLvl:2,acc:{hand:'guitare'}}},
+ malik:{name:'Malik',age:28,country:'FR',city:'Marseille',langs:['FR','EN','ES'],int:['sport','jeux','voyages'],av:{arch:'animal',tint:2,head:2,hair:0,aura:5,auraLvl:1,acc:{head:'chapeau'}}},
+ ines:{name:'Inès',age:30,country:'FR',city:'Paris',langs:['FR','IT'],int:['cinema','lecture'],av:{arch:'cosmic',tint:1,head:2,hair:0,aura:3,auraLvl:1,acc:{}}},
+ tom:{name:'Tom',age:35,country:'US',city:'Austin',langs:['EN','ES'],int:['tech','musique'],av:{arch:'droid',tint:4,head:3,hair:0,aura:1,auraLvl:1,acc:{}}}
+};
+const ROOMS=[
+ {id:'r1',com:'musique',title:'Karaoké libre & auditions',langs:['FR'],live:1,host:'lea',speakers:['nora','marco'],listeners:126,act:'a1'},
+ {id:'r2',com:'musique',title:'Quiz musical : années 2000',langs:['FR','EN'],live:1,host:'marco',speakers:['tom'],listeners:64,act:'a2'},
+ {id:'r3',com:'sport',title:'Débrief du match de ce soir',langs:['FR'],live:1,host:'malik',speakers:['sam'],listeners:212},
+ {id:'r4',com:'discussions',title:'Language exchange FR ↔ EN',langs:['EN','FR'],live:1,host:'sam',speakers:['ines','sofia'],listeners:48},
+ {id:'r5',com:'lecture',title:'Club lecture : romans d’été',langs:['FR'],live:0,when:'Ce soir · 21:00',host:'ana',speakers:[],listeners:0},
+ {id:'r6',com:'jeux',title:'Ranked night : on monte ensemble',langs:['FR','EN'],live:1,host:'jonas',speakers:['malik'],listeners:91},
+ {id:'r7',com:'discussions',title:'Tertulia en español',langs:['ES'],live:1,host:'sofia',speakers:['ana'],listeners:37},
+ {id:'r8',com:'cinema',title:'Quiz séries cultes',langs:['FR'],live:0,when:'Demain · 20:30',host:'ines',speakers:[],listeners:0,act:'a3'},
+ {id:'r9',com:'bienetre',title:'Méditation guidée du soir',langs:['FR'],live:0,when:'Ce soir · 22:15',host:'ana',speakers:[],listeners:0},
+ {id:'r10',com:'tech',title:'IA et créativité',langs:['EN'],live:1,host:'tom',speakers:['jonas'],listeners:73},
+ {id:'r11',com:'voyages',title:'Road trip au Portugal : vos conseils',langs:['FR','PT'],live:1,host:'ana',speakers:['malik'],listeners:29}
+];
+const ACTS=[
+ {id:'a1',title:'La scène est à toi',kind:'Audition à l’aveugle',com:'musique',room:'r1',status:'live',desc:'Une personne chante, les jurés écoutent sans la voir et décident de se retourner.',rules:['Chaque juré peut se retourner une fois par prestation.','Le public réagit sans couper la voix.','Résultat annoncé par l’hôte à la fin.']},
+ {id:'a2',title:'Quiz musical',kind:'Quiz',com:'musique',room:'r2',status:'live',desc:'Trois questions de culture musicale, réponses en direct.',rules:['Une réponse par question.','Pas de recherche internet !']},
+ {id:'a3',title:'Quiz cinéma',kind:'Quiz',com:'cinema',room:'r8',status:'soon',when:'Demain · 20:30',desc:'Culture ciné et séries, en équipe ou en solo.',rules:['Équipes de 4 maximum.']},
+ {id:'a4',title:'Pronos du week-end',kind:'Pronostics',com:'sport',status:'soon',when:'Samedi · 18:00',desc:'Chacun donne ses pronos, on compare dimanche soir. Sans argent.',rules:['Aucun pari d’argent.']},
+ {id:'a5',title:'Défi voix : imite ton perso préféré',kind:'Défi vocal',com:'jeux',status:'soon',when:'Vendredi · 21:00',desc:'Imitations de personnages de jeux, votes du public.',rules:['Pas d’imitation de personnes réelles pour tromper.']},
+ {id:'a6',title:'Blind test spécial voyages',kind:'Blind test',com:'voyages',status:'done',when:'Dimanche dernier',desc:'Ambiances sonores du monde : 42 participants (exemple), victoire de l’équipe « Les Boussoles ».',rules:[]}
+];
+const QUIZ={
+ a2:[{q:'Combien de touches compte un piano standard ?',o:['76','88','92'],a:1},{q:'Combien de cordes a une guitare classique ?',o:['4','6','8'],a:1},{q:'Que signifie « a cappella » ?',o:['Sans instruments','Très vite','En duo'],a:0}],
+ a3:[{q:'Combien d’images par seconde en cinéma traditionnel ?',o:['24','30','60'],a:0},{q:'Comment appelle-t-on la première projection d’un film ?',o:['L’avant-scène','L’avant-première','Le prélude'],a:1},{q:'Quel métier choisit les lieux de tournage ?',o:['Repéreur','Monteur','Étalonneur'],a:0}]
+};
+const CONVOS=[
+ {id:'lea',msgs:[{f:'them',x:'Coucou ! Tu viens au karaoké ce soir ? 🎤'},{f:'me',x:'Carrément, je prépare ma chanson !'},{f:'them',voice:'0:12'}]},
+ {id:'marco',msgs:[{f:'them',x:'Ciao! Ho sentito la tua voce nel salotto musica, bravissima!',tr:'Salut ! J’ai entendu ta voix dans le salon musique, bravo !'}]},
+ {id:'sofia',msgs:[{f:'them',x:'¿Te apuntas a la tertulia del jueves?',tr:'Tu viens à la discussion de jeudi ?'}]},
+ {id:'jonas',msgs:[{f:'them',x:'Hast du Lust auf eine Runde heute Abend?',tr:'Ça te dit une partie ce soir ?'}]},
+ {id:'ana',msgs:[{f:'them',x:'Obrigada pela recomendação do livro!',tr:'Merci pour la recommandation du livre !'}]}
+];
+
+/* ---------- État ---------- */
+const KEY='pulse-proto-v1';
+const DEF=()=>({ui:'fr',skin:'cosmic',calm:0,onboarded:0,obStep:0,
+ me:{name:'',birth:'',country:'FR',langs:['FR'],bio:'',showAge:1,dm:'all'},
+ interests:[],av:{arch:'human',tint:1,head:1,hair:6,aura:0,auraLvl:1,acc:{hand:'guitare'}},
+ joined:['musique'],friends:[],requested:[],blocked:[],reminders:[],created:[],
+ convos:JSON.parse(JSON.stringify(CONVOS)),notif:{rooms:1,msgs:1,acts:1}});
+let S;
+try{S=Object.assign(DEF(),JSON.parse(localStorage.getItem(KEY)||'null')||{})}catch(e){S=DEF()}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+let V={name:S.onboarded?'home':'welcome',p:null}, HIST=[];
+let R=null; // salon en cours (non persistant)
+let UI={disc:'',discLang:'',discLive:0,actTab:'live',comTab:'about',avTab:'forme',msgQ:'',err:''};
+
+const allRooms=()=>[...S.created,...ROOMS];
+const room=id=>allRooms().find(r=>r.id===id);
+const person=id=>id==='me'?{name:S.me.name||'Toi',av:S.av,langs:S.me.langs,country:S.me.country}:PEOPLE[id];
+const fmt=n=>n>=1000?(n/1000).toFixed(1).replace('.',',')+' k':String(n);
+const ageOf=b=>{if(!b)return null;const d=new Date(b),n=new Date();let a=n.getFullYear()-d.getFullYear();const m=n.getMonth()-d.getMonth();if(m<0||(m===0&&n.getDate()<d.getDate()))a--;return a};
+
+/* ---------- Rendu ---------- */
+const app=document.getElementById('app'), layer=document.getElementById('layer');
+function go(name,p,push=true){if(push)HIST.push(V);V={name,p};closeSheet();render(true)}
+function back(){V=HIST.pop()||{name:'home'};render(true)}
+function render(top){
+ document.documentElement.dataset.skin=S.skin;document.documentElement.dataset.calm=S.calm?'1':'0';document.documentElement.lang=S.ui;document.body.classList.toggle('has-room',!!R);
+ const fn=VIEWS[V.name]||VIEWS.home;
+ app.innerHTML=fn(V.p);
+ if(top)window.scrollTo(0,0);
+ const f=app.querySelector('[data-autofocus]'); if(f&&top) f.focus();
+}
+const navTabs=['home','discover','messages','profile'];
+function nav(active){
+ const b=(id,icon,label)=>`<button class="nav-b ${active===id?'on':''}" data-a="tab" data-v="${id}" aria-label="${label}">${ic(icon)}<span>${label}</span></button>`;
+ const micCls=R?(R.role==='listener'?'':(R.muted?'off':'hot')):'';
+ return `${R?miniRoom():''}<nav class="nav" aria-label="Navigation principale"><div class="nav-in">
+  ${b('home','home',t('home'))}${b('discover','compass',t('discover'))}
+  <div class="mic-wrap"><button class="mic ${micCls}" data-a="pulse" aria-label="PULSE : parler">${ic(R&&R.role!=='listener'&&R.muted?'micoff':'mic')}</button><span>PULSE</span></div>
+  ${b('messages','message',t('messages'))}${b('profile','user',t('profile'))}</div></nav>`;
+}
+function miniRoom(){const r=room(R.id);return `<button class="mini-room" data-a="open-room" data-v="${r.id}">
+ <div class="wave" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="grow" style="flex:1;min-width:0"><div class="small muted">Tu es dans</div><div class="ellip" style="font-weight:800">${esc(r.title)}</div></div>
+ <span class="tag">${R.role==='listener'?'Écoute':(R.muted?'Micro coupé':'Micro ouvert')}</span></button>`}
+const topBar=(title,right='')=>`<div class="top"><button class="back" data-a="back" aria-label="Retour">${ic('back')}<span>${title}</span></button>${right}</div>`;
+const demo=(html)=>`<div class="demo-note">${ic('info')}<span>${html}</span></div>`;
+
+function roomCard(r){
+ const c=com(r.com), k=cat(r.com), h=person(r.host);
+ const faces=[r.host,...r.speakers].slice(0,4).map(id=>avatar(person(id).av,28,{})).join('');
+ return `<button class="card room-card" data-a="open-room" data-v="${r.id}">
+  <div class="cover" style="background:${grad(k)}">${ic(k.icon)}${r.live?`<span class="live">${t('live')}</span>`:`<span class="tag" style="background:rgba(0,0,0,.35);color:#fff">${esc(r.when||'Planifié')}</span>`}</div>
+  <div class="stack" style="gap:6px;min-width:0"><span class="eyebrow">${esc(c.name)} · ${r.langs.join(' / ')}${r.private?' · Privé':''}</span><h3 style="font-size:15px">${esc(r.title)}</h3>
+  <div class="row between"><div class="faces">${faces}</div><span class="count">${r.live?fmt(r.listeners+r.speakers.length+1)+' présents':'Hôte : '+esc(h.name)}</span></div></div></button>`;
+}
+function actCard(a){
+ const k=cat(a.com), rem=S.reminders.includes(a.id);
+ const st=a.status==='live'?`<span class="live">${t('live')}</span>`:`<span class="tag">${esc(a.when)}</span>`;
+ const btn=a.status==='live'?`<button class="btn btn-p btn-sm" data-a="open-act" data-v="${a.id}">Participer</button>`:a.status==='soon'?`<button class="btn btn-g btn-sm" data-a="remind" data-v="${a.id}">${rem?ic('check')+' Rappel noté':ic('bell')+' Me rappeler'}</button>`:`<button class="btn btn-g btn-sm" data-a="open-act" data-v="${a.id}">Résultats</button>`;
+ return `<div class="card stack" style="gap:10px"><div class="row between"><div class="row"><div style="width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:${grad(k)}">${ic(a.kind.includes('Quiz')?'trophy':a.kind.includes('Audition')?'mic':'sparkle')}</div><div><div class="eyebrow">${esc(a.kind)} · ${esc(com(a.com).name)}</div><h3>${esc(a.title)}</h3></div></div>${st}</div>
+ <p class="muted small">${esc(a.desc)}</p><div class="row">${btn}</div></div>`;
+}
+
+const VIEWS={
+/* ----- Onboarding ----- */
+welcome:()=>`<div class="welcome">
+ <div class="row between"><span></span><select class="chip" id="ui-lang" aria-label="Langue de l’interface">${LANGS.map(([c,n])=>`<option value="${c}" ${S.ui===c?'selected':''}>${n}</option>`).join('')}</select></div>
+ <div class="stack" style="gap:26px;align-items:center">
+  <div class="big-mic"><span></span><span></span><span></span><div class="core">${ic('mic')}</div></div>
+  <div>${logo(46)}</div>
+  <p style="font-family:var(--f-display);font-size:18px;font-weight:700">${t('slogan')}</p>
+  <p class="muted" style="font-size:16px;max-width:32ch">${t('hook')}</p>
+ </div>
+ <div class="stack"><button class="btn btn-p btn-block" data-a="ob-start">${t('start')}</button>
+ <p class="small muted">Réservé aux personnes de 18 ans et plus.</p></div></div>`,
+
+ob:()=>{
+ const st=S.obStep, steps=`<div class="steps">${[0,1,2,3].map(i=>`<i class="${i<=st?'on':''}"></i>`).join('')}</div>`;
+ const head=(h,s)=>`${steps}<div class="stack" style="gap:6px"><h1>${h}</h1><p class="muted">${s}</p></div>`;
+ const err=UI.err?`<p class="err" role="alert">${esc(UI.err)}</p>`:'';
+ const backB=`<button class="btn btn-g" data-a="ob-prev">${ic('back')}</button>`;
+ if(st===0) return `<div class="scr no-nav">${head('Faisons connaissance','Ces infos créent ton profil. Tu choisis ensuite ce qui est visible.')}
+  <div class="field"><label for="f-name">Prénom ou pseudo</label><input class="inp" id="f-name" maxlength="20" value="${esc(S.me.name)}" placeholder="Ex. Kelly" autocomplete="nickname" data-autofocus></div>
+  <div class="field"><label for="f-birth">Date de naissance</label><input class="inp" id="f-birth" type="date" value="${esc(S.me.birth)}"><span class="small muted">PULSE est réservé aux 18 ans et plus. Ton âge peut rester masqué sur ton profil.</span></div>
+  <div class="field"><label for="f-country">Pays</label><select class="inp" id="f-country">${[['FR','France'],['BE','Belgique'],['CH','Suisse'],['CA','Canada'],['GB','Royaume-Uni'],['US','États-Unis'],['ES','Espagne'],['IT','Italie'],['DE','Allemagne'],['PT','Portugal'],['BR','Brésil'],['OT','Autre']].map(([c,n])=>`<option value="${c}" ${S.me.country===c?'selected':''}>${n}</option>`).join('')}</select></div>
+  ${demo('<b>Prototype :</b> la date de naissance est contrôlée ici, mais aucune vérification d’identité n’est encore branchée.')}
+  ${err}<div class="row">${backB}<button class="btn btn-p" style="flex:1" data-a="ob-next">${t('next')}</button></div></div>`;
+ if(st===1) return `<div class="scr no-nav">${head('Tes langues','Pour te proposer des salons où tu comprends, et d’autres pour pratiquer.')}
+  <div class="stack">${LANGS.map(([c,n])=>{const C=c.toUpperCase(),on=S.me.langs.includes(C);return `<button class="list-item" data-a="ob-lang" data-v="${C}" aria-pressed="${on}"><span class="tag">${C}</span><span class="grow" style="font-weight:700">${n}</span>${on?`<span style="color:var(--electric)">${ic('check')}</span>`:''}</button>`}).join('')}</div>
+  ${err}<div class="row">${backB}<button class="btn btn-p" style="flex:1" data-a="ob-next">${t('next')}</button></div></div>`;
+ if(st===2) return `<div class="scr no-nav">${head('Tes passions','Choisis-en au moins trois. Elles nourrissent tes recommandations.')}
+  <div class="cat-grid">${CATS.map(c=>{const on=S.interests.includes(c.id);return `<button class="cat" style="background:${grad(c)};${on?'outline:3px solid #fff;outline-offset:2px':'opacity:.72'}" data-a="ob-int" data-v="${c.id}" aria-pressed="${on}">${ic(c.icon)}<span>${c.name}</span></button>`}).join('')}</div>
+  <p class="small muted">${S.interests.length} sélectionnée${S.interests.length>1?'s':''}</p>
+  ${err}<div class="row">${backB}<button class="btn btn-p" style="flex:1" data-a="ob-next">${t('next')}</button></div></div>`;
+ return `<div class="scr no-nav">${head('Ton avatar','Ta voix d’abord, ton avatar ensuite : il te représente dans les salons.')}${avatarEditor()}
+  <div class="row">${backB}<button class="btn btn-p" style="flex:1" data-a="ob-done">Entrer dans PULSE</button></div></div>`;
+},
+
+/* ----- Accueil ----- */
+home:()=>{
+ const h=new Date().getHours(), greet=h>=18||h<5?t('eve'):t('day');
+ const recs=ROOMS.filter(r=>S.interests.includes(r.com)).concat(ROOMS.filter(r=>!S.interests.includes(r.com))).sort((a,b)=>b.live-a.live).slice(0,6);
+ const liveActs=ACTS.filter(a=>a.status!=='done').slice(0,3);
+ return `<div class="scr">
+ <div class="top">${logo(22)}<div class="row"><button class="icon-btn" data-a="notifs" aria-label="Notifications">${ic('bell')}<span class="dot"></span></button><button class="icon-btn" data-a="tab" data-v="profile" aria-label="Mon profil" style="padding:0;overflow:hidden">${avatar(S.av,42)}</button></div></div>
+ <div class="stack" style="gap:6px"><p class="muted" style="font-weight:700">${greet}, ${esc(S.me.name||'toi')}</p><h1 style="font-size:21px;line-height:1.25">${t('hook')}</h1></div>
+ <div class="hero"><div class="planet"></div><div class="ring"></div>
+  <span class="live" style="align-self:flex-start">${t('live')} · Musique</span>
+  <h2 style="font-size:26px">${t('stage')}</h2><p class="muted" style="max-width:26ch">Auditions à l’aveugle : chante, et laisse les jurés se retourner.</p>
+  <div class="row"><button class="btn btn-p btn-sm" data-a="open-act" data-v="a1">${ic('mic')} Participer</button><button class="btn btn-g btn-sm" data-a="open-room" data-v="r1">Écouter</button></div></div>
+ ${demo('<b>Prototype :</b> salons, personnes et compteurs sont des exemples. <button class="link" data-a="go" data-v="status">Voir ce qui fonctionne</button>')}
+ <section class="stack"><div class="sec-h"><h2>${t('reco')}</h2><button class="link" data-a="go" data-v="rooms">${t('seeall')}</button></div><div class="hscroll">${recs.map(roomCard).join('')}</div></section>
+ <section class="stack"><div class="sec-h"><h2>${t('acts')}</h2><button class="link" data-a="go" data-v="activities">${t('seeall')}</button></div>${liveActs.map(actCard).join('')}</section>
+ <section class="stack"><div class="sec-h"><h2>Tes communautés</h2><button class="link" data-a="tab" data-v="discover">${t('discover')}</button></div>
+  ${S.joined.length?S.joined.map(id=>{const c=com(id),k=cat(id);return `<button class="list-item" data-a="open-com" data-v="${id}"><div style="width:46px;height:46px;border-radius:15px;display:grid;place-items:center;background:${grad(k)}">${ic(k.icon)}</div><div class="grow"><div style="font-weight:800">${esc(c.name)}</div><div class="small muted ellip">${esc(c.tagline)}</div></div>${ic('back','')}</button>`}).join(''):'<p class="muted">Rejoins une communauté depuis Découvrir.</p>'}
+ </section>
+ ${nav('home')}</div>`;
+},
+
+/* ----- Découvrir ----- */
+discover:()=>`<div class="scr">
+ <div class="top"><h1>${t('discover')}</h1><button class="icon-btn" data-a="go" data-v="create" aria-label="${t('create')}">${ic('plus')}</button></div>
+ <label class="search">${ic('search')}<input id="disc-q" type="search" placeholder="${t('search')}" value="${esc(UI.disc)}" aria-label="Rechercher"></label>
+ <div class="chips" role="group" aria-label="Filtres">
+  <button class="chip ${UI.discLive?'on':''}" data-a="disc-live">${t('live')}</button>
+  ${['FR','EN','ES','IT','DE','PT'].map(l=>`<button class="chip ${UI.discLang===l?'on':''}" data-a="disc-lang" data-v="${l}">${l}</button>`).join('')}
+ </div>
+ <div id="disc-res">${discResults()}</div>
+ ${nav('discover')}</div>`,
+
+rooms:()=>`<div class="scr">${topBar(t('rooms'),`<button class="btn btn-p btn-sm" data-a="go" data-v="create">${ic('plus')} Créer</button>`)}
+ <h2>${t('live')}</h2><div class="stack">${allRooms().filter(r=>r.live).map(roomCard).join('')}</div>
+ <h2>${t('soon')}</h2><div class="stack">${allRooms().filter(r=>!r.live).map(roomCard).join('')}</div>${nav('')}</div>`,
+
+activities:()=>{const list=ACTS.filter(a=>a.status===UI.actTab);return `<div class="scr">${topBar(t('acts'))}
+ <p class="muted">Les activités font vivre les salons : elles se lancent à l’intérieur d’un salon, sans couper la discussion libre.</p>
+ <div class="tabs" role="tablist">${[['live',t('live')],['soon',t('soon')],['done',t('done')]].map(([k,l])=>`<button role="tab" class="${UI.actTab===k?'on':''}" data-a="act-tab" data-v="${k}">${l}</button>`).join('')}</div>
+ <div class="stack">${list.map(actCard).join('')||'<p class="muted">Rien pour le moment.</p>'}</div>${nav('')}</div>`},
+
+/* ----- Communauté ----- */
+com:(id)=>{const c=com(id),k=cat(id),j=S.joined.includes(id),rs=allRooms().filter(r=>r.com===id),as=ACTS.filter(a=>a.com===id);
+ const members=[...new Set(rs.flatMap(r=>[r.host,...r.speakers]))];
+ const tab=UI.comTab;
+ return `<div class="scr">${topBar('Communauté')}
+ <div class="hero" style="background:radial-gradient(100% 80% at 100% 0%,${k.g[1]}aa,transparent 60%),linear-gradient(150deg,${k.g[0]},var(--surface) 75%);min-height:210px">
+  <div style="position:absolute;right:18px;top:18px;width:84px;height:84px;border-radius:26px;display:grid;place-items:center;background:rgba(255,255,255,.12);box-shadow:0 0 40px ${k.g[1]}">${ic(k.icon).replace('class="ico "','class="ico" style="width:46px;height:46px"')}</div>
+  <h1 style="font-size:30px">${esc(c.name)}</h1><p class="muted">${esc(c.tagline)}</p>
+  <div class="chips">${c.tags.map(x=>`<span class="tag">${esc(x)}</span>`).join('')}</div>
+  <div class="row between"><span class="count">${fmt(c.members+(j&&id!=='musique'?1:0))} membres · exemple</span><button class="btn ${j?'btn-g':'btn-p'} btn-sm" data-a="join" data-v="${id}">${j?ic('check')+' '+t('member'):t('join')}</button></div></div>
+ <div class="tabs" role="tablist">${[['about','À propos'],['acts',t('acts')],['members','Membres']].map(([k2,l])=>`<button role="tab" class="${tab===k2?'on':''}" data-a="com-tab" data-v="${k2}">${l}</button>`).join('')}</div>
+ ${tab==='about'?`<p>${esc(c.about)}</p><h2>${t('rooms')}</h2><div class="stack">${rs.map(roomCard).join('')||'<p class="muted">Aucun salon pour l’instant.</p>'}</div>
+  <button class="btn btn-g" data-a="go" data-v="create" data-p="${id}">${ic('plus')} Créer un salon ${esc(c.name)}</button>
+  <div class="card stack"><div class="row">${ic('shield')}<h3>Règles du salon</h3></div><ul style="margin:0;padding-left:18px" class="muted">${c.rules.map(x=>`<li>${esc(x)}</li>`).join('')}<li>Respect, consentement et bienveillance. Harcèlement, insultes et usurpation sont exclus.</li></ul></div>`:''}
+ ${tab==='acts'?(as.map(actCard).join('')||'<p class="muted">Pas encore d’activité dans cette communauté.</p>'):''}
+ ${tab==='members'?`<div class="stack">${members.map(personRow).join('')}</div>`:''}
+ ${nav('')}</div>`},
+
+/* ----- Salon vocal ----- */
+room:(id)=>{const r=room(id),c=com(r.com),inR=R&&R.id===id;
+ const seat=(pid,role,speaking)=>{const p=person(pid);const isMe=pid==='me';const muted=isMe?R.muted:!speaking;
+  return `<div class="seat"><div class="av ${speaking?'speaking':''}">${avatar(p.av,role==='Hôte'?84:70)}<span class="badge">${ic(muted?'micoff':'mic')}</span></div><span class="ellip" style="max-width:90px">${esc(isMe?'Toi':p.name)}</span><span class="role">${role}</span></div>`};
+ const sp=[...r.speakers];
+ const meSpeaker=inR&&R.role!=='listener';
+ if(!r.live&&!inR) return `<div class="scr">${topBar(esc(c.name))}<div class="hero"><div class="planet"></div><span class="tag" style="align-self:flex-start">${esc(r.when)}</span><h1>${esc(r.title)}</h1><p class="muted">Hôte : ${esc(person(r.host).name)} · ${r.langs.join(' / ')}</p></div>
+  <p class="muted">Ce salon n’a pas encore commencé.</p><button class="btn btn-p" data-a="remind-room" data-v="${r.id}">${ic('bell')} Me prévenir au début</button>${demo('<b>Prototype :</b> le rappel est noté sur cet appareil, sans notification réelle.')}${nav('')}</div>`;
+ return `<div class="scr in-room">
+ <div class="top"><button class="back" data-a="back" aria-label="Retour">${ic('back')}<span>${esc(c.name)}</span></button><div class="row"><button class="icon-btn" data-a="invite" data-v="${r.id}" aria-label="Inviter">${ic('userplus')}</button><button class="icon-btn" data-a="room-menu" data-v="${r.id}" aria-label="Plus d’options">${ic('dots')}</button></div></div>
+ <div class="stack" style="gap:8px"><div class="row wrap"><span class="live">${t('live')}</span>${r.langs.map(l=>`<span class="tag">${l}</span>`).join('')}${r.private?`<span class="tag">${ic('lock')} Privé</span>`:''}</div><h1>${esc(r.title)}</h1>
+  <span class="count">${fmt(r.listeners+sp.length+1+(inR?1:0))} personnes · ${fmt(sp.length+1+(meSpeaker?1:0))} au micro</span></div>
+ ${demo('<b>Audio non branché :</b> ce salon est une démonstration visuelle. Aucun son n’est capté ni diffusé.')}
+ ${r.act?`<button class="card row" data-a="open-act" data-v="${r.act}" style="text-align:left;border-color:color-mix(in srgb,var(--accent) 50%,transparent)"><div style="width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--primary),var(--accent))">${ic('sparkle')}</div><div style="flex:1;min-width:0"><div class="eyebrow">Activité en cours</div><div style="font-weight:800">${esc(ACTS.find(a=>a.id===r.act).title)}</div></div><span class="link">Ouvrir</span></button>`:''}
+ <section class="stack"><h2>Sur scène</h2><div class="stage">${r.host==='me'?seat('me','Hôte',inR&&!R.muted):seat(r.host,'Hôte',true)}${sp.map((s,i)=>seat(s,'Intervenant·e',i===0&&!(inR&&!R.muted))).join('')}${meSpeaker&&r.host!=='me'?seat('me','Intervenant·e',!R.muted):''}</div></section>
+ <section class="stack"><h2>À l’écoute</h2><div class="row wrap" style="gap:8px">${(inR&&R.role==='listener'?`<div class="seat">${avatar(S.av,48)}<span>Toi</span></div>`:'')}${Object.keys(PEOPLE).filter(p=>p!==r.host&&!sp.includes(p)).slice(0,5).map(p=>`<div class="seat">${avatar(PEOPLE[p].av,48)}<span>${esc(PEOPLE[p].name)}</span></div>`).join('')}${r.listeners>5?`<div class="seat"><div style="width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:var(--surface2);font-weight:800;font-size:12px">+${fmt(r.listeners-5)}</div><span>autres</span></div>`:''}</div></section>
+ ${inR&&R.hand&&R.role==='listener'?`<p class="small" style="color:var(--warn);font-weight:700">Main levée : en attente de l’hôte.</p>`:''}
+ </div>
+ <div class="room-bar"><div class="in">
+  <div class="reacts">${['❤️','🔥','👏','😂'].map(e=>`<button data-a="react" data-v="${e}" aria-label="Réagir ${e}">${e}</button>`).join('')}</div>
+  <div class="mic-wrap">${roomMic(r)}</div>
+  <div class="row" style="justify-content:flex-end">${inR?`<button class="btn btn-g btn-sm" data-a="leave">${t('leave')}</button>`:`<button class="btn btn-p btn-sm" data-a="enter" data-v="${r.id}">${t('join')}</button>`}</div>
+ </div></div>`;
+},
+
+/* ----- Créer un salon ----- */
+create:(pre)=>`<div class="scr no-nav">${topBar(t('create'))}
+ <div class="field"><label for="c-title">Nom du salon</label><input class="inp" id="c-title" maxlength="50" placeholder="Ex. Soirée chant entre ami·es" data-autofocus></div>
+ <div class="field"><label for="c-com">Communauté</label><select class="inp" id="c-com">${COMS.map(c=>`<option value="${c.id}" ${pre===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select></div>
+ <div class="field"><label for="c-lang">Langue principale</label><select class="inp" id="c-lang">${LANGS.map(([c,n])=>`<option value="${c.toUpperCase()}">${n}</option>`).join('')}</select></div>
+ <div class="field"><label>Visibilité</label><div class="tabs"><button class="on" data-a="c-vis" data-v="pub" id="vis-pub">Public</button><button data-a="c-vis" data-v="priv" id="vis-priv">${ic('lock')} Privé · sur invitation</button></div></div>
+ <p class="err" id="c-err" role="alert"></p>
+ <button class="btn btn-p" data-a="c-submit">Ouvrir le salon</button>
+ ${demo('<b>Prototype :</b> le salon est créé sur cet appareil uniquement. Les autres utilisateurs ne le voient pas encore.')}</div>`,
+
+/* ----- Messages ----- */
+messages:()=>{const q=UI.msgQ.toLowerCase();const list=S.convos.filter(c=>!S.blocked.includes(c.id)&&person(c.id).name.toLowerCase().includes(q));
+ return `<div class="scr"><div class="top"><h1>${t('messages')}</h1></div>
+ <label class="search">${ic('search')}<input id="msg-q" type="search" placeholder="Rechercher une conversation" value="${esc(UI.msgQ)}" aria-label="Rechercher une conversation"></label>
+ <div class="stack">${list.map(c=>{const p=person(c.id),last=c.msgs[c.msgs.length-1];return `<button class="list-item" data-a="chat" data-v="${c.id}">${avatar(p.av,52)}<div class="grow"><div class="row between"><span style="font-weight:800">${esc(p.name)}</span><span class="tag">${p.country}</span></div><div class="small muted ellip">${last.voice?'Note vocale · '+last.voice:(last.f==='me'?'Toi : ':'')+esc(last.x)}</div></div></button>`}).join('')||'<p class="muted">Aucune conversation.</p>'}</div>
+ ${nav('messages')}</div>`},
+
+chat:(id)=>{const c=S.convos.find(x=>x.id===id),p=person(id);
+ return `<div class="scr" style="padding-bottom:100px">
+ <div class="top"><button class="back" data-a="back" aria-label="Retour">${ic('back')}</button><div class="row" style="flex:1;min-width:0">${avatar(p.av,40)}<div style="min-width:0"><div style="font-weight:800">${esc(p.name)}</div><div class="small muted">${p.city} · ${p.langs.join(', ')}</div></div></div><button class="icon-btn" data-a="user-menu" data-v="${id}" aria-label="Options">${ic('dots')}</button></div>
+ <div class="bubbles">${c.msgs.map((m,i)=>`<div class="bub ${m.f}">${m.voice?`<span class="voice">${ic('play')}<span class="wave" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="small">${m.voice}${m.demo?' · démo':''}</span></span>`:esc(m.x)}${m.tr?(m.showTr?`<span class="tr">${ic('translate')} ${esc(m.tr)}<br><span class="small">Traduction d’exemple, pas encore automatique</span></span>`:`<button class="link small" style="display:block;margin-top:4px" data-a="tr" data-v="${id}:${i}">Traduire</button>`):''}</div>`).join('')}</div>
+ </div>
+ <form class="composer" id="composer"><button type="button" class="icon-btn" data-a="voice-note" data-v="${id}" aria-label="Note vocale">${ic('mic')}</button><input id="msg-in" placeholder="Écris un message…" autocomplete="off" aria-label="Message"><button class="icon-btn" type="submit" aria-label="Envoyer" style="background:linear-gradient(135deg,var(--primary),var(--accent))">${ic('send')}</button></form>`},
+
+/* ----- Profil ----- */
+profile:()=>{const a=ageOf(S.me.birth);const coms=S.joined.map(com);
+ return `<div class="scr">
+ <div class="top"><h1>${t('profile')}</h1><button class="icon-btn" data-a="go" data-v="prefs" aria-label="${t('settings')}">${ic('gear')}</button></div>
+ <div class="stack" style="align-items:center;text-align:center;gap:10px">
+  <div style="filter:drop-shadow(0 0 30px ${AURA[S.av.aura]}80)">${avatar(S.av,170)}</div>
+  <h1>${esc(S.me.name||'Toi')}${S.me.showAge&&a?`, ${a}`:''}</h1>
+  <div class="row"><span class="muted">@${esc((S.me.name||'toi').toLowerCase().normalize('NFD').replace(/[^a-z0-9]/g,''))}_pulse</span><span class="tag" style="color:var(--ok)">● En ligne</span></div>
+  ${S.me.bio?`<p class="muted" style="max-width:34ch">${esc(S.me.bio)}</p>`:''}
+  <div class="row"><button class="btn btn-p btn-sm" data-a="go" data-v="avatar">${ic('sparkle')} ${t('editAv')}</button><button class="btn btn-g btn-sm" data-a="edit-profile">Modifier le profil</button></div>
+ </div>
+ <div class="card row between" style="text-align:center">${[[S.friends.length,'Amis'],[S.joined.length,'Communautés'],[S.created.length,'Salons créés']].map(([n,l])=>`<div style="flex:1"><div style="font-family:var(--f-display);font-size:22px;font-variant-numeric:tabular-nums">${n}</div><div class="small muted">${l}</div></div>`).join('')}</div>
+ <section class="stack"><h2>Passions</h2><div class="row wrap">${S.interests.map(i=>`<span class="chip">${ic(cat(i).icon)} ${cat(i).name}</span>`).join('')}</div></section>
+ <section class="stack"><h2>Langues parlées</h2><div class="row wrap">${S.me.langs.map(l=>`<span class="chip">${l}</span>`).join('')}</div></section>
+ <section class="stack"><h2>Mon univers</h2><div class="cat-grid">${coms.map(c=>{const k=cat(c.id);return `<button class="cat" style="background:${grad(k)}" data-a="open-com" data-v="${c.id}">${ic(k.icon)}<span>${esc(c.name)}</span></button>`}).join('')}<button class="cat" style="background:var(--surface2);border:1px dashed var(--line)" data-a="tab" data-v="discover">${ic('plus')}<span>Ajouter</span></button></div></section>
+ <div class="hero" style="min-height:0"><div class="planet" style="width:110px;height:110px"></div><span class="plus" style="align-self:flex-start">PULSE+</span><h2>Va plus loin dans ton univers</h2><p class="muted small">Piste envisagée : auras et accessoires exclusifs, thèmes, badges, filtres avancés. Contenu et prix non définis. Parler dans les salons restera gratuit.</p></div>
+ ${nav('profile')}</div>`},
+
+avatar:()=>`<div class="scr no-nav">${topBar(t('editAv'))}${avatarEditor()}<button class="btn btn-p" data-a="back">Enregistrer</button></div>`,
+
+/* ----- Réglages ----- */
+prefs:()=>{const tg=(k,on,label,sub='')=>`<button class="set-row" data-a="${k}"><span><span style="font-weight:700">${label}</span>${sub?`<br><span class="small muted">${sub}</span>`:''}</span><span class="toggle ${on?'on':''}" role="switch" aria-checked="${!!on}"></span></button>`;
+ return `<div class="scr">${topBar(t('settings'))}
+ <section class="card"><h3 class="eyebrow" style="margin-bottom:6px">Compte & langue</h3>
+  <div class="set-row"><label for="ui-lang2" style="font-weight:700">${t('lang')} de l’interface</label><select class="chip" id="ui-lang2">${LANGS.map(([c,n])=>`<option value="${c}" ${S.ui===c?'selected':''}>${n}</option>`).join('')}</select></div>
+  <p class="small muted" style="padding-bottom:10px">Menus et textes principaux traduits. Les contenus des salons restent dans leur langue d’origine.</p></section>
+ <section class="card"><h3 class="eyebrow" style="margin-bottom:6px">Apparence · à arbitrer</h3>
+  <div class="tabs" style="margin:8px 0"><button class="${S.skin==='cosmic'?'on':''}" data-a="skin" data-v="cosmic">Cosmique</button><button class="${S.skin==='ocean'?'on':''}" data-a="skin" data-v="ocean">Ocean Signal</button></div>
+  <p class="small muted" style="padding-bottom:6px">Deux pistes à comparer avant de verrouiller la palette. Les couleurs Ocean Signal sont une proposition.</p>
+  ${tg('calm',S.calm,'Réduire les animations','Coupe halos, pulsations et ondes')}</section>
+ <section class="card"><h3 class="eyebrow" style="margin-bottom:6px">Confidentialité & sécurité</h3>
+  ${tg('show-age',S.me.showAge,'Afficher mon âge sur le profil')}
+  <div class="set-row"><label for="dm" style="font-weight:700">Qui peut m’écrire</label><select class="chip" id="dm">${[['all','Tout le monde'],['friends','Mes amis'],['none','Personne']].map(([v,l])=>`<option value="${v}" ${S.me.dm===v?'selected':''}>${l}</option>`).join('')}</select></div>
+  <div class="set-row" style="flex-direction:column;align-items:flex-start"><span style="font-weight:700">Personnes bloquées</span>${S.blocked.length?S.blocked.map(b=>`<div class="row between" style="width:100%"><span>${esc(person(b).name)}</span><button class="link" data-a="unblock" data-v="${b}">Débloquer</button></div>`).join(''):'<span class="small muted">Aucune</span>'}</div>
+  <button class="set-row" data-a="rules"><span style="font-weight:700">Règles de la communauté</span>${ic('shield')}</button></section>
+ <section class="card"><h3 class="eyebrow" style="margin-bottom:6px">Notifications</h3>
+  ${tg('n-rooms',S.notif.rooms,'Salons de mes communautés')}${tg('n-msgs',S.notif.msgs,'Messages privés')}${tg('n-acts',S.notif.acts,'Activités et rappels')}
+  <p class="small muted" style="padding-bottom:6px">Préférences enregistrées ; l’envoi de notifications n’est pas encore branché.</p></section>
+ <section class="card"><button class="set-row" data-a="go" data-v="status"><span style="font-weight:700">État du prototype</span>${ic('info')}</button>
+  <button class="set-row" data-a="reset" style="color:var(--live)"><span style="font-weight:700">Se déconnecter et effacer ce prototype</span>${ic('logout')}</button></section>
+ ${nav('')}</div>`},
+
+status:()=>{const L=(cls,lab,items)=>`<section class="card stack"><div class="row"><span class="pill-status ${cls}">${lab}</span></div><ul class="status-list" style="margin:0;padding-left:18px">${items.map(x=>`<li>${x}</li>`).join('')}</ul></section>`;
+ return `<div class="scr">${topBar('État du prototype')}
+ <p class="muted">Ce prototype sert à valider le parcours et l’univers visuel. Voici ce qui marche vraiment, ce qui est simulé et ce qui reste à construire.</p>
+ ${L('st-ok','Fonctionne dans ce prototype',['Onboarding complet avec contrôle 18+ sur la date de naissance','Éditeur d’avatar : 4 archétypes, têtes, couleurs, aura, 10 accessoires dessinés et portés','Navigation Accueil, Découvrir, PULSE, Messages, Profil, plus les pages Salons et Activités','Recherche et filtres (langue, en direct) sur les exemples','Rejoindre ou quitter une communauté, créer un salon public ou privé (sur cet appareil)','Envoi de messages texte, blocage, signalement (sur cet appareil)','Interface en 6 langues (menus et textes principaux)','Bascule de palette Cosmique / Ocean Signal, mode animations réduites'])}
+ ${L('st-demo','Simulé : exemples affichés',['Audio des salons : aucun son capté ni diffusé, micro visuel uniquement','Hôte qui accepte une main levée, participants, compteurs et membres','Traductions de messages (pré-rédigées)','Notes vocales, rappels et notifications','Activités : jurés et quiz jouables, sans autres joueurs réels'])}
+ ${L('st-no','Pas encore construit',['Comptes, connexion et serveur (les données restent dans ce navigateur)','Vérification d’âge renforcée','Audio temps réel, notes vocales réelles, appels, Mode Duo','Traduction automatique','Modération côté équipe, traitement des signalements','PULSE+ et paiements'])}
+ ${nav('')}</div>`}
+};
+
+function discResults(){
+ const q=UI.disc.trim().toLowerCase();
+ const fl=r=>(!UI.discLive||r.live)&&(!UI.discLang||r.langs.includes(UI.discLang));
+ if(!q&&!UI.discLang&&!UI.discLive){
+  return `<div class="stack" style="gap:22px">
+  <div class="hero" style="min-height:150px"><div class="planet"></div><div class="ring"></div><h2 style="font-size:22px;max-width:16ch">Une communauté pour chaque passion</h2><p class="muted small">Par langue, pays et centre d’intérêt.</p></div>
+  <section class="stack"><h2>${t('cats')}</h2><div class="cat-grid">${CATS.map(c=>`<button class="cat" style="background:${grad(c)}" data-a="open-com" data-v="${c.id}">${ic(c.icon)}<span>${c.name}</span></button>`).join('')}</div></section>
+  <section class="stack"><h2>${t('acts')}</h2>${actCard(ACTS[0])}</section>
+  <section class="stack"><h2>${t('people')}</h2><p class="small muted">Selon vos passions communes. PULSE n’est pas une appli de rencontres amoureuses : on se rencontre par ce qu’on aime.</p>${Object.keys(PEOPLE).filter(p=>!S.blocked.includes(p)).sort((a,b)=>PEOPLE[b].int.filter(i=>S.interests.includes(i)).length-PEOPLE[a].int.filter(i=>S.interests.includes(i)).length).slice(0,5).map(personRow).join('')}</section></div>`;
+ }
+ const rs=allRooms().filter(r=>fl(r)&&(!q||(r.title+' '+com(r.com).name).toLowerCase().includes(q)));
+ const cs=q?COMS.filter(c=>(c.name+' '+c.tags.join(' ')+' '+cat(c.id).name).toLowerCase().includes(q)):[];
+ const ps=Object.keys(PEOPLE).filter(p=>!S.blocked.includes(p)&&(!UI.discLang||PEOPLE[p].langs.includes(UI.discLang))&&(!q||PEOPLE[p].name.toLowerCase().includes(q)||PEOPLE[p].int.some(i=>cat(i).name.toLowerCase().includes(q))));
+ return `<div class="stack" style="gap:18px">
+  ${cs.length?`<section class="stack"><h2>Communautés</h2>${cs.map(c=>{const k=cat(c.id);return `<button class="list-item" data-a="open-com" data-v="${c.id}"><div style="width:46px;height:46px;border-radius:15px;display:grid;place-items:center;background:${grad(k)}">${ic(k.icon)}</div><div class="grow"><div style="font-weight:800">${esc(c.name)}</div><div class="small muted ellip">${esc(c.tagline)}</div></div></button>`}).join('')}</section>`:''}
+  <section class="stack"><h2>${t('rooms')} <span class="count">(${rs.length})</span></h2>${rs.map(roomCard).join('')||'<p class="muted">Aucun salon ne correspond. Essaie une autre langue ou crée le tien.</p>'}</section>
+  ${ps.length?`<section class="stack"><h2>Personnes</h2>${ps.slice(0,6).map(personRow).join('')}</section>`:''}</div>`;
+}
+function personRow(pid){const p=PEOPLE[pid];if(!p)return '';const f=S.friends.includes(pid),rq=S.requested.includes(pid);const common=p.int.filter(i=>S.interests.includes(i));
+ return `<div class="list-item">${avatar(p.av,50)}<div class="grow"><div style="font-weight:800">${esc(p.name)}, ${p.age} <span class="tag">${p.country}</span></div><div class="small muted ellip">${p.city} · ${p.langs.join(', ')}${common.length?' · '+common.map(i=>cat(i).name).join(', '):''}</div></div>
+ ${f?`<button class="btn btn-g btn-sm" data-a="chat-new" data-v="${pid}">${ic('message')}</button>`:`<button class="btn ${rq?'btn-g':'btn-p'} btn-sm" data-a="add" data-v="${pid}" ${rq?'disabled':''}>${rq?'Envoyée':ic('userplus')}</button>`}</div>`}
+
+function roomMic(r){
+ const inR=R&&R.id===r.id;
+ if(!inR) return `<button class="mic off" data-a="enter" data-v="${r.id}" aria-label="Rejoindre pour parler">${ic('mic')}</button><div class="mic-state muted">Rejoins pour écouter</div>`;
+ if(R.role==='listener') return `<button class="mic" data-a="room-mic" aria-label="${t('raise')}">${ic('hand')}</button><div class="mic-state">${R.hand?'Main levée':t('raise')}</div>`;
+ return `<button class="mic ${R.muted?'off':'hot'}" data-a="room-mic" aria-label="${R.muted?'Activer le micro':'Couper le micro'}" aria-pressed="${!R.muted}">${ic(R.muted?'micoff':'mic')}</button><div class="mic-state" style="color:${R.muted?'var(--text2)':'var(--accent)'}">${R.muted?t('micOff'):t('micOn')}<br><span class="small muted">simulation</span></div>`;
+}
+
+/* ----- Éditeur d'avatar ----- */
+function avatarEditor(){
+ const a=S.av, tab=UI.avTab;
+ const tabs=`<div class="tabs" role="tablist">${[['forme','Forme'],['tetes','Têtes'],['acc','Accessoires'],['aura','Aura']].map(([k,l])=>`<button role="tab" class="${tab===k?'on':''}" data-a="av-tab" data-v="${k}">${l}</button>`).join('')}</div>`;
+ let body='';
+ if(tab==='forme') body=`<div class="pick-grid">${ARCH.map(x=>`<button class="pick ${a.arch===x.id?'on':''}" data-a="av-arch" data-v="${x.id}">${avatar({...a,arch:x.id,tint:a.arch===x.id?a.tint:1,acc:{}},92)}<span class="nm">${x.name}</span><span class="ds">${x.ds}</span></button>`).join('')}</div>
+  <div class="stack" style="gap:8px"><h3>${a.arch==='human'?'Carnation':a.arch==='droid'?'Finition':a.arch==='animal'?'Pelage':'Teinte'}</h3><div class="swatches">${SKIN[a.arch].map((c,i)=>`<button class="sw ${a.tint===i?'on':''}" style="background:${c}" data-a="av-tint" data-v="${i}" aria-label="Couleur ${i+1}"></button>`).join('')}</div></div>`;
+ if(tab==='tetes') body=`<div class="pick-grid">${ARCH.find(x=>x.id===a.arch).heads.map((n,i)=>`<button class="pick ${a.head===i?'on':''}" data-a="av-head" data-v="${i}">${avatar({...a,head:i,acc:{}},92)}<span class="nm">${n}</span></button>`).join('')}</div>
+  ${a.arch==='human'?`<div class="stack" style="gap:8px"><h3>Couleur des cheveux</h3><div class="swatches">${HAIR.map((c,i)=>`<button class="sw ${a.hair===i?'on':''}" style="background:${c}" data-a="av-hair" data-v="${i}" aria-label="Cheveux ${i+1}"></button>`).join('')}</div></div>`:''}`;
+ if(tab==='acc') body=`<p class="small muted">Un objet par emplacement : tête, visage, main, dos, compagnon. Touche à nouveau pour retirer.</p>
+  <div class="acc-grid">${ACC.map(x=>{const on=a.acc[x.slot]===x.id;return `<button class="pick ${on?'on':''}" data-a="av-acc" data-v="${x.id}" aria-pressed="${on}">${x.plus?'<span class="plus">PULSE+</span>':''}${accTile(x,AURA[a.aura])}<span class="nm">${x.name}</span><span class="ds">${SLOTN[x.slot]}</span></button>`}).join('')}</div>
+  <p class="small muted">Objets PULSE+ en aperçu libre : leur mode d’accès n’est pas décidé.</p>`;
+ if(tab==='aura') body=`<div class="stack" style="gap:8px"><h3>Couleur d’aura</h3><div class="swatches">${AURA.map((c,i)=>`<button class="sw ${a.aura===i?'on':''}" style="background:${c}" data-a="av-aura" data-v="${i}" aria-label="Aura ${i+1}"></button>`).join('')}</div></div>
+  <div class="stack" style="gap:8px"><h3>Intensité</h3><div class="tabs">${['Aucune','Douce','Éclatante'].map((l,i)=>`<button class="${(a.auraLvl??1)===i?'on':''}" data-a="av-lvl" data-v="${i}">${l}</button>`).join('')}</div></div>`;
+ return `<div class="av-stage" style="filter:drop-shadow(0 0 30px ${AURA[a.aura]}70)">${avatar(a,190)}</div>${tabs}<div class="stack">${body}</div>`;
+}
+
+/* ---------- Feuilles, toasts ---------- */
+function sheet(html){layer.innerHTML=`<div class="sheet-bg" data-a="sheet-bg"><div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div>${html}</div></div>`}
+function closeSheet(){layer.innerHTML=''}
+let tT;function toast(m){clearTimeout(tT);let el=document.querySelector('.toast');if(!el){el=document.createElement('div');el.className='toast';el.setAttribute('role','status');document.body.appendChild(el)}el.textContent=m;tT=setTimeout(()=>el.remove(),2800)}
+
+function pulseSheet(){
+ const best=ROOMS.filter(r=>r.live).sort((a,b)=>(S.interests.includes(b.com)-S.interests.includes(a.com)))[0];
+ sheet(`<div class="row">${logo(20)}</div><h2>Que veux-tu faire ?</h2>
+ ${R?`<button class="opt" data-a="open-room" data-v="${R.id}"><span class="ic-b">${ic('speaker')}</span><span><b>Revenir à « ${esc(room(R.id).title)} »</b><br><span class="small muted">${R.role==='listener'?'Tu écoutes':R.muted?'Micro coupé':'Micro ouvert'}</span></span></button>`:''}
+ <button class="opt" data-a="open-room" data-v="${best.id}"><span class="ic-b">${ic('mic')}</span><span><b>Parler maintenant</b><br><span class="small muted">Entrer dans « ${esc(best.title)} » (en direct)</span></span></button>
+ <button class="opt" data-a="go" data-v="create"><span class="ic-b">${ic('plus')}</span><span><b>${t('create')}</b><br><span class="small muted">Public ou privé, sur le thème de ton choix</span></span></button>
+ <button class="opt" disabled><span class="ic-b">${ic('message')}</span><span><b>Message vocal express</b> <span class="tag">À définir</span><br><span class="small muted">Façon talkie-walkie, envoyé à un ami</span></span></button>
+ <button class="opt" disabled><span class="ic-b">${ic('duo')}</span><span><b>Mode Duo</b> <span class="tag">Envisagé</span><br><span class="small muted">Une conversation vocale à deux</span></span></button>
+ <p class="small muted">Le micro ne s’ouvre jamais tout seul : uniquement dans un salon, quand tu l’actives toi-même.</p>`)}
+
+function actSheet(id){
+ const a=ACTS.find(x=>x.id===id);
+ if(a.status==='done'){sheet(`<h2>${esc(a.title)}</h2><p class="muted">${esc(a.desc)}</p><button class="btn btn-g" data-a="close">Fermer</button>`);return}
+ if(a.status==='soon'){sheet(`<span class="tag" style="align-self:flex-start">${esc(a.when)}</span><h2>${esc(a.title)}</h2><p class="muted">${esc(a.desc)}</p><h3>Règles</h3><ul class="muted" style="margin:0;padding-left:18px">${a.rules.map(r=>`<li>${esc(r)}</li>`).join('')}</ul><button class="btn btn-p" data-a="remind" data-v="${a.id}">${ic('bell')} Me rappeler</button>`);return}
+ if(QUIZ[id]){quiz(id,0,0);return}
+ // Audition à l'aveugle
+ const judges=['lea','marco','sam'];
+ sheet(`<div class="row between"><span class="live">${t('live')}</span><span class="tag">Audition à l’aveugle</span></div><h2>${esc(a.title)}</h2>
+ <div class="card stack" style="align-items:center;text-align:center"><div style="filter:blur(7px)">${avatar(PEOPLE.nora.av,90)}</div><div class="wave" aria-hidden="true"><i></i><i></i><i></i><i></i></div><p><b>Candidat·e mystère</b> chante une composition originale</p></div>
+ <h3>Les jurés</h3><div class="stage" id="judges">${judges.map(j=>`<div class="seat" data-j="${j}"><div class="av" style="transform:scaleX(-1);opacity:.55">${avatar(PEOPLE[j].av,60)}</div><span>${PEOPLE[j].name}</span><span class="role">dos tourné</span></div>`).join('')}</div>
+ <button class="btn btn-p" data-a="turn" id="turn-btn">${ic('sparkle')} Je me retourne</button>
+ <p class="small muted">Démo : les autres jurés réagissent automatiquement. Aucun son n’est diffusé.</p>
+ <details class="muted small"><summary>Règles</summary><ul style="padding-left:18px">${a.rules.map(r=>`<li>${esc(r)}</li>`).join('')}</ul></details>`);
+ judges.forEach((j,i)=>{if(i===1)return;setTimeout(()=>{const el=layer.querySelector(`[data-j="${j}"]`);if(el){el.querySelector('.av').style.cssText='opacity:1';el.querySelector('.av').classList.add('speaking');el.querySelector('.role').textContent='s’est retourné·e'}},1800+i*1700)});
+}
+function quiz(id,i,score){
+ const qs=QUIZ[id],a=ACTS.find(x=>x.id===id);
+ if(i>=qs.length){sheet(`<h2>Résultat</h2><p style="font-family:var(--f-display);font-size:40px">${score} / ${qs.length}</p><p class="muted">${score===qs.length?'Sans faute !':'Bien joué, rendez-vous à la prochaine manche.'}</p><button class="btn btn-p" data-a="close">Fermer</button>`);return}
+ const q=qs[i];
+ sheet(`<div class="row between"><span class="tag">${esc(a.title)}</span><span class="count">Question ${i+1}/${qs.length}</span></div><h2>${esc(q.q)}</h2><div class="stack">${q.o.map((o,k)=>`<button class="opt" data-a="ans" data-v="${id}:${i}:${score}:${k}">${esc(o)}</button>`).join('')}</div>`);
+}
+
+/* ---------- Actions ---------- */
+const ACT={
+ back:()=>back(), close:()=>closeSheet(),
+ 'sheet-bg':(v,el,e)=>{if(e.target===el)closeSheet()},
+ go:(v,el)=>go(v,el.dataset.p),
+ tab:v=>{HIST=[];V={name:v};closeSheet();render(true)},
+ pulse:()=>pulseSheet(),
+ notifs:()=>sheet(`<h2>Notifications</h2>${[['Léa a démarré « Karaoké libre & auditions »','open-room','r1'],['Nouveau salon dans Café des langues','open-com','discussions'],['Quiz cinéma demain à 20:30','go','activities']].map(([x,a,v])=>`<button class="opt" data-a="${a}" data-v="${v}"><span class="ic-b">${ic('bell')}</span><span>${x}</span></button>`).join('')}<p class="small muted">Exemples de notifications.</p>`),
+ 'ob-start':()=>{V={name:'ob'};render(true)},
+ 'ob-prev':()=>{UI.err='';if(S.obStep===0){V={name:'welcome'}}else S.obStep--;render(true)},
+ 'ob-next':()=>{
+  UI.err='';
+  if(S.obStep===0){
+   const n=document.getElementById('f-name').value.trim(),b=document.getElementById('f-birth').value;
+   S.me.name=n;S.me.birth=b;S.me.country=document.getElementById('f-country').value;
+   if(n.length<2) UI.err='Ton prénom ou pseudo doit faire au moins 2 caractères.';
+   else if(!b) UI.err='Indique ta date de naissance.';
+   else {const a=ageOf(b); if(a<18) UI.err='PULSE est réservé aux personnes majeures (18 ans et plus).'; else if(a>110) UI.err='Vérifie ta date de naissance.';}
+  } else if(S.obStep===1){ if(!S.me.langs.length) UI.err='Choisis au moins une langue.'; }
+  else if(S.obStep===2){ if(S.interests.length<3) UI.err='Choisis au moins trois passions.'; }
+  if(!UI.err) S.obStep++;
+  save();render(!UI.err);
+ },
+ 'ob-lang':v=>{const L=S.me.langs;S.me.langs=L.includes(v)?L.filter(x=>x!==v):[...L,v];save();render()},
+ 'ob-int':v=>{const L=S.interests;S.interests=L.includes(v)?L.filter(x=>x!==v):[...L,v];save();render()},
+ 'ob-done':()=>{S.onboarded=1;S.joined=[...new Set([...S.interests.slice(0,3)])];save();V={name:'home'};HIST=[];render(true);toast(`Bienvenue dans PULSE, ${S.me.name} !`)},
+ 'av-tab':v=>{UI.avTab=v;render()},
+ 'av-arch':v=>{S.av.arch=v;S.av.head=Math.min(S.av.head,3);save();render()},
+ 'av-tint':v=>{S.av.tint=+v;save();render()},
+ 'av-head':v=>{S.av.head=+v;save();render()},
+ 'av-hair':v=>{S.av.hair=+v;save();render()},
+ 'av-aura':v=>{S.av.aura=+v;save();render()},
+ 'av-lvl':v=>{S.av.auraLvl=+v;save();render()},
+ 'av-acc':v=>{const x=ACC.find(a=>a.id===v);S.av.acc={...S.av.acc};if(S.av.acc[x.slot]===v)delete S.av.acc[x.slot];else S.av.acc[x.slot]=v;save();render()},
+ 'open-room':v=>go('room',v),
+ 'open-com':v=>{UI.comTab='about';go('com',v)},
+ 'com-tab':v=>{UI.comTab=v;render()},
+ 'act-tab':v=>{UI.actTab=v;render()},
+ 'open-act':v=>{const a=ACTS.find(x=>x.id===v);if(a.status==='live'&&a.room&&!(R&&R.id===a.room)){R={id:a.room,role:'listener',muted:true,hand:false};if(V.name!=='room'||V.p!==a.room)go('room',a.room);else render()}actSheet(v)},
+ join:v=>{const j=S.joined.includes(v);S.joined=j?S.joined.filter(x=>x!==v):[...S.joined,v];save();render();toast(j?'Tu as quitté la communauté.':'Bienvenue dans la communauté !')},
+ enter:v=>{const r=room(v);R={id:v,role:r.host==='me'?'host':'listener',muted:true,hand:false};render();toast(r.host==='me'?'Ton salon est ouvert. Ton micro est coupé.':'Tu écoutes. Ton micro est coupé.')},
+ leave:()=>{R=null;toast('Tu as quitté le salon.');back()},
+ 'room-mic':()=>{
+  if(R.role==='listener'){
+   if(R.hand){R.hand=false;render();toast('Main baissée.');return}
+   R.hand=true;render();toast('Main levée. L’hôte peut t’inviter à parler.');
+   const rid=R.id;setTimeout(()=>{if(R&&R.id===rid&&R.hand){R.role='speaker';R.hand=false;if(V.name==='room')render();toast(`${person(room(rid).host).name} t’invite à parler (simulation). Ton micro reste coupé.`)}},2600);return;
+  }
+  if(!S.micOk){sheet(`<div class="big-mic" style="width:120px;height:120px"><span></span><div class="core" style="width:84px;height:84px">${ic('mic')}</div></div><h2>Autoriser le micro</h2><p class="muted">PULSE utilise ton micro uniquement quand tu l’ouvres dans un salon. Les personnes présentes dans le salon t’entendent ; personne d’autre.</p>${demo('<b>Prototype :</b> aucune autorisation réelle n’est demandée et rien n’est enregistré.')}<button class="btn btn-p" data-a="mic-ok">Autoriser (simulation)</button><button class="btn btn-g" data-a="close">Pas maintenant</button>`);return}
+  R.muted=!R.muted;render();
+ },
+ 'mic-ok':()=>{S.micOk=1;save();closeSheet();R.muted=false;render();toast('Micro ouvert (simulation).')},
+ react:(v,el)=>{const r=el.getBoundingClientRect();const f=document.createElement('div');f.className='floaty';f.textContent=v;f.style.left=r.left+'px';f.style.top=(r.top-10)+'px';document.body.appendChild(f);setTimeout(()=>f.remove(),1700)},
+ invite:v=>sheet(`<h2>Inviter dans le salon</h2>${S.friends.length?S.friends.map(f=>`<button class="opt" data-a="invited" data-v="${f}">${avatar(PEOPLE[f].av,40)}<span><b>${esc(PEOPLE[f].name)}</b></span></button>`).join(''):'<p class="muted">Ajoute des amis depuis Découvrir pour les inviter.</p>'}<div class="card small muted" style="overflow-wrap:anywhere">Lien de partage (exemple) : pulse.app/s/${esc(v)}</div>`),
+ invited:v=>{closeSheet();toast(`Invitation préparée pour ${PEOPLE[v].name} (démo, non envoyée).`)},
+ 'room-menu':v=>{const r=room(v);sheet(`<h2>${esc(r.title)}</h2><button class="opt" data-a="report" data-v="salon"><span class="ic-b">${ic('flag')}</span><span><b>Signaler le salon</b></span></button><button class="opt" data-a="rules"><span class="ic-b">${ic('shield')}</span><span><b>Règles et modération</b><br><span class="small muted">L’hôte peut couper un micro, retirer de la scène ou exclure.</span></span></button>${R&&R.id===v?`<button class="opt" data-a="leave"><span class="ic-b">${ic('logout')}</span><span><b>${t('leave')}</b></span></button>`:''}`)},
+ report:v=>sheet(`<h2>Signaler</h2><p class="muted">Pourquoi ? Ton signalement reste confidentiel.</p>${['Harcèlement ou insultes','Contenu choquant ou dangereux','Usurpation d’identité','Personne mineure','Arnaque ou fraude','Autre'].map(x=>`<button class="opt" data-a="reported">${esc(x)}</button>`).join('')}`),
+ reported:()=>{closeSheet();toast('Merci. Signalement noté (prototype : pas encore transmis à une équipe).')},
+ rules:()=>sheet(`<h2>Règles de la communauté</h2><ul class="muted" style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px"><li>PULSE est réservé aux 18 ans et plus.</li><li>Respect, consentement et bienveillance envers chaque voix.</li><li>Pas de harcèlement, d’insultes, de discours haineux, de fraude ni d’usurpation.</li><li>On n’enregistre personne sans son accord.</li><li>Les hôtes organisent la parole ; ils peuvent couper un micro ou exclure.</li><li>Signale ce qui te met mal à l’aise : tu peux aussi bloquer ou masquer quelqu’un.</li></ul><button class="btn btn-g" data-a="close">Compris</button>`),
+ remind:v=>{const on=S.reminders.includes(v);S.reminders=on?S.reminders.filter(x=>x!==v):[...S.reminders,v];save();closeSheet();render();toast(on?'Rappel retiré.':'Rappel noté sur cet appareil.')},
+ 'remind-room':()=>toast('Rappel noté sur cet appareil.'),
+ ans:v=>{const [id,i,sc,k]=v.split(':');const q=QUIZ[id][+i];const ok=+k===q.a;toast(ok?'Bonne réponse !':`Raté : c’était « ${q.o[q.a]} »`);quiz(id,+i+1,+sc+(ok?1:0))},
+ turn:()=>{const el=layer.querySelector('[data-j="marco"]');if(el){el.querySelector('.av').style.cssText='opacity:1';el.querySelector('.av').classList.add('speaking');el.querySelector('.role').textContent='s’est retourné·e'}const b=document.getElementById('turn-btn');b.disabled=true;b.innerHTML=ic('check')+' Tu t’es retourné·e';toast('Tu t’es retourné·e pour cette voix !')},
+ 'disc-live':()=>{UI.discLive=!UI.discLive;render()},
+ 'disc-lang':v=>{UI.discLang=UI.discLang===v?'':v;render()},
+ add:v=>{S.requested.push(v);save();render();toast(`Demande envoyée à ${PEOPLE[v].name} (démo). Elle s’accepte dans 2 s.`);setTimeout(()=>{S.requested=S.requested.filter(x=>x!==v);if(!S.friends.includes(v))S.friends.push(v);save();if(['discover','com','profile'].includes(V.name))render();toast(`${PEOPLE[v].name} a accepté (simulation).`)},2000)},
+ chat:v=>go('chat',v),
+ 'chat-new':v=>{if(!S.convos.find(c=>c.id===v)){S.convos.unshift({id:v,msgs:[{f:'them',x:'Salut ! Ravi·e de te rencontrer sur PULSE.'}]});save()}go('chat',v)},
+ tr:v=>{const [id,i]=v.split(':');S.convos.find(c=>c.id===id).msgs[+i].showTr=1;save();render()},
+ 'voice-note':v=>{S.convos.find(c=>c.id===v).msgs.push({f:'me',voice:'0:07',demo:1});save();render();window.scrollTo(0,document.body.scrollHeight);toast('Note vocale de démo ajoutée (aucun son enregistré).')},
+ 'user-menu':v=>sheet(`<h2>${esc(person(v).name)}</h2><button class="opt" data-a="report" data-v="${v}"><span class="ic-b">${ic('flag')}</span><b>Signaler</b></button><button class="opt" data-a="block" data-v="${v}"><span class="ic-b">${ic('x')}</span><span><b>Bloquer</b><br><span class="small muted">Cette personne ne pourra plus te contacter ni t’inviter.</span></span></button>`),
+ block:v=>{S.blocked.push(v);S.friends=S.friends.filter(x=>x!==v);save();closeSheet();toast(`${person(v).name} est bloqué·e.`);HIST=[];V={name:'messages'};render(true)},
+ unblock:v=>{S.blocked=S.blocked.filter(x=>x!==v);save();render()},
+ skin:v=>{S.skin=v;save();render()},
+ calm:()=>{S.calm=S.calm?0:1;save();render()},
+ 'show-age':()=>{S.me.showAge=S.me.showAge?0:1;save();render()},
+ 'n-rooms':()=>{S.notif.rooms^=1;save();render()},'n-msgs':()=>{S.notif.msgs^=1;save();render()},'n-acts':()=>{S.notif.acts^=1;save();render()},
+ 'edit-profile':()=>sheet(`<h2>Modifier le profil</h2><div class="field"><label for="p-bio">Bio</label><textarea class="inp" id="p-bio" maxlength="160" placeholder="Ce qui te fait vibrer…">${esc(S.me.bio)}</textarea></div><div class="field"><label>Langues parlées</label><div class="row wrap">${LANGS.map(([c])=>{const C=c.toUpperCase();return `<button class="chip ${S.me.langs.includes(C)?'on':''}" data-a="p-lang" data-v="${C}">${C}</button>`}).join('')}</div></div><button class="btn btn-p" data-a="p-save">Enregistrer</button>`),
+ 'p-lang':(v,el)=>{const L=S.me.langs;if(L.includes(v)&&L.length===1)return;S.me.langs=L.includes(v)?L.filter(x=>x!==v):[...L,v];el.classList.toggle('on');save()},
+ 'p-save':()=>{S.me.bio=document.getElementById('p-bio').value.trim();save();closeSheet();render()},
+ 'c-vis':v=>{document.getElementById('vis-pub').classList.toggle('on',v==='pub');document.getElementById('vis-priv').classList.toggle('on',v==='priv')},
+ 'c-submit':()=>{const ti=document.getElementById('c-title').value.trim();if(ti.length<3){document.getElementById('c-err').textContent='Donne un nom d’au moins 3 caractères à ton salon.';return}
+  const r={id:'u'+Date.now(),com:document.getElementById('c-com').value,title:ti,langs:[document.getElementById('c-lang').value],live:1,host:'me',speakers:[],listeners:0,private:document.getElementById('vis-priv').classList.contains('on')};
+  S.created.unshift(r);save();R={id:r.id,role:'host',muted:true,hand:false};V=HIST.pop()||{name:'home'};go('room',r.id);toast('Salon ouvert. Ton micro est coupé.')},
+ reset:()=>sheet(`<h2>Tout effacer ?</h2><p class="muted">Ton profil, ton avatar et tes salons de démonstration seront supprimés de cet appareil.</p><button class="btn btn-p" data-a="reset-ok" style="background:var(--live)">Effacer et se déconnecter</button><button class="btn btn-g" data-a="close">Annuler</button>`),
+ 'reset-ok':()=>{try{localStorage.removeItem(KEY)}catch(e){}S=DEF();R=null;HIST=[];V={name:'welcome'};closeSheet();render(true)}
+};
+document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!el)return;if(el.disabled)return;const f=ACT[el.dataset.a];if(f){e.preventDefault();f(el.dataset.v,el,e)}});
+document.addEventListener('input',e=>{
+ if(e.target.id==='disc-q'){UI.disc=e.target.value;document.getElementById('disc-res').innerHTML=discResults()}
+ if(e.target.id==='msg-q'){UI.msgQ=e.target.value;const pos=e.target.selectionStart;render();const i=document.getElementById('msg-q');i.focus();i.setSelectionRange(pos,pos)}
+});
+document.addEventListener('change',e=>{
+ if(e.target.id==='ui-lang'||e.target.id==='ui-lang2'){S.ui=e.target.value;save();render()}
+ if(e.target.id==='dm'){S.me.dm=e.target.value;save()}
+});
+document.addEventListener('submit',e=>{if(e.target.id!=='composer')return;e.preventDefault();const i=document.getElementById('msg-in');const x=i.value.trim();if(!x)return;S.convos.find(c=>c.id===V.p).msgs.push({f:'me',x});save();render();window.scrollTo(0,document.body.scrollHeight);document.getElementById('msg-in').focus()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet()});
+
+/* ---------- Étoiles ---------- */
+(function(){const c=document.getElementById('stars'),x=c.getContext('2d');function draw(){const d=Math.min(devicePixelRatio||1,2);c.width=innerWidth*d;c.height=innerHeight*d;c.style.width=innerWidth+'px';c.style.height=innerHeight+'px';x.scale(d,d);let s=7;const rnd=()=>(s=(s*16807)%2147483647)/2147483647;for(let i=0;i<Math.round(innerWidth*innerHeight/2600);i++){x.globalAlpha=.25+rnd()*.6;x.fillStyle=rnd()>.85?'#E9D5FF':'#fff';x.beginPath();x.arc(rnd()*innerWidth,rnd()*innerHeight,rnd()*1.2+.2,0,7);x.fill()}}draw();addEventListener('resize',draw)})();
+
+render(true);
+})();
+</script>
