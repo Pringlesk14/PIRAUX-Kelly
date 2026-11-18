@@ -45,6 +45,12 @@ Réglages → « Se déconnecter et effacer ce prototype » remet tout à zéro.
 - Réglage « Apparaître en ligne pour les autres testeurs » pour se rendre invisible.
 - Construire le site anonyme : `python3 tools/build_site.py <dossier>` produit `pulse-site/` et `pulse-site.zip`.
 
+## PULSE+ (offre payante, achat simulé)
+
+- 4,99 € par mois, sans engagement. Comprend : appels vidéo (vrais appels vidéo entre testeurs sur le site), rencontres surprises illimitées (5 par jour en gratuit), choix de la langue des rencontres surprises, filtres de découverte avancés (pays, langue, âge), accessoires exclusifs (couronne, ailes, auréole), aura éclatante, thème « Portail », badge PULSE+, visites du profil (exemples).
+- Toujours gratuit : salons, appels vocaux, messages, vocaux, talkie-walkie, jeux.
+- Dans la démo, « Passer à PULSE+ » active l'offre sans paiement ; « Résilier » la désactive (Réglages → Mon abonnement). Le vrai paiement demandera App Store / Google Play et un prestataire comme Stripe.
+
 ## Persos 3D
 
 - 9 persos 3D fournis par Kelly (Amani, Maya, Jade, Inaya, Lina, Kenzo, Rayan, Kai, Noah), recadrés dans `assets/persos/`, à choisir dans l'éditeur d'avatar (onglet Forme), en plus de « Crée le tien ».

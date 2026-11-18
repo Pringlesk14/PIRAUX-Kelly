@@ -396,6 +396,9 @@ body.in-call .scr{padding-top:76px}
 .code-big{font-size:38px;font-weight:800;letter-spacing:8px;text-align:center;font-variant-numeric:tabular-nums;text-shadow:0 0 18px var(--electric)}
 .vnote{display:flex;align-items:center;gap:8px}.vnote audio{height:34px;max-width:200px}
 .hold{touch-action:none;-webkit-user-select:none;user-select:none}
+#video-layer{position:fixed;left:50%;transform:translateX(-50%);top:calc(64px + env(safe-area-inset-top,0px));width:min(calc(100% - 24px),416px);height:min(52vh,460px);border-radius:24px;overflow:hidden;background:#000;z-index:30;border:1px solid var(--line);box-shadow:0 10px 40px rgba(0,0,0,.6)}
+#rv{width:100%;height:100%;object-fit:cover}#lv{position:absolute;right:10px;bottom:10px;width:30%;aspect-ratio:3/4;border-radius:14px;border:2px solid #fff;object-fit:cover;background:#111}
+.plus-lock{position:relative}.plus-lock::after{content:"PULSE+";position:absolute;top:6px;right:6px;font-size:9px;font-weight:800;padding:2px 6px;border-radius:99px;background:linear-gradient(90deg,var(--warn),var(--accent));color:#1a0b2e}
 .quick{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .quick .com-tile .big{width:48px;height:48px}
 .quick .com-tile .big .ico{width:24px;height:24px}
@@ -406,7 +409,7 @@ body.in-call .scr{padding-top:76px}
 <canvas id="stars" aria-hidden="true"></canvas>
 <div id="app"></div>
 <div id="layer"></div>
-<audio id="remote-audio" autoplay playsinline></audio><audio id="tw-audio" autoplay playsinline></audio><div id="room-audio" hidden></div>
+<audio id="remote-audio" autoplay playsinline></audio><audio id="tw-audio" autoplay playsinline></audio><div id="room-audio" hidden></div><div id="video-layer" hidden><video id="rv" autoplay playsinline muted></video><video id="lv" autoplay playsinline muted></video></div>
 
 <script>
 (function(){
@@ -521,15 +524,15 @@ const ACC=[
  {id:'micro',slot:'hand',name:'Micro',vb:'118 106 76 84'},
  {id:'manette',slot:'hand',name:'Manette',vb:'58 150 84 56'},
  {id:'casque',slot:'head',name:'Casque audio',vb:'40 28 120 90'},
- {id:'couronne',slot:'head',name:'Couronne',vb:'60 8 80 46'},
+ {id:'couronne',slot:'head',name:'Couronne',vb:'60 8 80 46',plus:1},
  {id:'chapeau',slot:'head',name:'Chapeau',vb:'42 4 116 62'},
  {id:'bonnet',slot:'head',name:'Bonnet',vb:'52 6 96 66'},
  {id:'lunettes',slot:'face',name:'Lunettes',vb:'66 62 68 40'},
- {id:'ailes',slot:'back',name:'Ailes',vb:'2 40 196 120'},
+ {id:'ailes',slot:'back',name:'Ailes',vb:'2 40 196 120',plus:1},
  {id:'papillon',slot:'extra',name:'Papillon',vb:'128 38 46 46'},
  {id:'casquette',slot:'head',name:'Casquette',vb:'52 18 104 62'},
  {id:'chat',slot:'head',name:'Oreilles de chat',vb:'56 12 88 56'},
- {id:'aureole',slot:'head',name:'Auréole',vb:'60 4 80 40'},
+ {id:'aureole',slot:'head',name:'Auréole',vb:'60 4 80 40',plus:1},
  {id:'noeud',slot:'neck',name:'Nœud papillon',vb:'74 120 52 42'},
  {id:'collier',slot:'neck',name:'Collier',vb:'72 124 56 44'},
  {id:'echarpe',slot:'neck',name:'Écharpe',vb:'60 122 80 66'},
@@ -951,22 +954,22 @@ function envBanner(){const k=envIssue();return k?`<div class="demo-note" style="
 let AUNL=false;
 function unlockAudio(){if(AUNL)return;AUNL=true;try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume()}catch(e){}}
 document.addEventListener('pointerdown',unlockAudio,true);
-function playStream(a,rs){a.srcObject=rs;a.muted=false;a.volume=1;const pr=a.play();if(pr)pr.catch(()=>{sheet(`<h2>Activer le son</h2><p class="muted">Ton téléphone attend ton accord pour diffuser la voix de ton ami.</p><button class="btn btn-p" data-a="audio-on">${ic('speaker')} Activer le son</button>`)})}
+function playStream(a,rs){if(a.srcObject!==rs)a.srcObject=rs;a.muted=false;a.volume=1;const pr=a.play();if(pr)pr.catch(err=>{if(!err||err.name!=='NotAllowedError')return;sheet(`<h2>Activer le son</h2><p class="muted">Ton téléphone attend ton accord pour diffuser la voix de ton ami.</p><button class="btn btn-p" data-a="audio-on">${ic('speaker')} Activer le son</button>`)})}
 function diagHTML(r){const L=(ok,t,fix)=>`<div class="list-item" style="align-items:flex-start"><span style="font-size:18px">${ok===true?'✅':ok===false?'❌':'⏳'}</span><div class="grow"><b>${t}</b>${fix?`<div class="small muted">${fix}</div>`:''}</div></div>`;
  return `${L(!r.env,'Navigateur',r.env?ENVMSG[r.env]:'')}${L(r.mic,'Micro autorisé',r.mic===false?esc(r.err):'')}${L(r.lvl,'Ta voix est captée',r.lvl===false?'La barre n’a pas bougé : vérifie que le micro n’est pas couvert ou utilisé par une autre appli.':'')}${L(r.rec,'Enregistrement des vocaux',r.rec===false?'Mets à jour Chrome ou Safari.':'')}${L(r.net,'Connexion au service',r.net===false?'Recharge la page. Si ça persiste, change de réseau (Wi-Fi).':'')}`}
 async function getMic(){if(LIVE.stream&&LIVE.stream.active)return LIVE.stream;LIVE.stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});return LIVE.stream}
 function micRelease(){if((typeof MATCH!=='undefined'&&MATCH&&MATCH.call)||LIVE.call||LIVE.tw||LIVE.rec||Object.keys(LIVE.roomCalls||{}).length)return;if(LIVE.stream){LIVE.stream.getTracks().forEach(t=>t.stop());LIVE.stream=null}}
-async function liveCall(code){if(LIVE.call)return toast('Tu es déjà en appel.');if(!lOnline(code))return toast(`${lName(code)} n’a pas la démo ouverte en ce moment.`);
- try{const s2=await getMic();s2.getAudioTracks().forEach(t=>t.enabled=true);const call=LIVE.peer.call(pid(code),s2,{metadata:{kind:'call'}});LIVE.call={call,code,st:'ring',t0:Date.now(),muted:false};wireCall(call);go('lcall')}catch(e){toast(micErr(e))}}
+async function liveCall(code,video){if(video&&needPlus('L’appel vidéo fait partie de PULSE+.'))return;if(LIVE.call)return toast('Tu es déjà en appel.');if(!lOnline(code))return toast(`${lName(code)} n’a pas la démo ouverte en ce moment.`);
+ try{const s2=video?await getCam():await getMic();s2.getAudioTracks().forEach(t=>t.enabled=true);const call=LIVE.peer.call(pid(code),s2,{metadata:{kind:'call',video:!!video}});LIVE.call={call,code,st:'ring',t0:Date.now(),muted:false,video:!!video};wireCall(call);go('lcall')}catch(e){toast(micErr(e))}}
 function watchIce(call){const chk=()=>{const pc=call.peerConnection;if(!pc)return setTimeout(chk,300);pc.addEventListener('iceconnectionstatechange',()=>{if(pc.iceConnectionState==='failed'){if(LIVE.call&&LIVE.call.call===call){LIVE.call.noAudio=1;reLive()}toast('Le son ne passe pas sur ce réseau. Essayez tous les deux en Wi-Fi.')}})};chk()}
-function wireCall(call){watchIce(call);setTimeout(()=>{if(LIVE.call&&LIVE.call.call===call&&LIVE.call.st!=='on'&&LIVE.call.answered){LIVE.call.noAudio=1;reLive()}},12000);call.on('error',e=>toast('Appel : '+((e&&e.type)||'erreur')));call.on('stream',rs=>{const a=document.getElementById('remote-audio');playStream(a,rs);if(LIVE.call&&LIVE.call.call===call&&LIVE.call.st!=='on'){LIVE.call.st='on';LIVE.call.t0=Date.now();reLive()}});
- call.on('close',()=>{if(LIVE.call&&LIVE.call.call===call){LIVE.call=null;micRelease();toast('Appel terminé');if(V.name==='lcall')back();else reLive()}});call.on('error',()=>{})}
+function wireCall(call){watchIce(call);call.on('stream',rs=>{if(rs.getVideoTracks().length){const rv=document.getElementById('rv');rv.srcObject=rs;rv.play().catch(()=>{});if(LIVE.call&&LIVE.call.call===call){LIVE.call.video=true;reLive()}}});setTimeout(()=>{if(LIVE.call&&LIVE.call.call===call&&LIVE.call.st!=='on'&&LIVE.call.answered){LIVE.call.noAudio=1;reLive()}},12000);call.on('error',e=>toast('Appel : '+((e&&e.type)||'erreur')));call.on('stream',rs=>{const a=document.getElementById('remote-audio');playStream(a,rs);if(LIVE.call&&LIVE.call.call===call&&LIVE.call.st!=='on'){LIVE.call.st='on';LIVE.call.t0=Date.now();reLive()}});
+ call.on('close',()=>{if(LIVE.call&&LIVE.call.call===call){LIVE.call=null;camStop();micRelease();toast('Appel terminé');if(V.name==='lcall')back();else reLive()}});call.on('error',()=>{})}
 function liveIncoming(call){const code=codeOf(call);const kind=call.metadata&&call.metadata.kind;
  if(kind==='match'){if(!MATCH||MATCH.with!==code||MATCH.st!=='call'){call.close();return}getMic().then(s2=>{s2.getAudioTracks().forEach(t=>t.enabled=true);call.answer(s2);matchWire(call)}).catch(e=>{toast(micErr(e));call.close()});return}
  if(kind==='room'){const rid=call.metadata&&call.metadata.room;if(!R||R.id!==rid){call.close();return}call.answer();LIVE.roomIn[code]=call;call.on('stream',rs=>roomAudio(code,rs));call.on('close',()=>{if(LIVE.roomIn[code]===call)delete LIVE.roomIn[code];const a=document.getElementById('ra-'+code);if(a)a.remove()});return}
  if(kind==='talkie'){if(S.dnd||!lContact(code)){call.close();return}call.answer();call.on('stream',rs=>{const a=document.getElementById('tw-audio');playStream(a,rs)});toast(`Talkie-walkie ouvert avec ${lName(code)}`);return}
  if(LIVE.call||!lContact(code)){call.close();return}
- UI.inCall=call;sheet(`<div class="stack" style="align-items:center;text-align:center">${avatar(lContact(code).av,96)}<h2>${esc(lName(code))} t’appelle</h2><p class="small muted">Appel vocal réel</p></div><div class="row"><button class="btn btn-g" style="flex:1" data-a="lc-no">Refuser</button><button class="btn btn-p" style="flex:1" data-a="lc-yes">${ic('phone')} Répondre</button></div>`);
+ UI.inCall=call;sheet(`<div class="stack" style="align-items:center;text-align:center">${avatar(lContact(code).av,96)}<h2>${esc(lName(code))} t’appelle</h2><p class="small muted">${call.metadata&&call.metadata.video?'Appel vidéo':'Appel vocal réel'}</p></div><div class="row"><button class="btn btn-g" style="flex:1" data-a="lc-no">Refuser</button><button class="btn btn-p" style="flex:1" data-a="lc-yes">${ic('phone')} Répondre</button></div>`);
  call.on('close',()=>{if(UI.inCall===call){UI.inCall=null;closeSheet()}})}
 async function twStart(){const code=UI.ltw;if(!code||!lOnline(code)){toast(`${lName(code)} n’a pas la démo ouverte en ce moment.`);return false}
  try{const s2=await getMic();if(!LIVE.tw||LIVE.tw.code!==code){if(LIVE.tw)LIVE.tw.call.close();const call=LIVE.peer.call(pid(code),s2,{metadata:{kind:'talkie'}});LIVE.tw={code,call};call.on('close',()=>{if(LIVE.tw&&LIVE.tw.call===call){LIVE.tw=null;micRelease()}});call.on('stream',rs=>{const a=document.getElementById('tw-audio');playStream(a,rs)})}
@@ -983,10 +986,11 @@ function hubConnect(){if(!LIVE.peer||LIVE.st!=='on'||S.visible===0)return;if(LIV
 function becomeHub(){if(LIVE.hubPeer||S.visible===0)return;let h;try{h=new Peer(HUB,window.PULSE_PEER_OPTS||{})}catch(e){return}LIVE.hubPeer=h;const reg={},conns={};
  const bcast=()=>{clearTimeout(h._t);h._t=setTimeout(()=>{const list=Object.values(reg);Object.values(conns).forEach(c=>{try{if(c.open)c.send({t:'dir',list})}catch(e){}})},150)};
  h.on('connection',c=>{c.on('open',()=>{conns[c.peer]=c;bcast()});c.on('data',d=>{const code=codeOf(c);if(!code||!d)return;
-  if(d.t==='match-want'){h._q=(h._q||[]).filter(x=>x!==code&&conns[pid(x)]&&conns[pid(x)].open);const other=h._q.shift();if(other){try{conns[pid(other)].send({t:'match',with:code,init:true});c.send({t:'match',with:other,init:false})}catch(e){}}else h._q.push(code);return}
-  if(d.t==='match-cancel'){h._q=(h._q||[]).filter(x=>x!==code);return}
+  if(d.t==='match-want'){const me={code,langs:Array.isArray(d.langs)?d.langs.slice(0,6).map(String):[],pref:String(d.pref||'').slice(0,2)};h._q=(h._q||[]).filter(x=>x.code!==code&&conns[pid(x.code)]&&conns[pid(x.code)].open);
+   const ok=(a,b)=>!a.pref||b.langs.includes(a.pref);const i=h._q.findIndex(x=>ok(me,x)&&ok(x,me));if(i>=0){const other=h._q.splice(i,1)[0].code;try{conns[pid(other)].send({t:'match',with:code,init:true});c.send({t:'match',with:other,init:false})}catch(e){}}else h._q.push(me);return}
+  if(d.t==='match-cancel'){h._q=(h._q||[]).filter(x=>x.code!==code);return}
   if(['match-vote','match-reveal','match-end'].includes(d.t)&&/^\d{6}$/.test(d.to||'')){const to=conns[pid(d.to)];if(to&&to.open){try{to.send({t:d.t,from:code,v:d.v==='yes'?'yes':'no',n:String(d.n||'').slice(0,20),av:d.av})}catch(e){}}return}
-  if(d.t!=='reg')return;const prev=reg[code];reg[code]={code,n:d.n,h:d.h,av:d.av,room:d.room,mic:d.mic,at:Date.now()};if(!prev||JSON.stringify({...prev,at:0})!==JSON.stringify({...reg[code],at:0}))bcast()});c.on('close',()=>{delete conns[c.peer];delete reg[codeOf(c)];h._q=(h._q||[]).filter(x=>x!==codeOf(c));bcast()});c.on('error',()=>{})});
+  if(d.t!=='reg')return;const prev=reg[code];reg[code]={code,n:d.n,h:d.h,av:d.av,room:d.room,mic:d.mic,at:Date.now()};if(!prev||JSON.stringify({...prev,at:0})!==JSON.stringify({...reg[code],at:0}))bcast()});c.on('close',()=>{delete conns[c.peer];delete reg[codeOf(c)];h._q=(h._q||[]).filter(x=>x.code!==codeOf(c));bcast()});c.on('error',()=>{})});
  h._purge=setInterval(()=>{const now=Date.now();let ch=false;for(const k in reg)if(now-(reg[k].at||0)>20000){delete reg[k];ch=true}const list=Object.values(reg);Object.values(conns).forEach(c=>{try{if(c.open)c.send({t:'dir',list})}catch(e){}})},5000);
  h.on('open',()=>{LIVE.hubConn=null;LIVE.hubTry=0;setTimeout(hubConnect,250)});
  h.on('error',e=>{if(e.type==='unavailable-id'){try{h.destroy()}catch(_){}LIVE.hubPeer=null;LIVE.hubConn=null;LIVE.hubTry=0;setTimeout(hubConnect,400)}});
@@ -1014,7 +1018,7 @@ function sfx(kind){try{AC=AC||new (window.AudioContext||window.webkitAudioContex
  notes.forEach(([f,t0])=>{const o=AC.createOscillator(),g=AC.createGain();o.type=kind==='yes'?'sine':'triangle';o.frequency.value=f;const t=AC.currentTime+t0;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.25,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+(kind==='yes'?.35:.5));o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+.6)})}catch(e){}window.__lastSfx=kind}
 const hubSend=o=>{const c=LIVE&&LIVE.hubConn;if(c&&c.open){try{c.send(o)}catch(e){}return true}return false};
 function matchStart(){MATCH={st:'search',t0:Date.now(),sim:!liveOK()};if(MATCH.sim){setTimeout(()=>{if(MATCH&&MATCH.st==='search'){const ks=Object.keys(PEOPLE);MATCH={...MATCH,st:'call',with:ks[Math.floor(Math.random()*ks.length)],t0:Date.now(),audio:true};if(V.name==='match')render();speak('Salut ! Je suis tombé sur toi par hasard. Tu fais quoi de beau ce soir ?','x',true)}},2200);return}
- if(!hubSend({t:'match-want'})){toast('Connexion au service en cours, réessaie dans quelques secondes.');MATCH=null}}
+ if(!hubSend({t:'match-want',langs:S.me.langs,pref:S.plus?(S.matchLang||''):''})){toast('Connexion au service en cours, réessaie dans quelques secondes.');MATCH=null}}
 async function matchMsg(d){if(d.t==='match'){if(!MATCH||MATCH.st!=='search')return hubSend({t:'match-end',to:d.with});MATCH={st:'call',with:d.with,t0:Date.now(),audio:false};if(V.name==='match')render();else go('match');
   if(d.init){try{const s2=await getMic();s2.getAudioTracks().forEach(t=>t.enabled=true);const call=LIVE.peer.call(pid(d.with),s2,{metadata:{kind:'match'}});matchWire(call)}catch(e){toast(micErr(e))}}return}
  if(!MATCH||d.from!==MATCH.with)return;
@@ -1024,6 +1028,21 @@ async function matchMsg(d){if(d.t==='match'){if(!MATCH||MATCH.st!=='search')retu
 function matchWire(call){MATCH.call=call;watchIce(call);call.on('stream',rs=>{playStream(document.getElementById('remote-audio'),rs);if(MATCH&&MATCH.call===call){MATCH.audio=true;if(V.name==='match')render()}});call.on('close',()=>{if(MATCH&&MATCH.call===call&&MATCH.st==='call'){matchStop(false)}});call.on('error',()=>{})}
 function matchReveal(){if(MATCH.sim){const p=PEOPLE[MATCH.with];MATCH.reveal={n:p.name,av:p.av,code:null};return}hubSend({t:'match-reveal',to:MATCH.with,n:S.me.name||'Testeur',av:S.av})}
 function matchStop(notify){if(!MATCH)return;if(MATCH.st==='search'&&!MATCH.sim)hubSend({t:'match-cancel'});if(notify&&MATCH.with&&!MATCH.sim)hubSend({t:'match-end',to:MATCH.with});const c=MATCH.call;MATCH={...MATCH,st:'ended',call:null};if(c){try{c.close()}catch(e){}}micRelease();if(V.name==='match')render()}
+/* PULSE+ : offre payante (achat simulé dans la démo) */
+const PLUS_PRICE='4,99 € / mois';
+const PLUS_FEATS=['Appels vidéo avec tes amis','Rencontres surprises illimitées (5 par jour en gratuit)','Choisir la langue de tes rencontres surprises','Filtres de découverte avancés : pays, âge, langue','Accessoires exclusifs : couronne, ailes, auréole','Aura éclatante et thème « Portail » pour ton profil','Badge PULSE+ sur ton profil','Voir qui a visité ton profil'];
+function paywall(why){sheet(`<div class="row"><span style="width:52px;height:52px;border-radius:16px;display:grid;place-items:center;color:#FFC93C;background:rgba(255,201,60,.15)">${ic('crown')}</span><div><h2>PULSE+</h2><div class="small muted">${PLUS_PRICE} · sans engagement</div></div></div>
+ ${why?`<p>${esc(why)}</p>`:''}
+ <div class="stack" style="gap:8px">${PLUS_FEATS.map(f=>`<div class="row" style="gap:10px;align-items:flex-start"><span style="color:var(--ok)">${ic('check')}</span><span>${f}</span></div>`).join('')}</div>
+ <p class="small muted">Toujours gratuit : salons, appels vocaux, messages, vocaux, talkie-walkie, jeux, rencontres surprises (5 par jour).</p>
+ ${S.plus?`<p style="color:var(--ok);font-weight:700">${ic('check')} Tu es membre PULSE+</p><button class="btn btn-g" data-a="plus-off">Résilier mon abonnement (démo)</button>`:`<button class="btn btn-p" data-a="plus-on">${ic('crown')} Passer à PULSE+ · ${PLUS_PRICE}</button><p class="small muted" style="text-align:center">Démo : aucun paiement n’est demandé. Dans l’appli, le paiement passera par l’App Store, Google Play ou la carte bancaire, résiliable à tout moment.</p>`}`)}
+const needPlus=why=>{if(S.plus)return false;paywall(why);return true};
+async function getCam(){if(LIVE.cam&&LIVE.cam.active)return LIVE.cam;LIVE.cam=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true},video:{facingMode:'user',width:{ideal:640},height:{ideal:480}}});const lv=document.getElementById('lv');lv.srcObject=LIVE.cam;lv.play().catch(()=>{});return LIVE.cam}
+function camStop(){if(LIVE.cam){LIVE.cam.getTracks().forEach(t=>t.stop());LIVE.cam=null}['rv','lv'].forEach(id=>{const v=document.getElementById(id);if(v)v.srcObject=null})}
+const camErr=e=>e&&e.name==='NotAllowedError'?'Caméra refusée. Touche le cadenas à gauche de l’adresse, puis Autorisations, puis Caméra : Autoriser.':micErr(e);
+const advOK=pid=>{const a=UI.adv;if(!a)return true;const p=PEOPLE[pid];if(!p)return true;if(a.country&&p.country!==a.country)return false;if(a.lang&&!p.langs.includes(a.lang))return false;if(a.amin&&p.age<a.amin)return false;if(a.amax&&p.age>a.amax)return false;return true};
+const VISITS=['lea','marco','sofia','malik'];
+function mdayCount(){if(!S.mday||S.mday.d!==today())S.mday={d:today(),n:0};return S.mday.n}
 /* enregistreur de vocaux */
 async function recStart(max,onDone){try{const s2=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});const mime=['audio/mp4','audio/webm;codecs=opus','audio/webm'].find(m=>window.MediaRecorder&&MediaRecorder.isTypeSupported(m))||'';const r=new MediaRecorder(s2,mime?{mimeType:mime}:{});const parts=[];const t0=Date.now();
  r.ondataavailable=e=>{if(e.data&&e.data.size)parts.push(e.data)};r.onstop=()=>{LIVE.rec=null;s2.getTracks().forEach(t=>t.stop());micRelease();const b=new Blob(parts,{type:r.mimeType||mime||'audio/webm'});onDone(b,Math.max(1,Math.round((Date.now()-t0)/1000)))};
@@ -1038,7 +1057,8 @@ const app=document.getElementById('app'), layer=document.getElementById('layer')
 function go(name,p,push=true){if(push)HIST.push(V);V={name,p};closeSheet();render(true)}
 function back(){V=HIST.pop()||{name:'home'};render(true)}
 function render(top){
- document.documentElement.dataset.skin=S.skin;document.documentElement.dataset.calm=S.calm?'1':'0';document.documentElement.lang=S.ui;document.body.classList.toggle('in-call',(!!CALL&&V.name!=='call'&&!CALL.bubble&&V.name!=='watch')||(typeof LIVE!=='undefined'&&!!LIVE.call&&V.name!=='lcall'));document.body.classList.toggle('has-room',!!R);
+ document.documentElement.dataset.skin=S.skin;document.documentElement.dataset.calm=S.calm?'1':'0';document.documentElement.lang=S.ui;const vl=document.getElementById('video-layer');if(vl)vl.hidden=!(typeof LIVE!=='undefined'&&LIVE.call&&LIVE.call.video&&V.name==='lcall');
+ document.body.classList.toggle('in-call',(!!CALL&&V.name!=='call'&&!CALL.bubble&&V.name!=='watch')||(typeof LIVE!=='undefined'&&!!LIVE.call&&V.name!=='lcall'));document.body.classList.toggle('has-room',!!R);
  const fn=VIEWS[V.name]||VIEWS.home;
  try{app.innerHTML=fn(V.p)}catch(err){
   app.innerHTML=`<div class="scr no-nav" style="padding-top:60px"><div class="stack" style="align-items:center;text-align:center;gap:14px">${logo(30)}<h2>Oups, cet écran n’a pas pu s’afficher</h2><p class="muted small">Ce sont sûrement des données gardées d’une ancienne version de la démo.</p><button class="btn btn-p" data-a="go-home">Revenir à l’accueil</button><button class="btn btn-g" data-a="reset-ok">Réinitialiser la démo</button><p class="small muted" style="overflow-wrap:anywhere">${esc(err&&err.message)}</p></div></div>`;
@@ -1169,6 +1189,7 @@ discover:()=>`<div class="scr">
  <div class="stack" style="gap:6px"><div class="top"><h1>${t('discover')}</h1><button class="icon-btn" data-a="go" data-v="create" aria-label="${t('create')}">${ic('plus')}</button></div><p class="muted">Explore les univers qui te ressemblent.</p></div>
  <label class="search">${ic('search')}<input id="disc-q" type="search" placeholder="${t('search')}" value="${esc(UI.disc)}" aria-label="Rechercher"></label>
  <div class="chips" role="group" aria-label="Filtres">
+  <button class="chip ${UI.adv?'on':''}" data-a="adv">${ic('sparkle')} Filtres avancés${S.plus?'':' · PULSE+'}</button>
   <button class="chip ${UI.discLive?'on':''}" data-a="disc-live">${t('live')}</button>
   ${['FR','EN','ES','IT','DE','PT'].map(l=>`<button class="chip ${UI.discLang===l?'on':''}" data-a="disc-lang" data-v="${l}">${l}</button>`).join('')}
  </div>
@@ -1397,13 +1418,13 @@ live:()=>{if(!liveOK())return `<div class="scr">${topBar('Tester en vrai')}<div 
 
 lchat:(code)=>{const c=lContact(code);if(!c)return VIEWS.live();const L=(S.lmsgs&&S.lmsgs[code])||[];
  return `<div class="scr" style="padding-bottom:110px">
- <div class="top"><button class="back" data-a="back" aria-label="Retour">${ic('back')}</button><div class="row" style="flex:1;min-width:0">${avatar(c.av,40)}<div style="min-width:0"><div style="font-weight:800">${esc(c.n)}</div><span class="small" style="color:${lOnline(code)?'var(--ok)':'var(--muted)'}">● ${lOnline(code)?'En ligne':'Hors ligne'}</span></div></div><button class="icon-btn" data-a="ltw" data-v="${code}" aria-label="Talkie-walkie">${ic('speaker')}</button><button class="icon-btn" data-a="lcall" data-v="${code}" aria-label="Appeler">${ic('phone')}</button></div>
+ <div class="top"><button class="back" data-a="back" aria-label="Retour">${ic('back')}</button><div class="row" style="flex:1;min-width:0">${avatar(c.av,40)}<div style="min-width:0"><div style="font-weight:800">${esc(c.n)}</div><span class="small" style="color:${lOnline(code)?'var(--ok)':'var(--muted)'}">● ${lOnline(code)?'En ligne':'Hors ligne'}</span></div></div><button class="icon-btn ${S.plus?'':'plus-lock'}" data-a="lvideo" data-v="${code}" aria-label="Appel vidéo (PULSE+)">${ic('tv')}</button><button class="icon-btn" data-a="ltw" data-v="${code}" aria-label="Talkie-walkie">${ic('speaker')}</button><button class="icon-btn" data-a="lcall" data-v="${code}" aria-label="Appeler">${ic('phone')}</button></div>
  ${envBanner()}
  <div class="bubbles">${L.map(m=>`<div class="bub ${m.f}">${m.v?(LIVE.voices[m.v]?`<span class="vnote">${ic('mic')}<audio controls preload="metadata" src="${LIVE.voices[m.v]}"></audio><span class="small">${m.d}s</span></span>`:`<span class="small">Vocal (${m.d}s) · disponible tant que la page reste ouverte</span>`):esc(m.x)}${m.pend?'<span class="small" style="display:block;opacity:.7">en attente de connexion</span>':''}</div>`).join('')||'<p class="small muted" style="text-align:center">Écris le premier message, ou touche le micro pour enregistrer un vocal, puis touche à nouveau pour l’envoyer.</p>'}</div></div>
  <form class="composer" id="lcomposer"><button type="button" class="icon-btn" id="lrec2" data-a="lrec" aria-label="${LIVE.rec?'Arrêter et envoyer le vocal':'Enregistrer un vocal'}" style="${LIVE.rec?'background:var(--live);border-color:var(--live)':''}">${ic(LIVE.rec?'send':'mic')}</button><input id="lmsg-in" placeholder="${LIVE.rec?'🔴 Enregistrement… touche le bouton rouge pour envoyer':'Message…'}" autocomplete="off" aria-label="Message"><button class="icon-btn" type="submit" aria-label="Envoyer" style="background:linear-gradient(135deg,var(--primary),var(--accent))">${ic('send')}</button></form>`},
 
 lcall:()=>{const L=LIVE.call;if(!L)return VIEWS.live();const c=lContact(L.code)||{n:'Ami',av:S.av};const tt=Math.floor((Date.now()-L.t0)/1000);
- return `<div class="scr" style="gap:18px">${topBar('Appel réel')}
+ return `<div class="scr" style="gap:18px">${topBar(L.video?'Appel vidéo':'Appel réel')}${L.video?'<div style="height:min(52vh,460px)"></div>':''}
  <div class="stack" style="align-items:center;text-align:center;gap:10px"><div class="duo-face"><div class="seat"><div class="av ${!L.muted&&L.st==='on'?'speaking':''}">${avatar(S.av,96)}</div><span>Toi</span></div>${ic('phone')}<div class="seat"><div class="av ${L.st==='on'?'speaking':''}">${avatar(c.av,96)}</div><span>${esc(c.n)}</span></div></div>
   <div class="timer" id="lcall-t">${L.st==='on'?Math.floor(tt/60)+':'+String(tt%60).padStart(2,'0'):'Ça sonne…'}</div><span class="st ${L.st==='on'?'on':'soon'}">${L.st==='on'?'En appel, en vrai':'En attente de réponse'}</span></div>
  ${envBanner()}
@@ -1427,7 +1448,9 @@ ltalkie:()=>{const code=UI.ltw;const c=lContact(code);if(!c)return VIEWS.live();
 match:()=>{const M=MATCH;
  if(!M||M.st==='ended')return `<div class="scr">${topBar('Rencontre surprise')}
   <div class="stack" style="align-items:center;text-align:center;gap:14px;padding-top:20px"><div class="mic" style="width:120px;height:120px;font-size:52px">?</div><h2>${M?'Conversation terminée':'Tombe sur quelqu’un, au hasard'}</h2><p class="muted small" style="max-width:32ch">Un tête-à-tête vocal avec une personne en ligne. Vous ne savez pas qui est l’autre. Si vous voulez tous les deux rester, vos profils se dévoilent.</p>
-  <button class="btn btn-p" data-a="match-start">${ic('sparkle')} ${M?'Nouvelle rencontre':'Lancer une rencontre'}</button></div>
+  <button class="btn btn-p" data-a="match-start">${ic('sparkle')} ${M?'Nouvelle rencontre':'Lancer une rencontre'}</button>
+  <span class="small muted">${S.plus?'Rencontres illimitées avec PULSE+':`${Math.max(0,5-mdayCount())} rencontre(s) gratuite(s) restante(s) aujourd’hui`}</span>
+  <div class="row" style="gap:8px;justify-content:center"><span class="small">Langue de la personne :</span>${S.plus?`<select class="chip" id="match-lang"><option value="">Peu importe</option>${LANGS.map(([c,n])=>`<option value="${c.toUpperCase()}" ${S.matchLang===c.toUpperCase()?'selected':''}>${n}</option>`).join('')}</select>`:`<button class="chip" data-a="plus-open">Choisir · PULSE+</button>`}</div></div>
   ${M&&M.reveal?`<div class="card row">${avatar(M.reveal.av,48)}<div class="grow"><b>${esc(M.reveal.n)}</b><div class="small muted">Votre dernière rencontre</div></div>${M.reveal.code&&!lContact(M.reveal.code)?`<button class="btn btn-p btn-sm" data-a="match-add">${ic('userplus')} Ajouter</button>`:''}</div>`:''}
   <div class="card small muted">Pour partir pendant une rencontre, touche <b>2 fois</b> le bouton PULSE. 18 ans et plus. Tu peux signaler à tout moment.</div>${nav('')}</div>`;
  if(M.st==='search')return `<div class="scr">${topBar('Rencontre surprise')}<div class="stack" style="align-items:center;text-align:center;gap:14px;padding-top:30px"><div class="mic hot" style="width:120px;height:120px">${ic('sparkle')}</div><h2>On cherche quelqu’un…</h2><p class="muted small">${M.sim?'Démo : un membre simulé va répondre.':(dirList().length?dirList().length+' testeur(s) en ligne. Il faut qu’une autre personne lance aussi une rencontre.':'Personne d’autre en ligne pour l’instant. Garde cette page ouverte.')}</p><button class="btn btn-g" data-a="match-cancel">Annuler</button></div>${nav('')}</div>`;
@@ -1523,9 +1546,13 @@ profile:()=>{const a=ageOf(S.me.birth);const lvl=level();const UNIV=[['planete',
   <p style="margin-top:6px">${esc(bio)}</p></div>
  <div class="card row between"><div class="row">${glyph(cat('musique'),'mic')}<div><div style="font-weight:700">Ma voix en 15 secondes</div><div class="small muted">${S.me.voice?'C’est elle qu’on découvre avant ta photo.':'Présente-toi : on découvre ta voix avant ton avatar.'}</div></div></div>${S.me.voice?`<button class="chip" data-a="play" data-v="me">${ic('play')} 0:15</button>`:`<button class="btn btn-p btn-sm" data-a="rec" data-v="voice">${ic('mic')} Enregistrer</button>`}</div>
  <div class="row wrap" style="gap:8px">${ints.map(i=>`<span class="chip">${cat(i).name}</span>`).join('')}${S.interests.length>3?`<span class="chip">+${S.interests.length-3}</span>`:''}<button class="chip" data-a="edit-profile">${ic('pen')} Modifier</button></div>
- <div class="stats">${[[S.friends.length,'Amis'],[S.joined.length,'Communautés'],[S.created.length,'Salons créés']].map(([n,l])=>`<div class="stat"><b>${n}</b><span class="small muted">${l}</span></div>`).join('')}</div>
+ <div class="stats">${[[S.friends.length+(S.lcontacts||[]).length,'Amis'],[S.joined.length,'Communautés'],[S.created.length,'Salons créés']].map(([n,l])=>`<div class="stat"><b>${n}</b><span class="small muted">${l}</span></div>`).join('')}</div>
  <section class="stack"><div class="sec-h"><h2>Badges</h2><span class="small muted">Niveau ${lvl.n} · ${lvl.xp} XP</span></div><div class="lvl" role="progressbar" aria-valuenow="${lvl.pct}" aria-valuemin="0" aria-valuemax="100" aria-label="Progression vers le niveau suivant"><i style="width:${lvl.pct}%"></i></div>
   <div class="badge-grid">${badges().map(([n,i,on])=>`<div class="bdg ${on?'':'off'}"><span class="bi">${ic(i)}</span>${n}</div>`).join('')}</div></section>
+ <button class="premium" data-a="plus-open"><span class="crownb">${ic('crown')}</span><span style="flex:1"><b>${S.plus?'Membre PULSE+ ✦':'Passer à PULSE+'}</b><br><span class="small">${S.plus?'Gérer mon abonnement':'Appels vidéo, rencontres illimitées… · '+PLUS_PRICE}</span></span>${ic('chev')}</button>
+ <section class="stack"><div class="sec-h"><h2>Visites de ton profil</h2>${S.plus?'<span class="small muted">exemples</span>':'<span class="plus">PULSE+</span>'}</div>
+  <div class="row" style="gap:10px;${S.plus?'':'filter:blur(6px);'}">${VISITS.map(k=>`<div class="seat">${avatar(PEOPLE[k].av,52)}<span>${esc(PEOPLE[k].name)}</span></div>`).join('')}</div>
+  ${S.plus?'':'<button class="btn btn-g btn-sm" style="align-self:flex-start" data-a="plus-open">Voir qui a visité mon profil</button>'}</section>
  <section class="stack"><div class="sec-h"><h2>Mon univers</h2><span class="small muted">Fond de ton profil</span></div>
   <div class="uni-grid">${UNIV.map(([k2,l])=>`<button class="uni ${S.univers===k2?'on':''}" style="background-image:url(assets/univ-${k2}.webp)" data-a="univers" data-v="${k2}" aria-pressed="${S.univers===k2}" aria-label="Univers ${l}"><span>${l}</span></button>`).join('')}</div></section>
  <section class="stack"><h2>Mes communautés</h2><div class="com-grid">${S.joined.map(comTile).join('')}</div></section>
@@ -1556,7 +1583,7 @@ prefs:()=>{const tg=(k,on,label,sub='')=>`<button class="set-row" data-a="${k}">
  <section class="card"><h3 class="eyebrow" style="margin-bottom:6px">Notifications</h3>
   ${tg('n-rooms',S.notif.rooms,'Salons de mes communautés')}${tg('n-msgs',S.notif.msgs,'Messages privés')}${tg('n-acts',S.notif.acts,'Activités et rappels')}
   <p class="small muted" style="padding-bottom:6px">Préférences enregistrées ; l’envoi de notifications n’est pas encore branché.</p></section>
- <section class="card"><button class="set-row" data-a="go" data-v="avis"><span style="font-weight:700">Donner mon avis sur la démo</span>${ic('heart')}</button><button class="set-row" data-a="go" data-v="status"><span style="font-weight:700">État du prototype</span>${ic('info')}</button>
+ <section class="card"><button class="set-row" data-a="go" data-v="avis"><span style="font-weight:700">Donner mon avis sur la démo</span>${ic('heart')}</button><button class="set-row" data-a="plus-open"><span style="font-weight:700">Mon abonnement : ${S.plus?'PULSE+':'gratuit'}</span>${ic('crown')}</button><button class="set-row" data-a="go" data-v="status"><span style="font-weight:700">État du prototype</span>${ic('info')}</button>
   <button class="set-row" data-a="reset" style="color:var(--live)"><span style="font-weight:700">Supprimer mon compte</span>${ic('logout')}</button></section>
  ${nav('')}</div>`},
 
@@ -1583,12 +1610,12 @@ function discResults(){
   <section class="stack"><h2>Activités à ne pas manquer</h2>
    <button class="hero" style="min-height:120px;text-align:left" data-a="open-act" data-v="a1"><div class="art-r" style="background-image:url(assets/exp-mic.webp);width:40%"></div><span class="live" style="align-self:flex-start">${t('live')}</span><h3 style="font-size:17px">Défi chant 🎵</h3><p class="small muted" style="max-width:22ch">Montre ta voix et récolte les votes !</p></button>
    ${ACTS.filter(a=>a.status==='soon').slice(0,2).map(actCard).join('')}</section>
-  <section class="stack"><h2>${t('people')}</h2><p class="small muted">Selon vos passions communes. PULSE n’est pas une appli de rencontres amoureuses : on se rencontre par ce qu’on aime.</p>${Object.keys(PEOPLE).filter(p=>!S.blocked.includes(p)).sort((a,b)=>PEOPLE[b].int.filter(i=>S.interests.includes(i)).length-PEOPLE[a].int.filter(i=>S.interests.includes(i)).length).slice(0,5).map(personRow).join('')}</section></div>`;
+  <section class="stack"><h2>${t('people')}</h2><p class="small muted">Selon vos passions communes. PULSE n’est pas une appli de rencontres amoureuses : on se rencontre par ce qu’on aime.</p>${Object.keys(PEOPLE).filter(p=>!S.blocked.includes(p)&&advOK(p)).sort((a,b)=>PEOPLE[b].int.filter(i=>S.interests.includes(i)).length-PEOPLE[a].int.filter(i=>S.interests.includes(i)).length).slice(0,5).map(personRow).join('')}</section></div>`;
  }
  const realP=window.PULSE_SITE&&q?dirList().filter(e=>(e.n+' '+e.h+' @'+e.h).toLowerCase().includes(q.replace(/^@/,'@'))):[];
  const rs=allRooms().filter(r=>fl(r)&&(!q||(r.title+' '+com(r.com).name).toLowerCase().includes(q)));
  const cs=q?COMS.filter(c=>(c.name+' '+c.tags.join(' ')+' '+cat(c.id).name).toLowerCase().includes(q)):[];
- const ps=Object.keys(PEOPLE).filter(p=>!S.blocked.includes(p)&&(!UI.discLang||PEOPLE[p].langs.includes(UI.discLang))&&(!q||PEOPLE[p].name.toLowerCase().includes(q)||PEOPLE[p].int.some(i=>cat(i).name.toLowerCase().includes(q))));
+ const ps=Object.keys(PEOPLE).filter(p=>!S.blocked.includes(p)&&advOK(p)&&(!UI.discLang||PEOPLE[p].langs.includes(UI.discLang))&&(!q||PEOPLE[p].name.toLowerCase().includes(q)||PEOPLE[p].int.some(i=>cat(i).name.toLowerCase().includes(q))));
  return `<div class="stack" style="gap:18px">
   ${realP.length?`<section class="stack"><h2>Testeurs en ligne</h2>${realP.map(dirRow).join('')}</section>`:''}
   ${cs.length?`<section class="stack"><h2>Communautés</h2>${cs.map(c=>{const k=cat(c.id);return `<button class="list-item" data-a="open-com" data-v="${c.id}">${glyph(k)}<div class="grow"><div style="font-weight:800">${esc(c.name)}</div><div class="small muted ellip">${esc(c.tagline)}</div></div></button>`}).join('')}</section>`:''}
@@ -1630,7 +1657,7 @@ function dailyCard(){const q=QDAY[dayIdx()%QDAY.length],done=S.daily===today();
   ${done?'<p class="small muted">Ta réponse est en ligne jusqu’à demain.</p>':`<button class="btn btn-p btn-sm" style="align-self:flex-start" data-a="rec" data-v="daily">${ic('mic')} Répondre en 30 s</button>`}</section>`}
 function rdvCard(r){const k=cat(r.com),on=S.reminders.includes(r.id);return `<div class="com-tile" style="${cv(k)}"><div class="big" style="width:44px;height:44px">${ic('calendar')}</div><h3>${esc(r.title)}</h3><span class="small muted">${esc(r.when)}</span><button class="chip ${on?'on':''}" style="align-self:flex-start;margin-top:4px" data-a="remind" data-v="${r.id}">${on?ic('check')+' Noté':ic('bell')+' Rappel'}</button></div>`}
 function ccLine(c){const L=CC[c]||CC.musique;const i=(UI.ccI||0)%L.length;const who=['Léa','Marco','Nora'][i%3];return `<b>${who}</b> ${esc(L[i])} <span class="small muted">· sous-titres de démo</span>`}
-function badges(){return [['Première voix','mic',!!S.me.voice],['Polyglotte','globe',S.me.langs.length>=2],['Duo','duo',!!S.duoDone],['Hôte','crown',S.created.length>0],['Pulse du jour','sparkle',S.daily===today()],['Voix d’or','star',false]]}
+function badges(){return [['PULSE+','crown',!!S.plus],['Première voix','mic',!!S.me.voice],['Polyglotte','globe',S.me.langs.length>=2],['Duo','duo',!!S.duoDone],['Hôte','crown',S.created.length>0],['Pulse du jour','sparkle',S.daily===today()],['Voix d’or','star',false]]}
 function level(){const xp=badges().filter(b=>b[2]).length*20+S.friends.length*10+S.joined.length*5;return {xp,n:1+Math.floor(xp/60),pct:Math.round(xp%60/60*100)}}
 function recSheet(kind){if(realMic())return recReal(kind);const max=kind==='voice'?15:30;let left=max;
  sheet(`<h2>${kind==='voice'?'Ma voix en 15 secondes':'Pulse du jour'}</h2><p class="muted small">${kind==='voice'?'Idées : ton prénom, ce qui te passionne, ce que tu cherches sur PULSE.':esc(QDAY[dayIdx()%QDAY.length])}</p>
@@ -1732,7 +1759,7 @@ const ACT={
  lchat:v=>{UI.lcode=v;if(!lOnline(v))liveConnect(v,true);go('lchat',v);window.scrollTo(0,document.body.scrollHeight)},
  lcall:v=>{liveCall(v)},
  ltw:v=>{UI.ltw=v;if(!lOnline(v))liveConnect(v,true);go('ltalkie')},
- 'lc-yes':async()=>{const call=UI.inCall;UI.inCall=null;closeSheet();if(!call)return;try{const s2=await getMic();s2.getAudioTracks().forEach(t=>t.enabled=true);call.answer(s2);LIVE.call={call,code:codeOf(call),st:'ring',t0:Date.now(),muted:false,answered:1};wireCall(call);go('lcall')}catch(e){toast(micErr(e));call.close()}},
+ 'lc-yes':async()=>{const call=UI.inCall;UI.inCall=null;closeSheet();if(!call)return;const vid=!!(call.metadata&&call.metadata.video);try{let s2;if(vid){try{s2=await getCam()}catch(e){toast(camErr(e));s2=await getMic()}}else s2=await getMic();s2.getAudioTracks().forEach(t=>t.enabled=true);call.answer(s2);LIVE.call={call,code:codeOf(call),st:'ring',t0:Date.now(),muted:false,answered:1,video:vid};wireCall(call);go('lcall')}catch(e){toast(micErr(e));call.close()}},
  'lc-no':()=>{const call=UI.inCall;UI.inCall=null;closeSheet();if(call)call.close()},
  'lc-end':()=>{if(LIVE.call)LIVE.call.call.close()},
  lrec:async()=>{if(LIVE.rec){recStop();return}const code=V.p;
@@ -1750,7 +1777,18 @@ const ACT={
  'dg-beep':()=>{const was=S.sound;S.sound=1;playMelody('lune');S.sound=was;toast('Tu dois entendre une petite mélodie.')},
  'tw-inv':v=>{const c=LIVE.conns[v];if(c&&c.open){c.send({t:'tw-inv'});toast(`Invitation envoyée à ${lName(v)}`)}else{liveConnect(v,true);toast(`${lName(v)} n’a pas la démo ouverte en ce moment.`)}},
  'room-inv':v=>{const rid=R?R.id:V.p;const c=LIVE.conns[v];if(c&&c.open&&rid){c.send({t:'room-inv',room:rid});closeSheet();toast(`Invitation envoyée à ${lName(v)}`)}else{liveConnect(v,true);toast(`${lName(v)} n’a pas la démo ouverte en ce moment.`)}},
- 'lc-mute':()=>{const L=LIVE.call;if(!L)return;L.muted=!L.muted;if(LIVE.stream)LIVE.stream.getAudioTracks().forEach(t=>t.enabled=!L.muted);render()},
+ 'plus-open':()=>paywall(''),
+ 'plus-on':()=>{S.plus=1;save();closeSheet();render();sfx('yes');toast('Bienvenue dans PULSE+ ✦ (démo, aucun paiement)')},
+ 'plus-off':()=>{S.plus=0;if(S.av.auraLvl===2)S.av.auraLvl=1;['couronne','ailes','aureole'].forEach(id=>{for(const k in S.av.acc)if(S.av.acc[k]===id)delete S.av.acc[k]});if(S.univers==='torii')S.univers='cite';save();closeSheet();render();toast('Abonnement résilié (démo).')},
+ lvideo:v=>{if(needPlus('L’appel vidéo fait partie de PULSE+.'))return;if(!lOnline(v)){liveConnect(v,true);return toast(`${lName(v)} n’a pas la démo ouverte en ce moment.`)}if(envIssue())return toast('Caméra bloquée ici : ouvre la démo directement dans Chrome ou Safari.');liveCall(v,true).catch(e=>toast(camErr(e)))},
+ adv:()=>{if(needPlus('Les filtres avancés font partie de PULSE+.'))return;const a=UI.adv||{};sheet(`<h2>Filtres avancés</h2>
+  <div class="field"><label for="adv-c">Pays</label><select class="inp" id="adv-c"><option value="">Tous</option>${[['FR','France'],['BE','Belgique'],['ES','Espagne'],['IT','Italie'],['DE','Allemagne'],['PT','Portugal'],['GB','Royaume-Uni'],['US','États-Unis']].map(([c,n])=>`<option value="${c}" ${a.country===c?'selected':''}>${n}</option>`).join('')}</select></div>
+  <div class="field"><label for="adv-l">Langue parlée</label><select class="inp" id="adv-l"><option value="">Toutes</option>${LANGS.map(([c,n])=>`<option value="${c.toUpperCase()}" ${a.lang===c.toUpperCase()?'selected':''}>${n}</option>`).join('')}</select></div>
+  <div class="row"><div class="field" style="flex:1"><label for="adv-a1">Âge min.</label><input class="inp" id="adv-a1" type="number" min="18" max="99" value="${a.amin||''}"></div><div class="field" style="flex:1"><label for="adv-a2">Âge max.</label><input class="inp" id="adv-a2" type="number" min="18" max="99" value="${a.amax||''}"></div></div>
+  <button class="btn btn-p" data-a="adv-ok">Appliquer</button><button class="btn btn-g" data-a="adv-clear">Effacer les filtres</button>`)},
+ 'adv-ok':()=>{const g=id=>document.getElementById(id).value;const a={country:g('adv-c'),lang:g('adv-l'),amin:+g('adv-a1')||0,amax:+g('adv-a2')||0};UI.adv=(a.country||a.lang||a.amin||a.amax)?a:null;closeSheet();render()},
+ 'adv-clear':()=>{UI.adv=null;closeSheet();render()},
+ 'lc-mute':()=>{const L=LIVE.call;if(!L)return;L.muted=!L.muted;if(LIVE.stream)LIVE.stream.getAudioTracks().forEach(t=>t.enabled=!L.muted);if(LIVE.cam)LIVE.cam.getAudioTracks().forEach(t=>t.enabled=!L.muted);render()},
  'call-start':v=>{if(S.blocked.includes(v))return;CALL={who:v,t0:Date.now(),st:'ring',muted:false,li:0};go('call');setTimeout(()=>{if(CALL&&CALL.who===v&&CALL.st==='ring'){CALL.st='on';CALL.t0=Date.now();render();speak('Allô ! Ça fait plaisir de t’entendre.',v,true)}},1800)},
  'call-open':()=>{if(CALL)CALL.bubble=false;go('call')},
  'call-end':(v,el,e)=>{if(e)e.stopPropagation();if(!CALL)return;const d=CALL.st==='ring'?'':' · '+callTime();CALL=null;closeSheet();toast('Appel terminé'+d);if(V.name==='call')back();else render()},
@@ -1826,7 +1864,7 @@ const ACT={
  'duo-yes':()=>{const w=UI.duo.who;if(!S.friends.includes(w))S.friends.push(w);save();UI.duo={st:'pick',cat:UI.duo.cat};render();toast(`${PEOPLE[w].name} a dit oui aussi (simulation) : vous êtes amis !`)},
  'acc-f':v=>{UI.accF=v;render()},
  'scroll-cats':()=>document.getElementById('cats').scrollIntoView({behavior:'smooth'}),
- univers:v=>{S.univers=v;save();render()},
+ univers:v=>{if(v==='torii'&&needPlus('Le thème « Portail » fait partie de PULSE+.'))return;S.univers=v;save();render()},
  logo:v=>{S.logo=v;save();render()},
  premium:()=>sheet(`<div class="row"><span class="crownb" style="width:44px;height:44px;border-radius:14px;display:grid;place-items:center;color:#FFC93C;background:rgba(255,201,60,.15)">${ic('crown')}</span><h2>PULSE Premium</h2></div><p class="muted">Piste envisagée, pas encore décidée :</p><ul class="muted" style="margin:0;padding-left:18px"><li>Accessoires et auras exclusifs</li><li>Thèmes « Mon univers » supplémentaires</li><li>Badges</li><li>Filtres de découverte avancés</li></ul><p class="small muted">Prix et modalités non définis. Parler dans les salons restera gratuit.</p><button class="btn btn-g" data-a="close">Fermer</button>`),
  'react-sheet':()=>sheet(`<h2>Réagir</h2><div class="row" style="justify-content:space-between">${['❤️','🔥','👏','😂','🎵','🤩'].map(e=>`<button class="rb" style="width:52px;height:52px;font-size:24px" data-a="react" data-v="${e}" aria-label="Réagir ${e}">${e}</button>`).join('')}</div><p class="small muted">Les réactions s’affichent sans couper la personne qui parle.</p>`),
@@ -1838,7 +1876,7 @@ const ACT={
  tab:v=>{HIST=[];V={name:v};closeSheet();render(true)},
  pulse:()=>{if(MATCH&&(MATCH.st==='call'||MATCH.st==='search')){const now=Date.now();if(now-(UI.lastPulse||0)<500){UI.lastPulse=0;matchStop(true);toast('Tu as quitté la rencontre.');return}UI.lastPulse=now;if(V.name!=='match')go('match');else toast('Touche encore une fois pour partir');return}pulseSheet()},
  'match-open':()=>{go('match')},
- 'match-start':async()=>{if(liveOK()){try{await getMic();micRelease()}catch(e){return toast(micErr(e))}if(!LIVE.peer)liveStart()}matchStart();if(V.name!=='match')go('match');else render()},
+ 'match-start':async()=>{if(!S.plus&&mdayCount()>=5)return paywall('Tu as utilisé tes 5 rencontres surprises gratuites aujourd’hui.');mdayCount();S.mday.n++;save();if(liveOK()){try{await getMic();micRelease()}catch(e){return toast(micErr(e))}if(!LIVE.peer)liveStart()}matchStart();if(V.name!=='match')go('match');else render()},
  'match-cancel':()=>{matchStop(false);MATCH=null;render()},
  'match-vote':v=>{if(!MATCH||MATCH.st!=='call')return;MATCH.mine=v==='yes'?'yes':'no';
   if(MATCH.sim){setTimeout(()=>{if(!MATCH||MATCH.st!=='call')return;MATCH.their=Math.random()<.7?'yes':'no';sfx(MATCH.their);if(MATCH.their==='yes'&&MATCH.mine==='yes')matchReveal();render()},1600)}
@@ -1872,8 +1910,8 @@ const ACT={
  'av-head':v=>{S.av.head=+v;save();render()},
  'av-hair':v=>{S.av.hair=+v;save();render()},
  'av-aura':v=>{S.av.aura=+v;save();render()},
- 'av-lvl':v=>{S.av.auraLvl=+v;save();render()},
- 'av-acc':v=>{const x=ACC.find(a=>a.id===v);S.av.acc={...S.av.acc};if(S.av.acc[x.slot]===v)delete S.av.acc[x.slot];else S.av.acc[x.slot]=v;save();render()},
+ 'av-lvl':v=>{if(+v===2&&needPlus('L’aura éclatante fait partie de PULSE+.'))return;S.av.auraLvl=+v;save();render()},
+ 'av-acc':v=>{const x=ACC.find(a=>a.id===v);if(x&&x.plus&&S.av.acc[x.slot]!==v&&needPlus(`${x.name} : accessoire exclusif PULSE+.`))return;S.av.acc={...S.av.acc};if(S.av.acc[x.slot]===v)delete S.av.acc[x.slot];else S.av.acc[x.slot]=v;save();render()},
  'open-room':v=>{closeSheet();const r=room(v);if(window.PULSE_SITE&&r&&r.live&&!(R&&R.id===v)){R={id:v,role:r.host==='me'?'host':'listener',muted:true,hand:false}}go('room',v)},
  'open-com':v=>{UI.comTab='about';go('com',v)},
  'com-tab':v=>{UI.comTab=v;render()},
@@ -1936,6 +1974,7 @@ document.addEventListener('input',e=>{
 document.addEventListener('change',e=>{
  if(e.target.id==='ui-lang'||e.target.id==='ui-lang2'){S.ui=e.target.value;save();render()}
  if(e.target.id==='dm'){S.me.dm=e.target.value;save()}
+ if(e.target.id==='match-lang'){S.matchLang=e.target.value;save()}
  if(e.target.id==='learn'){S.me.learn=e.target.value;save();render()}
 });
 document.addEventListener('submit',e=>{if(e.target.id==='lcomposer'){e.preventDefault();const i=document.getElementById('lmsg-in');const x=i.value.trim();if(!x)return;const code=V.p;const c=LIVE.conns[code];if(c&&c.open){c.send({t:'msg',x});lPush(code,{f:'me',x})}else{lPush(code,{f:'me',x,pend:1});liveConnect(code,true)}render();window.scrollTo(0,document.body.scrollHeight);document.getElementById('lmsg-in').focus();return}
