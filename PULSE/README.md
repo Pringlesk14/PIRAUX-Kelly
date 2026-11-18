@@ -23,6 +23,8 @@ Réglages → « Se déconnecter et effacer ce prototype » remet tout à zéro.
 
 - Logo B (violet-rose-cyan, « Logo futuriste PULSE en néon cosmique ») et palette Cosmique violette : verrouillés dans le prototype.
 - Talkie-walkie en direct, façon Tenten : on appuie, l'ami entend pendant qu'on parle, rien n'est enregistré. Amis et groupe, mode « Ne pas déranger ».
+- Bêta : 2 communautés ouvertes au début, Musique et Discussions & langues.
+- Anonymat : rien dans le site ne mentionne Kelly ni l'outil utilisé ; les avis passeront par une adresse e-mail dédiée (à créer).
 - Avis des testeurs : écran « Donne ton avis » qui prépare un message à envoyer par WhatsApp ou à copier (la démo n'enregistre rien).
 
 ## Appels entre amis
