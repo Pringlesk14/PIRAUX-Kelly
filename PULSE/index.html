@@ -14,7 +14,7 @@
   --r-card:22px; --r-pill:999px;
   color-scheme:dark;
 }
-/* Piste Ocean Signal : proposition, codes non validés par Kelly */
+/* Piste Ocean Signal : proposition, codes à valider */
 :root[data-skin="ocean"]{
   --bg:#04161D; --surface:#0A2630; --surface2:#0F3441; --primary:#0E9F9A; --electric:#2FE0D6;
   --accent:#FFC93C; --blue:#1E88B8; --cyan:#7DF9FF; --text2:#B5D2D8; --muted:#7FA2AA;
@@ -808,7 +808,7 @@ ob:()=>{
  const err=UI.err?`<p class="err" role="alert">${esc(UI.err)}</p>`:'';
  const backB=`<button class="btn btn-g" data-a="ob-prev">${ic('back')}</button>`;
  if(st===0) return `<div class="scr no-nav">${head('Faisons connaissance','Ces infos créent ton profil. Tu choisis ensuite ce qui est visible.')}
-  <div class="field"><label for="f-name">Prénom ou pseudo</label><input class="inp" id="f-name" maxlength="20" value="${esc(S.me.name)}" placeholder="Ex. Kelly" autocomplete="nickname" data-autofocus></div>
+  <div class="field"><label for="f-name">Prénom ou pseudo</label><input class="inp" id="f-name" maxlength="20" value="${esc(S.me.name)}" placeholder="Ex. Alex" autocomplete="nickname" data-autofocus></div>
   <div class="field"><label for="f-birth">Date de naissance</label><input class="inp" id="f-birth" type="date" value="${esc(S.me.birth)}"><span class="small muted">PULSE est réservé aux 18 ans et plus. Ton âge peut rester masqué sur ton profil.</span></div>
   <div class="field"><label for="f-country">Pays</label><select class="inp" id="f-country">${[['FR','France'],['BE','Belgique'],['CH','Suisse'],['CA','Canada'],['GB','Royaume-Uni'],['US','États-Unis'],['ES','Espagne'],['IT','Italie'],['DE','Allemagne'],['PT','Portugal'],['BR','Brésil'],['OT','Autre']].map(([c,n])=>`<option value="${c}" ${S.me.country===c?'selected':''}>${n}</option>`).join('')}</select></div>
   ${demo('<b>Prototype :</b> la date de naissance est contrôlée ici, mais aucune vérification d’identité n’est encore branchée.')}
