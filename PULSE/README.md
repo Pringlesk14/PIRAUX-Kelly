@@ -12,6 +12,13 @@ Il sert à valider le parcours et l'univers visuel avant de choisir la technique
 Ouvrir `index.html` dans un navigateur (idéalement en largeur mobile). Les données restent dans le navigateur (`localStorage`).
 Réglages → « Se déconnecter et effacer ce prototype » remet tout à zéro.
 
+## Recentrage du 18 novembre 2026
+
+- Lancement resserré : 4 communautés (Musique, Jeux vidéo, Discussions & langues, Cinéma & séries) et une interface en français et en anglais. Les autres langues sont affichées « bientôt ».
+- Ajouts : voix de 15 s sur le profil, Pulse du jour, talkie-walkie entre amis, Mode Duo (bêta), échange de langues, sous-titres en direct dans les salons, rendez-vous de la semaine, saison 1, badges et niveaux, suppression du compte.
+- Retirés pour le lancement : PULSE Premium et les accessoires PULSE+, traduction vocale en direct, appels vidéo.
+- Plan de construction et de publication : document « PULSE — Plan pour construire et publier l'application » (Claude Docs).
+
 ## Ce qui fonctionne dans le prototype
 
 - Onboarding : bienvenue (logo, slogan, accroche validée du 6 novembre), pseudo, date de naissance avec refus des moins de 18 ans, pays, langues, au moins 3 passions, avatar.

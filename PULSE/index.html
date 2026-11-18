@@ -299,6 +299,23 @@ textarea.inp{height:auto;min-height:90px;padding:12px 16px;resize:vertical}
 .st-demo{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
 .st-no{background:rgba(255,255,255,.08);color:var(--text2)}
 :root[data-skin="ocean"] .feature .art,:root[data-skin="ocean"] .com-hero,:root[data-skin="ocean"] .art-r,:root[data-skin="ocean"] .exp-img,:root[data-skin="ocean"] .salon-card .art,:root[data-skin="ocean"] .uni,:root[data-skin="ocean"] .prof-bg{filter:hue-rotate(-95deg) saturate(.9)}
+.cc{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(150px + env(safe-area-inset-bottom,0px));width:min(calc(100% - 32px),408px);z-index:19;padding:10px 14px;border-radius:14px;background:rgba(5,2,14,.88);border:1px solid var(--line);font-size:14px;line-height:1.4}
+.cc b{color:var(--electric)}
+.cc-btn{font-weight:800;font-size:12px;letter-spacing:.04em}
+.cc-btn[aria-pressed="true"]{background:var(--primary);border-color:var(--electric)}
+.badge-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.bdg{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 6px;border-radius:18px;text-align:center;font-size:12px;font-weight:700;background:color-mix(in srgb,var(--surface2) 70%,transparent);border:1px solid var(--line)}
+.bdg .bi{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:#FFD66B;background:radial-gradient(circle at 35% 30%,rgba(255,214,107,.35),rgba(124,58,237,.35));box-shadow:0 0 16px -4px #FFC93C}
+.bdg.off{opacity:.42}.bdg.off .bi{color:var(--muted);background:rgba(255,255,255,.06);box-shadow:none}
+.lvl{height:8px;border-radius:4px;background:var(--line2);overflow:hidden}
+.lvl i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,var(--primary),var(--accent))}
+.ptt{width:150px;height:150px;margin:8px auto;touch-action:none;-webkit-user-select:none;user-select:none}
+.ptt .ico{width:56px;height:56px}
+.duo-face{display:flex;align-items:center;justify-content:center;gap:18px}
+.timer{font-size:44px;font-weight:800;text-align:center;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.quick{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.quick .com-tile .big{width:48px;height:48px}
+.quick .com-tile .big .ico{width:24px;height:24px}
 :root[data-calm="1"] *, :root[data-calm="1"] *::before, :root[data-calm="1"] *::after{animation:none!important;transition:none!important}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
@@ -376,20 +393,17 @@ it:{slogan:'La tua voce, il tuo universo.',hook:'Passioni da condividere, incont
 de:{slogan:'Deine Stimme, dein Universum.',hook:'Leidenschaften teilen, Begegnungen erleben, Stimmen entdecken.',start:'Los geht’s',home:'Start',discover:'Entdecken',messages:'Nachrichten',profile:'Profil',day:'Hallo',eve:'Guten Abend',reco:'Räume für dich',acts:'Aktivitäten',seeall:'Alle',join:'Beitreten',member:'Mitglied',live:'Live',soon:'Demnächst',done:'Beendet',search:'Räume, Communities, Personen…',cats:'Kategorien',people:'Menschen entdecken',rooms:'Räume',create:'Raum erstellen',settings:'Einstellungen',lang:'Sprache',leave:'Verlassen',raise:'Hand heben',micOff:'Mikro aus: niemand hört dich',micOn:'Mikro an: der Raum hört dich',listening:'Du hörst zu',editAv:'Avatar bearbeiten',next:'Weiter',stage:'Die Bühne gehört dir'},
 pt:{slogan:'A tua voz, o teu universo.',hook:'Paixões para partilhar, encontros para viver, vozes para descobrir.',start:'Começar',home:'Início',discover:'Descobrir',messages:'Mensagens',profile:'Perfil',day:'Olá',eve:'Boa noite',reco:'Salas para ti',acts:'Atividades',seeall:'Ver tudo',join:'Entrar',member:'Membro',live:'Ao vivo',soon:'Em breve',done:'Terminadas',search:'Salas, comunidades, pessoas…',cats:'Categorias',people:'Pessoas para descobrir',rooms:'Salas',create:'Criar uma sala',settings:'Definições',lang:'Idioma',leave:'Sair',raise:'Levantar a mão',micOff:'Micro desligado: ninguém te ouve',micOn:'Micro ligado: a sala ouve-te',listening:'Estás a ouvir',editAv:'Editar o meu avatar',next:'Continuar',stage:'O palco é teu'}
 };
+const uiLangOpts=()=>LANGS.map(([c,n])=>`<option value="${c}" ${S.ui===c?'selected':''} ${['fr','en'].includes(c)?'':'disabled'}>${n}${['fr','en'].includes(c)?'':' (bientôt)'}</option>`).join('');
 const t=k=>(T[S.ui]&&T[S.ui][k])||T.fr[k]||k;
 
 /* ---------- Données de démonstration ---------- */
 const CATS=[
  {id:'musique',name:'Musique',icon:'music',g:['#873BFF','#FF4FD8']},
- {id:'sport',name:'Sport',icon:'ball',g:['#2F6BFF','#22D3EE']},
- {id:'jeux',name:'Jeux vidéo',icon:'gamepad',g:['#6D28D9','#2F6BFF']},
- {id:'cinema',name:'Cinéma & séries',icon:'film',g:['#FF4F7B','#873BFF']},
- {id:'lecture',name:'Lecture',icon:'book',g:['#9333EA','#F59E0B']},
- {id:'voyages',name:'Voyages',icon:'globe',g:['#0891B2','#3B82F6']},
- {id:'bienetre',name:'Santé & bien-être',icon:'leaf',g:['#059669','#06B6D4']},
- {id:'tech',name:'Technologie',icon:'cpu',g:['#4F46E5','#22D3EE']},
- {id:'discussions',name:'Discussions',icon:'chat',g:['#DB2777','#F59E0B']}
+ {id:'jeux',name:'Jeux vidéo',icon:'gamepad',g:['#4F46E5','#22D3EE']},
+ {id:'discussions',name:'Discussions & langues',icon:'chat',g:['#DB2777','#F59E0B']},
+ {id:'cinema',name:'Cinéma & séries',icon:'film',g:['#FF4F7B','#A855F7']}
 ];
+const ACTIVE=CATS.map(c=>c.id);
 const cat=id=>CATS.find(c=>c.id===id)||CATS[0];
 const grad=c=>`linear-gradient(135deg,${c.g[0]},${c.g[1]})`;
 const COMS=[
@@ -401,7 +415,7 @@ const COMS=[
  {id:'voyages',name:'Globe-trotteurs',tagline:'Récits, conseils et rencontres du monde entier.',tags:['International','Conseils','Langues'],members:6800,about:'Préparer un voyage, raconter le sien, rencontrer des gens sur place.',rules:['Ne jamais partager d’adresse précise en public.']},
  {id:'bienetre',name:'Bien-être & entraide',tagline:'Un espace calme pour souffler et s’entraider.',tags:['Français','Méditation','Soutien'],members:3900,about:'Méditations guidées, discussions bienveillantes et entraide. Cet espace ne remplace pas un professionnel de santé.',rules:['Bienveillance obligatoire : modération renforcée.','En cas d’urgence, contacter les services d’urgence de ton pays.','Aucun conseil médical présenté comme avis professionnel.']},
  {id:'tech',name:'Tech Talk',tagline:'IA, code, gadgets et nouvelles idées.',tags:['International','IA','Dev'],members:5600,about:'Discussions tech accessibles à tous, du débutant à l’expert.',rules:['Pas d’auto-promotion abusive.']},
- {id:'discussions',name:'Café des langues',tagline:'Pratiquer une langue en parlant avec des natifs.',tags:['International','Échange linguistique'],members:10100,about:'Des salons par langue pour pratiquer en douceur avec des personnes du monde entier.',rules:['Patience et bienveillance envers celles et ceux qui apprennent.']}
+ {id:'discussions',name:'Discussions & langues',tagline:'Discuter de tout et pratiquer une langue avec des natifs.',tags:['International','Échange de langues','Débats'],members:10100,about:'Des salons par langue pour pratiquer en douceur avec des personnes du monde entier.',rules:['Patience et bienveillance envers celles et ceux qui apprennent.']}
 ];
 const com=id=>COMS.find(c=>c.id===id);
 
@@ -420,15 +434,15 @@ const ACC=[
  {id:'micro',slot:'hand',name:'Micro',vb:'118 106 76 84'},
  {id:'manette',slot:'hand',name:'Manette',vb:'58 150 84 56'},
  {id:'casque',slot:'head',name:'Casque audio',vb:'40 28 120 90'},
- {id:'couronne',slot:'head',name:'Couronne',vb:'60 8 80 46',plus:1},
+ {id:'couronne',slot:'head',name:'Couronne',vb:'60 8 80 46'},
  {id:'chapeau',slot:'head',name:'Chapeau',vb:'42 4 116 62'},
  {id:'bonnet',slot:'head',name:'Bonnet',vb:'52 6 96 66'},
  {id:'lunettes',slot:'face',name:'Lunettes',vb:'66 62 68 40'},
- {id:'ailes',slot:'back',name:'Ailes',vb:'2 40 196 120',plus:1},
+ {id:'ailes',slot:'back',name:'Ailes',vb:'2 40 196 120'},
  {id:'papillon',slot:'extra',name:'Papillon',vb:'128 38 46 46'},
  {id:'casquette',slot:'head',name:'Casquette',vb:'52 18 104 62'},
  {id:'chat',slot:'head',name:'Oreilles de chat',vb:'56 12 88 56'},
- {id:'aureole',slot:'head',name:'Auréole',vb:'60 4 80 40',plus:1},
+ {id:'aureole',slot:'head',name:'Auréole',vb:'60 4 80 40'},
  {id:'noeud',slot:'neck',name:'Nœud papillon',vb:'74 120 52 42'},
  {id:'collier',slot:'neck',name:'Collier',vb:'72 124 56 44'},
  {id:'echarpe',slot:'neck',name:'Écharpe',vb:'60 122 80 66'},
@@ -596,6 +610,23 @@ const CONVOS=[
  {id:'ana',msgs:[{f:'them',x:'Obrigada pela recomendação do livro!',tr:'Merci pour la recommandation du livre !'}]}
 ];
 
+ROOMS.push({id:'r12',com:'cinema',title:'Débrief séries de la semaine',langs:['FR'],live:1,host:'ines',speakers:['sofia'],listeners:54});
+ACTS.push({id:'a8',title:'Blind test génériques de séries',kind:'Blind test',com:'cinema',status:'done',when:'Dimanche dernier',desc:'38 participants (exemple). Victoire de l’équipe « Les Spoilers ».',rules:[]});
+const keep=(arr,f)=>{for(let i=arr.length-1;i>=0;i--) if(!f(arr[i])) arr.splice(i,1)};
+keep(COMS,c=>ACTIVE.includes(c.id)); keep(ROOMS,r=>ACTIVE.includes(r.com)); keep(ACTS,a=>ACTIVE.includes(a.com));
+const LEARN={lea:'ES',marco:'EN',sofia:'FR',jonas:'FR',ana:'EN',sam:'FR',nora:'EN',malik:'IT',ines:'ES',tom:'FR'};
+Object.keys(PEOPLE).forEach(k=>{const p=PEOPLE[k];p.int=p.int.filter(i=>ACTIVE.includes(i));if(!p.int.length)p.int=['discussions'];p.learn=LEARN[k]});
+const RDV=[
+ {id:'rv1',title:'Karaoké du jeudi',com:'musique',when:'Jeudi · 21:00'},
+ {id:'rv3',title:'Échange de langues FR ↔ EN',com:'discussions',when:'Mardi · 19:00'},
+ {id:'rv2',title:'Blind test du dimanche',com:'musique',when:'Dimanche · 20:00'},
+ {id:'rv4',title:'Soirée ranked',com:'jeux',when:'Vendredi · 21:00'},
+ {id:'rv5',title:'Ciné-débrief',com:'cinema',when:'Lundi · 20:30'}
+];
+const QDAY=['Ta chanson de l’été ?','Le film que tu pourrais revoir dix fois ?','Ton plus gros fou rire ?','Le jeu vidéo de ton enfance ?','Une phrase dans une autre langue que tu adores ?','Le dernier concert qui t’a donné des frissons ?','La série que tu conseilles à tout le monde ?'];
+const today=()=>new Date().toISOString().slice(0,10);
+const dayIdx=()=>Math.floor(Date.now()/864e5);
+const CC={musique:['Bienvenue à toutes et à tous dans le karaoké !','Nora, c’est à toi après Marco.','On garde la bienveillance, chacun son niveau.'],jeux:['On lance la partie dans deux minutes.','Qui veut jouer support ce soir ?','Bien joué l’équipe !'],discussions:['Let’s switch to French for ten minutes.','Comment on dit « shortcut » en français ?','On dit « raccourci », bravo !'],cinema:['Attention, révélations sur l’épisode 6.','Ce plan-séquence était incroyable.','Prochain débrief lundi à 20 h 30.']};
 /* ---------- État ---------- */
 const KEY='pulse-proto-v1';
 const DEF=()=>({ui:'fr',skin:'cosmic',logo:'b',univers:'cite',calm:0,onboarded:0,obStep:0,
@@ -605,6 +636,9 @@ const DEF=()=>({ui:'fr',skin:'cosmic',logo:'b',univers:'cite',calm:0,onboarded:0
  convos:JSON.parse(JSON.stringify(CONVOS)),notif:{rooms:1,msgs:1,acts:1}});
 let S;
 try{S=Object.assign(DEF(),JSON.parse(localStorage.getItem(KEY)||'null')||{})}catch(e){S=DEF()}
+S.interests=S.interests.filter(i=>ACTIVE.includes(i));S.joined=S.joined.filter(i=>ACTIVE.includes(i));if(!['fr','en'].includes(S.ui))S.ui='fr';
+if(S.onboarded&&S.interests.length<2)S.interests=[...new Set([...S.interests,'musique','discussions'])].slice(0,3);
+if(S.onboarded&&!S.joined.length)S.joined=S.interests.slice(0,3);
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 let V={name:S.onboarded?'home':'welcome',p:null}, HIST=[];
 let R=null; // salon en cours (non persistant)
@@ -672,7 +706,7 @@ const VIEWS={
 welcome:()=>{const h=t('hook'),k=h.lastIndexOf(', ');const hook=k>0?`${esc(h.slice(0,k+1))} <em>${esc(h.slice(k+2))}</em>`:esc(h);
  return `<div class="welcome">
  <span class="swirl" style="width:520px;height:160px;left:-260px;top:120px;transform:rotate(-24deg)"></span><span class="swirl" style="width:420px;height:140px;right:-250px;bottom:190px;transform:rotate(-24deg)"></span>
- <div class="row between" style="position:relative"><span></span><select class="chip" id="ui-lang" aria-label="Langue de l’interface">${LANGS.map(([c,n])=>`<option value="${c}" ${S.ui===c?'selected':''}>${n}</option>`).join('')}</select></div>
+ <div class="row between" style="position:relative"><span></span><select class="chip" id="ui-lang" aria-label="Langue de l’interface">${uiLangOpts()}</select></div>
  <div class="stack" style="gap:22px;align-items:center;position:relative">
   <div class="app-icon">${waveSVG('lgw')}<span class="logo" style="font-size:22px"><span class="wm">PULSE</span></span></div>
   <p class="kicker">${esc(t('slogan'))}</p>
@@ -696,7 +730,7 @@ ob:()=>{
  if(st===1) return `<div class="scr no-nav">${head('Tes langues','Pour te proposer des salons où tu comprends, et d’autres pour pratiquer.')}
   <div class="stack">${LANGS.map(([c,n])=>{const C=c.toUpperCase(),on=S.me.langs.includes(C);return `<button class="list-item" data-a="ob-lang" data-v="${C}" aria-pressed="${on}"><span class="tag">${C}</span><span class="grow" style="font-weight:700">${n}</span>${on?`<span style="color:var(--electric)">${ic('check')}</span>`:''}</button>`}).join('')}</div>
   ${err}<div class="row">${backB}<button class="btn btn-p" style="flex:1" data-a="ob-next">${t('next')}</button></div></div>`;
- if(st===2) return `<div class="scr no-nav">${head('Tes passions','Choisis-en au moins trois. Elles nourrissent tes recommandations.')}
+ if(st===2) return `<div class="scr no-nav">${head('Tes passions','Choisis-en au moins deux. On se rencontre ici par ce qu’on aime, pas pour draguer.')}
   <div class="cat-grid">${CATS.map(c=>{const on=S.interests.includes(c.id);return catTile(c,`data-a="ob-int" data-v="${c.id}" aria-pressed="${on}"`,on?'on':'dim')}).join('')}</div>
   <p class="small muted">${S.interests.length} sélectionnée${S.interests.length>1?'s':''}</p>
   ${err}<div class="row">${backB}<button class="btn btn-p" style="flex:1" data-a="ob-next">${t('next')}</button></div></div>`;
@@ -718,10 +752,12 @@ home:()=>{
    <h2 style="font-size:21px">${t('stage')} 🎤</h2><p class="muted small">Chante, fais vibrer la communauté et tente de remporter le vote !</p>
    <button class="btn btn-p btn-sm" style="align-self:flex-start" data-a="open-act" data-v="a1">${t('join')} ${ic('arrow')}</button>
    <img class="exp-img" src="assets/exp-mic.webp" alt=""></div></div>
+ ${dailyCard()}
  <section class="stack"><div class="sec-h"><h2>${t('reco')}</h2><button class="link" data-a="go" data-v="rooms">${t('seeall')} ${ic('arrow')}</button></div><div class="com-grid">${coms.map(comTile).join('')}</div></section>
  <section class="stack"><div class="sec-h"><h2>Tes activités</h2><span class="tag" style="background:var(--primary);color:#fff">Nouveau</span></div>
   ${acts.slice(0,3).map(a=>{const k=cat(a.com);return `<button class="list-item" data-a="open-act" data-v="${a.id}">${glyph(k,a.kind.includes('Quiz')?'film':a.kind.includes('Audition')?'mic':'sparkle')}<div class="grow"><div style="font-weight:700">${esc(a.title)}</div><div class="small muted ellip">${a.status==='live'?'En direct · ':esc(a.when)+' · '}${esc(a.kind)}</div></div>${ic('chev')}</button>`}).join('')}
   <button class="link" style="align-self:flex-start" data-a="go" data-v="activities">Toutes les activités ${ic('arrow')}</button></section>
+ <section class="stack"><div class="sec-h"><h2>Rendez-vous de la semaine</h2></div><div class="hscroll" style="grid-auto-columns:62%">${RDV.map(rdvCard).join('')}</div></section>
  <section class="stack"><div class="sec-h"><h2>En direct maintenant</h2><button class="link" data-a="go" data-v="rooms">${t('rooms')} ${ic('arrow')}</button></div><div class="hscroll">${live.map(roomCard).join('')}</div></section>
  ${demo('<b>Prototype :</b> salons, personnes et compteurs sont des exemples. <button class="link" data-a="go" data-v="status">Voir ce qui fonctionne</button>')}
  ${nav('home')}</div>`;
@@ -744,6 +780,8 @@ rooms:()=>`<div class="scr">${topBar(t('rooms'),`<button class="btn btn-p btn-sm
 
 activities:()=>{const list=ACTS.filter(a=>a.status===UI.actTab);return `<div class="scr">${topBar(t('acts'))}
  <p class="muted">Les activités font vivre les salons : elles se lancent à l’intérieur d’un salon, sans couper la discussion libre.</p>
+ <div class="hero" style="min-height:0"><div class="planet" style="width:110px;height:110px"></div><span class="gold">${ic('trophy')} Saison 1 · semaine 2 sur 4</span><h2 style="font-size:22px">La Voix de PULSE</h2><p class="muted small" style="max-width:30ch">Concours de chant : auditions à l’aveugle chaque jeudi, finale en direct à la fin de la saison.</p><button class="btn btn-p btn-sm" style="align-self:flex-start" data-a="open-act" data-v="a1">Participer ${ic('arrow')}</button></div>
+ <section class="stack"><h2>Rendez-vous de la semaine</h2>${RDV.map(r=>{const k=cat(r.com),on=S.reminders.includes(r.id);return `<div class="list-item">${glyph(k,'calendar')}<div class="grow"><div style="font-weight:700">${esc(r.title)}</div><div class="small muted">${esc(r.when)} · ${esc(com(r.com).name)}</div></div><button class="chip ${on?'on':''}" data-a="remind" data-v="${r.id}">${on?ic('check')+' Noté':ic('bell')+' Rappel'}</button></div>`}).join('')}</section>
  <div class="tabs" role="tablist">${[['live',t('live')],['soon',t('soon')],['done',t('done')]].map(([k,l])=>`<button role="tab" class="${UI.actTab===k?'on':''}" data-a="act-tab" data-v="${k}">${l}</button>`).join('')}</div>
  <div class="stack">${list.map(actCard).join('')||'<p class="muted">Rien pour le moment.</p>'}</div>${nav('')}</div>`},
 
@@ -776,8 +814,8 @@ room:(id)=>{const r=room(id),c=com(r.com),k=cat(r.com),inR=R&&R.id===id,img=r.co
   return `<div class="seat"><div class="av ${speaking?'speaking':''}">${host?`<svg class="crown" viewBox="0 0 24 18" aria-hidden="true"><path d="M2 5l5 4 5-7 5 7 5-4-2 12H4z" fill="currentColor"/></svg>`:''}${avatar(p.av,host?72:60)}${host?'':`<span class="badge">${ic(muted?'micoff':'mic')}</span>`}</div>${host?'<span class="host-pill">Hôte</span>':''}<span class="ellip" style="max-width:80px">${esc(isMe?'Toi':p.name)}</span></div>`};
  const sp=[...r.speakers];
  const meSpeaker=inR&&R.role!=='listener';
- const head=`<div class="top"><button class="back" data-a="back" aria-label="Retour">${ic('back')}<span style="text-align:left;line-height:1.2">Communauté ${esc(c.name)}<br><span class="small muted" style="font-weight:500">${fmt(Math.round(c.members/40))} membres en ligne</span></span></button>
-  <div class="row"><button class="chip ${S.joined.includes(r.com)?'':'on'}" data-a="join" data-v="${r.com}">${S.joined.includes(r.com)?ic('check')+' '+t('member'):ic('plus')+' '+t('join')}</button><button class="icon-btn" data-a="room-menu" data-v="${r.id}" aria-label="Plus d’options">${ic('dots')}</button></div></div>`;
+ const head=`<div class="top"><button class="back" data-a="back" aria-label="Retour" style="flex:1;min-width:0">${ic('back')}<span style="text-align:left;line-height:1.2;min-width:0" class="ellip">${esc(c.name)}<br><span class="small muted" style="font-weight:500">${fmt(Math.round(c.members/40))} membres en ligne</span></span></button>
+  <div class="row"><button class="chip ${S.joined.includes(r.com)?'':'on'}" data-a="join" data-v="${r.com}">${S.joined.includes(r.com)?ic('check')+' '+t('member'):ic('plus')+' '+t('join')}</button><button class="icon-btn cc-btn" data-a="cc" aria-pressed="${!!UI.cc}" aria-label="Sous-titres en direct">CC</button><button class="icon-btn" data-a="room-menu" data-v="${r.id}" aria-label="Plus d’options">${ic('dots')}</button></div></div>`;
  const card=`<div class="salon-card"><div class="art" style="${img?`background-image:url(${img})`:`background:radial-gradient(circle at 35% 30%,${k.g[1]},${k.g[0]} 70%)`}">${img?'':ic(k.icon)}</div>
   <svg class="wv" viewBox="0 0 120 60" aria-hidden="true">${Array.from({length:30},(_,i)=>{const h=6+Math.abs(Math.sin(i*1.7)*22)+(i%5)*3;return `<rect x="${i*4}" y="${30-h/2}" width="2" height="${h}" rx="1" fill="#C084FC"/>`}).join('')}</svg>
   <div class="stack" style="gap:6px;min-width:0;position:relative"><h2 style="font-size:19px">${esc(r.title)}</h2><p class="small muted">${esc(c.tagline)}</p>
@@ -792,8 +830,52 @@ room:(id)=>{const r=room(id),c=com(r.com),k=cat(r.com),inR=R&&R.id===id,img=r.co
   <button class="seat" data-a="invite" data-v="${r.id}"><span class="invite-seat">${ic('plus')}</span><span>Inviter</span></button></div></section>
  <section class="stack"><h2>À l’écoute</h2><div class="row wrap" style="gap:10px">${(inR&&R.role==='listener'?`<div class="seat">${avatar(S.av,48)}<span>Toi</span></div>`:'')}${Object.keys(PEOPLE).filter(p=>p!==r.host&&!sp.includes(p)).slice(0,5).map(p=>`<div class="seat">${avatar(PEOPLE[p].av,48)}<span>${esc(PEOPLE[p].name)}</span></div>`).join('')}${r.listeners>5?`<div class="seat"><div style="width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:var(--surface2);font-weight:800;font-size:12px">+${fmt(r.listeners-5)}</div><span>autres</span></div>`:''}</div></section>
  </div>
+ ${UI.cc?`<div class="cc" id="cc" data-com="${r.com}" aria-live="polite">${ccLine(r.com)}</div>`:''}
  <div class="room-bar"><div class="in">${roomMic(r)}</div></div>`;
 },
+
+/* ----- Talkie-walkie ----- */
+talkie:()=>{const fr=S.friends.filter(f=>!S.blocked.includes(f));if(fr.length&&!fr.includes(UI.tw))UI.tw=fr[0];const who=UI.tw&&PEOPLE[UI.tw];
+ return `<div class="scr">${topBar('Talkie-walkie')}
+ <p class="muted">Garde le doigt appuyé pour parler, relâche pour envoyer. Ton ami t’entend tout de suite.</p>
+ ${fr.length?`<div class="chips">${fr.map(f=>`<button class="chip ${UI.tw===f?'on':''}" data-a="tw-pick" data-v="${f}">${esc(PEOPLE[f].name)}</button>`).join('')}</div>
+  <div class="stack" style="align-items:center;gap:6px">${avatar(who.av,96)}<b>${esc(who.name)}</b><span class="st on">En ligne</span></div>
+  <button class="mic ptt" id="ptt" aria-label="Maintenir pour parler à ${esc(who.name)}">${ic('mic')}</button>
+  <p class="mic-state" id="ptt-state">Maintiens pour parler</p>
+  <section class="stack"><h2>Derniers échanges</h2>${(S.tw||[]).filter(m=>m.to===UI.tw).slice(-4).reverse().map(m=>`<div class="list-item">${ic('speaker')}<div class="grow small">Toi → ${esc(who.name)} · ${m.d} s</div><span class="small muted">démo</span></div>`).join('')||'<p class="small muted">Aucun échange pour l’instant.</p>'}</section>`
+ :`<div class="card stack"><h3>Ajoute d’abord des amis</h3><p class="small muted">Le talkie-walkie marche entre amis. Voici des personnes qui partagent tes passions :</p></div>${Object.keys(PEOPLE).filter(p=>!S.blocked.includes(p)).slice(0,3).map(personRow).join('')}`}
+ ${demo('<b>Prototype :</b> rien n’est capté ni envoyé. À trancher : conversation en direct ou message vocal envoyé tout de suite.')}
+ ${nav('')}</div>`},
+
+/* ----- Mode Duo ----- */
+duo:()=>{const D=UI.duo||{st:'pick'};const k=cat(D.cat||S.interests[0]||'musique');
+ if(D.st==='pick') return `<div class="scr">${topBar('Mode Duo')}
+  <div class="hero" style="min-height:0"><div class="planet" style="width:110px;height:110px"></div><span class="tag" style="align-self:flex-start">Bêta</span><h2 style="font-size:22px">3 minutes, deux voix, une passion</h2><p class="muted small" style="max-width:30ch">Tu parles avec quelqu’un qui aime la même chose que toi. À la fin, vous choisissez tous les deux de rester en contact, ou non.</p></div>
+  <h2>Choisis une passion</h2><div class="row wrap">${S.interests.map(i=>`<button class="chip ${(D.cat||S.interests[0])===i?'on':''}" data-a="duo-cat" data-v="${i}">${esc(cat(i).name)}</button>`).join('')}</div>
+  <button class="btn btn-p" data-a="duo-start">${ic('duo')} Lancer un Duo</button>
+  <div class="card small muted">Voix uniquement, pas de photo. Tu peux partir ou signaler à tout moment. Rien n’est enregistré.</div>${nav('')}</div>`;
+ if(D.st==='search') return `<div class="scr">${topBar('Mode Duo')}<div class="stack" style="align-items:center;text-align:center;padding-top:40px;gap:16px"><div class="mic hot" style="width:110px;height:110px">${ic('duo')}</div><h2>On cherche quelqu’un qui aime ${esc(k.name.toLowerCase())}…</h2><p class="muted small">Quelques secondes</p></div>${nav('')}</div>`;
+ const p=PEOPLE[D.who];
+ if(D.st==='call') return `<div class="scr">${topBar('Mode Duo')}
+  <div class="duo-face"><div class="seat"><div class="av speaking">${avatar(S.av,96)}</div><span>Toi</span></div>${ic('duo')}<div class="seat"><div class="av">${avatar(p.av,96)}</div><span>${esc(p.name)}, ${p.age}</span></div></div>
+  <div class="timer" id="duo-t">3:00</div>
+  <div class="card stack" style="gap:6px"><span class="eyebrow">Pour lancer la conversation</span><b>${esc(QDAY[(dayIdx()+1)%QDAY.length])}</b><span class="small muted">Point commun : ${esc(k.name)}</span></div>
+  ${demo('<b>Prototype :</b> aucune voix n’est transmise, le minuteur tourne pour de vrai.')}
+  <div class="row"><button class="btn btn-g" style="flex:1" data-a="report" data-v="${D.who}">${ic('flag')} Signaler</button><button class="btn btn-p" style="flex:1" data-a="duo-end">Terminer</button></div>${nav('')}</div>`;
+ return `<div class="scr">${topBar('Mode Duo')}<div class="stack" style="align-items:center;text-align:center;gap:12px">${avatar(p.av,110)}<h2>Rester en contact avec ${esc(p.name)} ?</h2><p class="muted small">Si vous dites oui tous les deux, vous devenez amis. Sinon, personne ne le saura.</p></div>
+  <div class="row"><button class="btn btn-g" style="flex:1" data-a="duo-no">Non merci</button><button class="btn btn-p" style="flex:1" data-a="duo-yes">${ic('heart')} Oui</button></div>${nav('')}</div>`;
+},
+
+/* ----- Échange de langues ----- */
+tandem:()=>{const learn=S.me.learn||LANGS.map(l=>l[0].toUpperCase()).find(l=>!S.me.langs.includes(l))||'EN';
+ const ps=Object.keys(PEOPLE).filter(k=>!S.blocked.includes(k)&&PEOPLE[k].langs.includes(learn)&&S.me.langs.includes(PEOPLE[k].learn));
+ return `<div class="scr">${topBar('Échange de langues')}
+ <p class="muted">Tu aides quelqu’un dans ta langue, il t’aide dans la sienne. Moitié du temps chacun.</p>
+ <div class="card stack"><div class="row between"><span class="eyebrow">Je parle</span><div class="row wrap" style="gap:6px">${S.me.langs.map(l=>`<span class="tag">${l}</span>`).join('')}</div></div>
+  <div class="row between"><label class="eyebrow" for="learn">J’apprends</label><select class="chip" id="learn">${LANGS.map(([c,n])=>{const C=c.toUpperCase();return S.me.langs.includes(C)?'':`<option value="${C}" ${learn===C?'selected':''}>${n}</option>`}).join('')}</select></div></div>
+ <section class="stack"><h2>Partenaires possibles <span class="count">(${ps.length})</span></h2>${ps.map(k=>`<div class="stack" style="gap:4px">${personRow(k)}<span class="small muted" style="padding-left:12px">Parle ${PEOPLE[k].langs.join(', ')} · apprend ${PEOPLE[k].learn}</span></div>`).join('')||'<p class="muted small">Personne pour l’instant dans ces exemples. Essaie une autre langue.</p>'}</section>
+ <section class="stack"><h2>Salons d’échange</h2>${allRooms().filter(r=>r.com==='discussions').map(roomCard).join('')}</section>
+ ${nav('')}</div>`},
 
 /* ----- Créer un salon ----- */
 create:(pre)=>`<div class="scr no-nav">${topBar(t('create'))}
@@ -820,7 +902,7 @@ chat:(id)=>{const c=S.convos.find(x=>x.id===id),p=person(id);
  <form class="composer" id="composer"><button type="button" class="icon-btn" data-a="voice-note" data-v="${id}" aria-label="Note vocale">${ic('mic')}</button><input id="msg-in" placeholder="Écris un message…" autocomplete="off" aria-label="Message"><button class="icon-btn" type="submit" aria-label="Envoyer" style="background:linear-gradient(135deg,var(--primary),var(--accent))">${ic('send')}</button></form>`},
 
 /* ----- Profil ----- */
-profile:()=>{const a=ageOf(S.me.birth);const UNIV=[['planete','Planète'],['cite','Cité néon'],['torii','Portail']];
+profile:()=>{const a=ageOf(S.me.birth);const lvl=level();const UNIV=[['planete','Planète'],['cite','Cité néon'],['torii','Portail']];
  const bio=S.me.bio||('Passionné·e de '+S.interests.slice(0,2).map(i=>cat(i).name.toLowerCase()).join(', de ')+' et de nouvelles rencontres 💜');
  const ints=S.interests.slice(0,3);
  return `<div class="prof-bg" style="background-image:url(assets/univ-${S.univers}.webp)"></div><div class="scr" style="position:relative">
@@ -830,9 +912,11 @@ profile:()=>{const a=ageOf(S.me.birth);const UNIV=[['planete','Planète'],['cite
   <span class="muted">@${esc((S.me.name||'toi').toLowerCase().normalize('NFD').replace(/[^a-z0-9]/g,''))}_pulse</span>
   <span class="st on" style="align-self:flex-start">En ligne</span>
   <p style="margin-top:6px">${esc(bio)}</p></div>
+ <div class="card row between"><div class="row">${glyph(cat('musique'),'mic')}<div><div style="font-weight:700">Ma voix en 15 secondes</div><div class="small muted">${S.me.voice?'C’est elle qu’on découvre avant ta photo.':'Présente-toi : on découvre ta voix avant ton avatar.'}</div></div></div>${S.me.voice?`<button class="chip" data-a="play" data-v="me">${ic('play')} 0:15</button>`:`<button class="btn btn-p btn-sm" data-a="rec" data-v="voice">${ic('mic')} Enregistrer</button>`}</div>
  <div class="row wrap" style="gap:8px">${ints.map(i=>`<span class="chip">${cat(i).name}</span>`).join('')}${S.interests.length>3?`<span class="chip">+${S.interests.length-3}</span>`:''}<button class="chip" data-a="edit-profile">${ic('pen')} Modifier</button></div>
  <div class="stats">${[[S.friends.length,'Amis'],[S.joined.length,'Communautés'],[S.created.length,'Salons créés']].map(([n,l])=>`<div class="stat"><b>${n}</b><span class="small muted">${l}</span></div>`).join('')}</div>
- <button class="premium" data-a="premium"><span class="crownb">${ic('crown')}</span><span style="flex:1"><b>PULSE Premium</b><br><span class="small">Personnalise ton univers ✨</span></span>${ic('chev')}</button>
+ <section class="stack"><div class="sec-h"><h2>Badges</h2><span class="small muted">Niveau ${lvl.n} · ${lvl.xp} XP</span></div><div class="lvl" role="progressbar" aria-valuenow="${lvl.pct}" aria-valuemin="0" aria-valuemax="100" aria-label="Progression vers le niveau suivant"><i style="width:${lvl.pct}%"></i></div>
+  <div class="badge-grid">${badges().map(([n,i,on])=>`<div class="bdg ${on?'':'off'}"><span class="bi">${ic(i)}</span>${n}</div>`).join('')}</div></section>
  <section class="stack"><div class="sec-h"><h2>Mon univers</h2><span class="small muted">Fond de ton profil</span></div>
   <div class="uni-grid">${UNIV.map(([k2,l])=>`<button class="uni ${S.univers===k2?'on':''}" style="background-image:url(assets/univ-${k2}.webp)" data-a="univers" data-v="${k2}" aria-pressed="${S.univers===k2}" aria-label="Univers ${l}"><span>${l}</span></button>`).join('')}</div></section>
  <section class="stack"><h2>Mes communautés</h2><div class="com-grid">${S.joined.map(comTile).join('')}</div></section>
@@ -845,8 +929,8 @@ avatar:()=>`<div class="scr no-nav">${topBar(t('editAv'))}${avatarEditor()}<butt
 prefs:()=>{const tg=(k,on,label,sub='')=>`<button class="set-row" data-a="${k}"><span><span style="font-weight:700">${label}</span>${sub?`<br><span class="small muted">${sub}</span>`:''}</span><span class="toggle ${on?'on':''}" role="switch" aria-checked="${!!on}"></span></button>`;
  return `<div class="scr">${topBar(t('settings'))}
  <section class="card"><h3 class="eyebrow" style="margin-bottom:6px">Compte & langue</h3>
-  <div class="set-row"><label for="ui-lang2" style="font-weight:700">${t('lang')} de l’interface</label><select class="chip" id="ui-lang2">${LANGS.map(([c,n])=>`<option value="${c}" ${S.ui===c?'selected':''}>${n}</option>`).join('')}</select></div>
-  <p class="small muted" style="padding-bottom:10px">Menus et textes principaux traduits. Les contenus des salons restent dans leur langue d’origine.</p></section>
+  <div class="set-row"><label for="ui-lang2" style="font-weight:700">${t('lang')} de l’interface</label><select class="chip" id="ui-lang2">${uiLangOpts()}</select></div>
+  <p class="small muted" style="padding-bottom:10px">Français et anglais au lancement ; espagnol, italien, allemand et portugais ensuite. Les salons restent dans leur langue d’origine.</p></section>
  <section class="card"><h3 class="eyebrow" style="margin-bottom:6px">Apparence · à arbitrer</h3>
   <div class="tabs" style="margin:8px 0"><button class="${S.skin==='cosmic'?'on':''}" data-a="skin" data-v="cosmic">Cosmique</button><button class="${S.skin==='ocean'?'on':''}" data-a="skin" data-v="ocean">Ocean Signal</button></div>
   <p class="small muted" style="padding-bottom:6px">Deux pistes à comparer avant de verrouiller la palette. Les couleurs Ocean Signal sont une proposition.</p>
@@ -861,15 +945,15 @@ prefs:()=>{const tg=(k,on,label,sub='')=>`<button class="set-row" data-a="${k}">
   ${tg('n-rooms',S.notif.rooms,'Salons de mes communautés')}${tg('n-msgs',S.notif.msgs,'Messages privés')}${tg('n-acts',S.notif.acts,'Activités et rappels')}
   <p class="small muted" style="padding-bottom:6px">Préférences enregistrées ; l’envoi de notifications n’est pas encore branché.</p></section>
  <section class="card"><button class="set-row" data-a="go" data-v="status"><span style="font-weight:700">État du prototype</span>${ic('info')}</button>
-  <button class="set-row" data-a="reset" style="color:var(--live)"><span style="font-weight:700">Se déconnecter et effacer ce prototype</span>${ic('logout')}</button></section>
+  <button class="set-row" data-a="reset" style="color:var(--live)"><span style="font-weight:700">Supprimer mon compte</span>${ic('logout')}</button></section>
  ${nav('')}</div>`},
 
 status:()=>{const L=(cls,lab,items)=>`<section class="card stack"><div class="row"><span class="pill-status ${cls}">${lab}</span></div><ul class="status-list" style="margin:0;padding-left:18px">${items.map(x=>`<li>${x}</li>`).join('')}</ul></section>`;
  return `<div class="scr">${topBar('État du prototype')}
  <p class="muted">Ce prototype sert à valider le parcours et l’univers visuel. Voici ce qui marche vraiment, ce qui est simulé et ce qui reste à construire.</p>
- ${L('st-ok','Fonctionne dans ce prototype',['Onboarding complet avec contrôle 18+ sur la date de naissance','Éditeur d’avatar : 4 archétypes, têtes, couleurs, aura, 10 accessoires dessinés et portés','Navigation Accueil, Découvrir, PULSE, Messages, Profil, plus les pages Salons et Activités','Recherche et filtres (langue, en direct) sur les exemples','Rejoindre ou quitter une communauté, créer un salon public ou privé (sur cet appareil)','Envoi de messages texte, blocage, signalement (sur cet appareil)','Interface en 6 langues (menus et textes principaux)','Bascule de palette Cosmique / Ocean Signal, mode animations réduites'])}
- ${L('st-demo','Simulé : exemples affichés',['Audio des salons : aucun son capté ni diffusé, micro visuel uniquement','Hôte qui accepte une main levée, participants, compteurs et membres','Traductions de messages (pré-rédigées)','Notes vocales, rappels et notifications','Activités : jurés et quiz jouables, sans autres joueurs réels'])}
- ${L('st-no','Pas encore construit',['Comptes, connexion et serveur (les données restent dans ce navigateur)','Vérification d’âge renforcée','Audio temps réel, notes vocales réelles, appels, Mode Duo','Traduction automatique','Modération côté équipe, traitement des signalements','PULSE+ et paiements'])}
+ ${L('st-ok','Fonctionne dans ce prototype',['Onboarding complet avec contrôle 18+ sur la date de naissance','Éditeur d’avatar : 4 archétypes, têtes, couleurs, aura, 17 accessoires dessinés et portés (en attendant les avatars 3D)','Navigation Accueil, Découvrir, PULSE, Messages, Profil, plus les pages Salons et Activités','Recherche et filtres (langue, en direct) sur les exemples','Rejoindre ou quitter une communauté, créer un salon public ou privé (sur cet appareil)','Envoi de messages texte, blocage, signalement (sur cet appareil)','Interface en français et en anglais (4 autres langues prévues)','Parcours voix de profil, Pulse du jour, talkie-walkie, Mode Duo, échange de langues, rendez-vous, badges et niveaux','Suppression du compte depuis les réglages','Bascule de palette Cosmique / Ocean Signal, mode animations réduites'])}
+ ${L('st-demo','Simulé : exemples affichés',['Audio des salons : aucun son capté ni diffusé, micro visuel uniquement','Enregistrements de voix, talkie-walkie et Mode Duo : aucun son','Sous-titres en direct (phrases d’exemple)','Hôte qui accepte une main levée, participants, compteurs et membres','Traductions de messages (pré-rédigées)','Notes vocales, rappels et notifications','Activités : jurés et quiz jouables, sans autres joueurs réels'])}
+ ${L('st-no','Pas encore construit',['Comptes, connexion et serveur (les données restent dans ce navigateur)','Vérification d’âge renforcée','Audio temps réel, notes vocales réelles, appels, Mode Duo','Traduction automatique','Modération côté équipe, traitement des signalements','PULSE Premium (repoussé après le lancement)'])}
  ${nav('')}</div>`}
 };
 
@@ -878,7 +962,9 @@ function discResults(){
  const fl=r=>(!UI.discLive||r.live)&&(!UI.discLang||r.langs.includes(UI.discLang));
  if(!q&&!UI.discLang&&!UI.discLive){
   return `<div class="stack" style="gap:22px">
-  <div class="hero" style="min-height:160px;justify-content:center"><div class="art-r" style="background-image:url(assets/disc-hero.webp)"></div><h2 style="font-size:21px;max-width:13ch">Une communauté pour chaque passion</h2><p class="muted small" style="max-width:20ch">Musique, sport, gaming, culture…</p><button class="btn btn-p btn-sm" style="align-self:flex-start" data-a="scroll-cats">Explorer ${ic('arrow')}</button></div>
+  <div class="hero" style="min-height:160px;justify-content:center"><div class="art-r" style="background-image:url(assets/disc-hero.webp)"></div><h2 style="font-size:21px;max-width:13ch">Une communauté pour chaque passion</h2><p class="muted small" style="max-width:20ch">Musique, jeux vidéo, langues, cinéma…</p><button class="btn btn-p btn-sm" style="align-self:flex-start" data-a="scroll-cats">Explorer ${ic('arrow')}</button></div>
+  <div class="quick"><button class="com-tile" style="${cv(cat('musique'))}" data-a="duo-open"><div class="big">${ic('duo')}</div><h3>Mode Duo</h3><span class="small muted">3 min avec une personne qui partage ta passion</span><span class="tag" style="align-self:flex-start">Bêta</span></button>
+   <button class="com-tile" style="${cv(cat('discussions'))}" data-a="go" data-v="tandem"><div class="big">${ic('translate')}</div><h3>Échange de langues</h3><span class="small muted">Un natif t’aide, tu l’aides en retour</span></button></div>
   <section class="stack" id="cats"><div class="sec-h"><h2>${t('cats')}</h2><button class="link" data-a="go" data-v="rooms">${t('seeall')} ${ic('arrow')}</button></div><div class="cat-grid">${CATS.map(c=>catTile(c,`data-a="open-com" data-v="${c.id}"`)).join('')}</div></section>
   <section class="stack"><h2>Activités à ne pas manquer</h2>
    <button class="hero" style="min-height:120px;text-align:left" data-a="open-act" data-v="a1"><div class="art-r" style="background-image:url(assets/exp-mic.webp);width:40%"></div><span class="live" style="align-self:flex-start">${t('live')}</span><h3 style="font-size:17px">Défi chant 🎵</h3><p class="small muted" style="max-width:22ch">Montre ta voix et récolte les votes !</p></button>
@@ -895,6 +981,7 @@ function discResults(){
 }
 function personRow(pid){const p=PEOPLE[pid];if(!p)return '';const f=S.friends.includes(pid),rq=S.requested.includes(pid);const common=p.int.filter(i=>S.interests.includes(i));
  return `<div class="list-item">${avatar(p.av,50)}<div class="grow"><div style="font-weight:800">${esc(p.name)}, ${p.age} <span class="tag">${p.country}</span></div><div class="small muted ellip">${p.city} · ${p.langs.join(', ')}${common.length?' · '+common.map(i=>cat(i).name).join(', '):''}</div></div>
+ <button class="icon-btn" data-a="play" data-v="${pid}" aria-label="Écouter la voix de ${esc(p.name)}">${ic('play')}</button>
  ${f?`<button class="btn btn-g btn-sm" data-a="chat-new" data-v="${pid}">${ic('message')}</button>`:`<button class="btn ${rq?'btn-g':'btn-p'} btn-sm" data-a="add" data-v="${pid}" ${rq?'disabled':''}>${rq?'Envoyée':ic('userplus')}</button>`}</div>`}
 
 function roomMic(r){
@@ -911,6 +998,24 @@ function roomMic(r){
   ${inR?`<button class="rb" data-a="leave" aria-label="${t('leave')}" style="color:var(--live)">${ic('logout')}</button>`:`<button class="rb" data-a="room-menu" data-v="${r.id}" aria-label="Plus">${ic('dots')}</button>`}</div>`;
 }
 
+function dailyCard(){const q=QDAY[dayIdx()%QDAY.length],done=S.daily===today();
+ const ans=[['lea','0:21'],['marco','0:17'],['sofia','0:28']];
+ return `<section class="card stack" style="border-color:color-mix(in srgb,var(--accent) 45%,transparent)">
+  <div class="row between"><span class="gold" style="color:#FF9CEB;background:rgba(255,79,216,.12);border-color:rgba(255,79,216,.4)">${ic('sparkle')} Pulse du jour</span><span class="count">${done?ans.length+1:ans.length} réponses · exemple</span></div>
+  <h2>${esc(q)}</h2>
+  <div class="stack" style="gap:8px">${done?`<div class="row">${avatar(S.av,36)}<button class="chip on" data-a="play" data-v="me">${ic('play')} 0:30</button><span class="small">Ta réponse</span></div>`:''}${ans.map(([pid,d])=>`<div class="row">${avatar(PEOPLE[pid].av,36)}<button class="chip" data-a="play" data-v="${pid}">${ic('play')} ${d}</button><span class="small muted">${esc(PEOPLE[pid].name)} · ${PEOPLE[pid].country}</span></div>`).join('')}</div>
+  ${done?'<p class="small muted">Ta réponse est en ligne jusqu’à demain.</p>':`<button class="btn btn-p btn-sm" style="align-self:flex-start" data-a="rec" data-v="daily">${ic('mic')} Répondre en 30 s</button>`}</section>`}
+function rdvCard(r){const k=cat(r.com),on=S.reminders.includes(r.id);return `<div class="com-tile" style="${cv(k)}"><div class="big" style="width:44px;height:44px">${ic('calendar')}</div><h3>${esc(r.title)}</h3><span class="small muted">${esc(r.when)}</span><button class="chip ${on?'on':''}" style="align-self:flex-start;margin-top:4px" data-a="remind" data-v="${r.id}">${on?ic('check')+' Noté':ic('bell')+' Rappel'}</button></div>`}
+function ccLine(c){const L=CC[c]||CC.musique;const i=(UI.ccI||0)%L.length;const who=['Léa','Marco','Nora'][i%3];return `<b>${who}</b> ${esc(L[i])} <span class="small muted">· sous-titres de démo</span>`}
+function badges(){return [['Première voix','mic',!!S.me.voice],['Polyglotte','globe',S.me.langs.length>=2],['Duo','duo',!!S.duoDone],['Hôte','crown',S.created.length>0],['Pulse du jour','sparkle',S.daily===today()],['Voix d’or','star',false]]}
+function level(){const xp=badges().filter(b=>b[2]).length*20+S.friends.length*10+S.joined.length*5;return {xp,n:1+Math.floor(xp/60),pct:Math.round(xp%60/60*100)}}
+function recSheet(kind){const max=kind==='voice'?15:30;let left=max;
+ sheet(`<h2>${kind==='voice'?'Ma voix en 15 secondes':'Pulse du jour'}</h2><p class="muted small">${kind==='voice'?'Idées : ton prénom, ce qui te passionne, ce que tu cherches sur PULSE.':esc(QDAY[dayIdx()%QDAY.length])}</p>
+  <div class="stack" style="align-items:center;gap:10px"><div class="mic hot" style="width:110px;height:110px">${ic('mic')}</div><div class="timer" id="rec-t">0:${String(max).padStart(2,'0')}</div><div class="wave" aria-hidden="true"><i></i><i></i><i></i><i></i></div></div>
+  ${demo('<b>Prototype :</b> le micro n’est pas utilisé, aucun son n’est enregistré.')}
+  <button class="btn btn-p" data-a="rec-ok" data-v="${kind}">${ic('check')} Terminer et publier</button><button class="btn btn-g" data-a="close">Annuler</button>`);
+ clearInterval(window.__rec);window.__rec=setInterval(()=>{const el=document.getElementById('rec-t');if(!el){clearInterval(window.__rec);return}left--;el.textContent='0:'+String(Math.max(left,0)).padStart(2,'0');if(left<=0){clearInterval(window.__rec);el.textContent='Terminé'}},1000)}
+
 /* ----- Éditeur d'avatar ----- */
 function avatarEditor(){
  const a=S.av, tab=UI.avTab;
@@ -923,8 +1028,7 @@ function avatarEditor(){
  const F=UI.accF||'all', inF=x=>F==='all'||x.slot===F||(F==='other'&&['neck','back','extra'].includes(x.slot));
  if(tab==='acc') body=`<div class="chips">${ACCF.map(([k,l])=>`<button class="chip ${F===k?'on':''}" data-a="acc-f" data-v="${k}">${l}</button>`).join('')}</div>
   <p class="small muted">Un objet par emplacement : tête, visage, cou, main, dos, compagnon. Touche à nouveau pour retirer.</p>
-  <div class="acc-grid">${ACC.filter(inF).map(x=>{const on=a.acc[x.slot]===x.id;return `<button class="pick ${on?'on':''}" data-a="av-acc" data-v="${x.id}" aria-pressed="${on}">${x.plus?'<span class="plus">PULSE+</span>':''}${accTile(x,AURA[a.aura])}<span class="nm">${x.name}</span><span class="ds">${SLOTN[x.slot]}</span></button>`}).join('')}</div>
-  <p class="small muted">Objets PULSE+ en aperçu libre : leur mode d’accès n’est pas décidé.</p>`;
+  <div class="acc-grid">${ACC.filter(inF).map(x=>{const on=a.acc[x.slot]===x.id;return `<button class="pick ${on?'on':''}" data-a="av-acc" data-v="${x.id}" aria-pressed="${on}">${x.plus?'<span class="plus">PULSE+</span>':''}${accTile(x,AURA[a.aura])}<span class="nm">${x.name}</span><span class="ds">${SLOTN[x.slot]}</span></button>`}).join('')}</div>`;
  if(tab==='aura') body=`<div class="stack" style="gap:8px"><h3>Couleur d’aura</h3><div class="swatches">${AURA.map((c,i)=>`<button class="sw ${a.aura===i?'on':''}" style="background:${c}" data-a="av-aura" data-v="${i}" aria-label="Aura ${i+1}"></button>`).join('')}</div></div>
   <div class="stack" style="gap:8px"><h3>Intensité</h3><div class="tabs">${['Aucune','Douce','Éclatante'].map((l,i)=>`<button class="${(a.auraLvl??1)===i?'on':''}" data-a="av-lvl" data-v="${i}">${l}</button>`).join('')}</div></div>`;
  return `<div class="av-stage" style="filter:drop-shadow(0 0 30px ${AURA[a.aura]}70)">${avatar(a,190)}</div>${tabs}<div class="stack">${body}</div>`;
@@ -941,8 +1045,9 @@ function pulseSheet(){
  ${R?`<button class="opt" data-a="open-room" data-v="${R.id}"><span class="ic-b">${ic('speaker')}</span><span><b>Revenir à « ${esc(room(R.id).title)} »</b><br><span class="small muted">${R.role==='listener'?'Tu écoutes':R.muted?'Micro coupé':'Micro ouvert'}</span></span></button>`:''}
  <button class="opt" data-a="open-room" data-v="${best.id}"><span class="ic-b">${ic('mic')}</span><span><b>Parler maintenant</b><br><span class="small muted">Entrer dans « ${esc(best.title)} » (en direct)</span></span></button>
  <button class="opt" data-a="go" data-v="create"><span class="ic-b">${ic('plus')}</span><span><b>${t('create')}</b><br><span class="small muted">Public ou privé, sur le thème de ton choix</span></span></button>
- <button class="opt" disabled><span class="ic-b">${ic('message')}</span><span><b>Message vocal express</b> <span class="tag">À définir</span><br><span class="small muted">Façon talkie-walkie, envoyé à un ami</span></span></button>
- <button class="opt" disabled><span class="ic-b">${ic('duo')}</span><span><b>Mode Duo</b> <span class="tag">Envisagé</span><br><span class="small muted">Une conversation vocale à deux</span></span></button>
+ <button class="opt" data-a="go" data-v="talkie"><span class="ic-b">${ic('speaker')}</span><span><b>Talkie-walkie</b><br><span class="small muted">Appuie et parle à un ami, il t’entend tout de suite</span></span></button>
+ <button class="opt" data-a="duo-open"><span class="ic-b">${ic('duo')}</span><span><b>Mode Duo</b> <span class="tag">Bêta</span><br><span class="small muted">3 minutes avec quelqu’un qui partage ta passion</span></span></button>
+ <button class="opt" data-a="go" data-v="tandem"><span class="ic-b">${ic('translate')}</span><span><b>Échange de langues</b><br><span class="small muted">Parle avec un natif qui apprend ta langue</span></span></button>
  <p class="small muted">Le micro ne s’ouvre jamais tout seul : uniquement dans un salon, quand tu l’actives toi-même.</p>`)}
 
 function actSheet(id){
@@ -970,6 +1075,17 @@ function quiz(id,i,score){
 /* ---------- Actions ---------- */
 const ACT={
  back:()=>back(), close:()=>closeSheet(),
+ rec:v=>recSheet(v),
+ 'rec-ok':v=>{clearInterval(window.__rec);if(v==='voice')S.me.voice=1;else S.daily=today();save();closeSheet();render();toast(v==='voice'?'Ta voix est sur ton profil (démo).':'Ta réponse au Pulse du jour est en ligne (démo).')},
+ play:v=>toast(v==='me'?'Lecture de ta voix : démo, aucun son.':`Voix de ${PEOPLE[v]?PEOPLE[v].name:'ce membre'} : démo, aucun son.`),
+ cc:()=>{UI.cc=!UI.cc;render()},
+ 'tw-pick':v=>{UI.tw=v;render()},
+ 'duo-open':()=>{UI.duo={st:'pick',cat:S.interests[0]};go('duo')},
+ 'duo-cat':v=>{UI.duo.cat=v;render()},
+ 'duo-start':()=>{const c=UI.duo.cat||S.interests[0];UI.duo={st:'search',cat:c};render();setTimeout(()=>{if(!UI.duo||UI.duo.st!=='search')return;const cand=Object.keys(PEOPLE).filter(k=>!S.blocked.includes(k)&&!S.friends.includes(k)&&PEOPLE[k].int.includes(c));UI.duo={st:'call',cat:c,who:cand[0]||'lea',end:Date.now()+180000};if(V.name==='duo')render()},1800)},
+ 'duo-end':()=>{UI.duo.st='end';S.duoDone=1;save();render()},
+ 'duo-no':()=>{UI.duo={st:'pick',cat:UI.duo.cat};render();toast('Duo terminé. Personne n’est notifié.')},
+ 'duo-yes':()=>{const w=UI.duo.who;if(!S.friends.includes(w))S.friends.push(w);save();UI.duo={st:'pick',cat:UI.duo.cat};render();toast(`${PEOPLE[w].name} a dit oui aussi (simulation) : vous êtes amis !`)},
  'acc-f':v=>{UI.accF=v;render()},
  'scroll-cats':()=>document.getElementById('cats').scrollIntoView({behavior:'smooth'}),
  univers:v=>{S.univers=v;save();render()},
@@ -995,7 +1111,7 @@ const ACT={
    else if(!b) UI.err='Indique ta date de naissance.';
    else {const a=ageOf(b); if(a<18) UI.err='PULSE est réservé aux personnes majeures (18 ans et plus).'; else if(a>110) UI.err='Vérifie ta date de naissance.';}
   } else if(S.obStep===1){ if(!S.me.langs.length) UI.err='Choisis au moins une langue.'; }
-  else if(S.obStep===2){ if(S.interests.length<3) UI.err='Choisis au moins trois passions.'; }
+  else if(S.obStep===2){ if(S.interests.length<2) UI.err='Choisis au moins deux passions.'; }
   if(!UI.err) S.obStep++;
   save();render(!UI.err);
  },
@@ -1060,7 +1176,7 @@ const ACT={
  'c-submit':()=>{const ti=document.getElementById('c-title').value.trim();if(ti.length<3){document.getElementById('c-err').textContent='Donne un nom d’au moins 3 caractères à ton salon.';return}
   const r={id:'u'+Date.now(),com:document.getElementById('c-com').value,title:ti,langs:[document.getElementById('c-lang').value],live:1,host:'me',speakers:[],listeners:0,private:document.getElementById('vis-priv').classList.contains('on')};
   S.created.unshift(r);save();R={id:r.id,role:'host',muted:true,hand:false};V=HIST.pop()||{name:'home'};go('room',r.id);toast('Salon ouvert. Ton micro est coupé.')},
- reset:()=>sheet(`<h2>Tout effacer ?</h2><p class="muted">Ton profil, ton avatar et tes salons de démonstration seront supprimés de cet appareil.</p><button class="btn btn-p" data-a="reset-ok" style="background:var(--live)">Effacer et se déconnecter</button><button class="btn btn-g" data-a="close">Annuler</button>`),
+ reset:()=>sheet(`<h2>Supprimer ton compte ?</h2><p class="muted">Ton profil, ta voix, ton avatar et tes salons seront supprimés. Dans ce prototype, tout est effacé de cet appareil.</p><button class="btn btn-p" data-a="reset-ok" style="background:var(--live)">Supprimer définitivement</button><button class="btn btn-g" data-a="close">Annuler</button>`),
  'reset-ok':()=>{try{localStorage.removeItem(KEY)}catch(e){}S=DEF();R=null;HIST=[];V={name:'welcome'};closeSheet();render(true)}
 };
 document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!el)return;if(el.disabled)return;const f=ACT[el.dataset.a];if(f){e.preventDefault();f(el.dataset.v,el,e)}});
@@ -1071,10 +1187,17 @@ document.addEventListener('input',e=>{
 document.addEventListener('change',e=>{
  if(e.target.id==='ui-lang'||e.target.id==='ui-lang2'){S.ui=e.target.value;save();render()}
  if(e.target.id==='dm'){S.me.dm=e.target.value;save()}
+ if(e.target.id==='learn'){S.me.learn=e.target.value;save();render()}
 });
 document.addEventListener('submit',e=>{if(e.target.id==='rc-form'){e.preventDefault();const x=document.getElementById('rc-in').value.trim();if(x){UI.rc[e.target.dataset.v].push({n:'me',x});ACT['room-chat'](e.target.dataset.v);document.getElementById('rc-in').focus()}return}
  if(e.target.id!=='composer')return;e.preventDefault();const i=document.getElementById('msg-in');const x=i.value.trim();if(!x)return;S.convos.find(c=>c.id===V.p).msgs.push({f:'me',x});save();render();window.scrollTo(0,document.body.scrollHeight);document.getElementById('msg-in').focus()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet()});
+let pttT0=0;
+document.addEventListener('pointerdown',e=>{const b=e.target.closest('#ptt');if(!b)return;e.preventDefault();pttT0=Date.now();b.classList.add('hot');const st=document.getElementById('ptt-state');if(st)st.textContent=`${PEOPLE[UI.tw].name} t’entend…`});
+const pttUp=()=>{if(!pttT0)return;const d=Math.max(1,Math.round((Date.now()-pttT0)/1000));pttT0=0;S.tw=[...(S.tw||[]),{to:UI.tw,d}].slice(-30);save();render();toast(`Envoyé à ${PEOPLE[UI.tw].name} (démo, aucun son).`)};
+document.addEventListener('pointerup',pttUp);document.addEventListener('pointercancel',pttUp);
+setInterval(()=>{const el=document.getElementById('duo-t');if(el&&UI.duo&&UI.duo.end){const l=Math.max(0,Math.round((UI.duo.end-Date.now())/1000));el.textContent=Math.floor(l/60)+':'+String(l%60).padStart(2,'0');if(!l){UI.duo.st='end';S.duoDone=1;save();render()}}
+ const cc=document.getElementById('cc');if(cc){UI.ccI=(UI.ccI||0)+1;cc.innerHTML=ccLine(cc.dataset.com)}},1000);
 
 /* ---------- Étoiles ---------- */
 (function(){const c=document.getElementById('stars'),x=c.getContext('2d');function draw(){const d=Math.min(devicePixelRatio||1,2);c.width=innerWidth*d;c.height=innerHeight*d;c.style.width=innerWidth+'px';c.style.height=innerHeight+'px';x.scale(d,d);let s=7;const rnd=()=>(s=(s*16807)%2147483647)/2147483647;for(let i=0;i<Math.round(innerWidth*innerHeight/2600);i++){x.globalAlpha=.25+rnd()*.6;x.fillStyle=rnd()>.85?'#E9D5FF':'#fff';x.beginPath();x.arc(rnd()*innerWidth,rnd()*innerHeight,rnd()*1.2+.2,0,7);x.fill()}}draw();addEventListener('resize',draw)})();
