@@ -939,6 +939,8 @@ function lPush(code,m){S.lmsgs=S.lmsgs||{};(S.lmsgs[code]=S.lmsgs[code]||[]).pus
 function liveData(c,d){const code=codeOf(c);if(!code||!d||typeof d!=='object')return;
  if(d.t==='hello'){S.lcontacts=S.lcontacts||[];const n=String(d.n||'Testeur').slice(0,20),av=cleanAv(d.av);const ex=lContact(code);if(ex){ex.n=n;ex.av=av}else{S.lcontacts.push({code,n,av});toast(`${n} et toi êtes maintenant amis`)}save();reLive();return}
  if(d.t==='msg'&&typeof d.x==='string'){lPush(code,{f:'them',x:d.x.slice(0,1000)});if(V.name==='lchat'&&V.p===code){render();window.scrollTo(0,document.body.scrollHeight)}else toast(`Message de ${lName(code)}`);return}
+ if(d.t==='tw-inv'){if(S.dnd)return;sheet(`<div class="stack" style="align-items:center;text-align:center">${avatar((lContact(code)||{}).av||S.av,96)}<h2>${esc(lName(code))} t’invite au talkie-walkie</h2><p class="small muted">Appuie, parle : vous vous entendez en direct.</p></div><div class="row"><button class="btn btn-g" style="flex:1" data-a="close">Plus tard</button><button class="btn btn-p" style="flex:1" data-a="ltw" data-v="${code}">${ic('speaker')} Ouvrir</button></div>`);return}
+ if(d.t==='room-inv'&&typeof d.room==='string'){const r=room(d.room);if(!r)return;sheet(`<div class="stack" style="align-items:center;text-align:center">${avatar((lContact(code)||{}).av||S.av,96)}<h2>${esc(lName(code))} t’invite dans un salon</h2><p class="muted">« ${esc(r.title)} »</p></div><div class="row"><button class="btn btn-g" style="flex:1" data-a="close">Plus tard</button><button class="btn btn-p" style="flex:1" data-a="open-room" data-v="${esc(r.id)}">Rejoindre</button></div>`);return}
  if(d.t==='voice'&&d.b){const m=String(d.m||'');if(!m.startsWith('audio/'))return;const id='v'+Date.now()+Math.random().toString(36).slice(2,6);LIVE.voices[id]=URL.createObjectURL(new Blob([d.b],{type:m}));lPush(code,{f:'them',v:id,d:Math.min(60,+d.d||0)});
   if(V.name==='lchat'&&V.p===code){render();window.scrollTo(0,document.body.scrollHeight)}else toast(`Vocal de ${lName(code)}`)}}
 const micErr=e=>{const n=e&&e.name;if(n==='NotAllowedError'||n==='SecurityError')return 'Micro refusé. Touche le cadenas à gauche de l’adresse, puis Autorisations, puis Micro : Autoriser. Recharge ensuite la page.';if(n==='NotFoundError')return 'Aucun micro trouvé sur cet appareil.';if(n==='NotReadableError')return 'Le micro est déjà utilisé par une autre appli (un appel en cours ?). Ferme-la puis réessaie.';return 'Micro indisponible ('+(n||'erreur')+'). Ouvre la démo dans Chrome ou Safari à jour.'};
@@ -1216,9 +1218,11 @@ room:(id)=>{const r=room(id),c=com(r.com),k=cat(r.com),inR=R&&R.id===id,img=r.co
 /* ----- Talkie-walkie ----- */
 talkie:()=>{const real=S.friends.filter(f=>!S.blocked.includes(f)&&PEOPLE[f]);const fr=real.length?real:['lea','marco','nora'];
  if(UI.tw!=='all'&&!fr.includes(UI.tw))UI.tw=fr[0];const who=UI.tw==='all'?null:PEOPLE[UI.tw];const target=who?who.name:'tout le groupe';
+ const lc=window.PULSE_SITE?(S.lcontacts||[]):[];
  return `<div class="scr">${topBar('Talkie-walkie')}
+ ${window.PULSE_SITE?`<section class="stack"><h2>Mes amis, en vrai</h2>${lc.length?lc.map(c=>`<div class="list-item">${avatar(c.av,46)}<div class="grow"><div style="font-weight:700">${esc(c.n)}</div><span class="st ${lOnline(c.code)?'on':'soon'}">${lOnline(c.code)?'En ligne':'Hors ligne'}</span></div><button class="btn btn-g btn-sm" data-a="tw-inv" data-v="${c.code}">Inviter</button><button class="btn btn-p btn-sm" data-a="ltw" data-v="${c.code}">${ic('speaker')} Parler</button></div>`).join(''):`<div class="card small muted">Ajoute d’abord des amis dans « En ligne maintenant » sur l’accueil : ils apparaîtront ici.</div>`}</section><h2>Amis de démo</h2>`:''}
  <p class="muted">Appuie, parle : ${real.length?'tes amis':'tes amis'} t’entendent en direct, comme avec un vrai talkie-walkie. Rien n’est enregistré.</p>
- ${real.length?'':`<div class="demo-note">${ic('info')}<span>Tu n’as pas encore d’amis : voici des <b>amis de démo</b> pour essayer.</span></div>`}
+ ${real.length||lc.length?'':`<div class="demo-note">${ic('info')}<span>Tu n’as pas encore d’amis : voici des <b>amis de démo</b> pour essayer.</span></div>`}
  <div class="tw-grid">${fr.map(f=>`<button class="tw-f ${UI.tw===f?'on':''} ${UI.twIn===f?'talk':''}" data-a="tw-pick" data-v="${f}" aria-pressed="${UI.tw===f}"><span class="av">${avatar(PEOPLE[f].av,56)}</span><span class="ellip" style="max-width:70px">${esc(PEOPLE[f].name)}</span></button>`).join('')}
   <button class="tw-f ${UI.tw==='all'?'on':''}" data-a="tw-pick" data-v="all" aria-pressed="${UI.tw==='all'}"><span class="tw-group">${ic('users')}</span><span>Groupe</span></button></div>
  <div class="tw-live" id="tw-live" aria-live="polite">${UI.twIn?`<span class="wave"><i></i><i></i><i></i><i></i></span> ${esc(PEOPLE[UI.twIn].name)} te parle…`:`<span class="muted small">${S.dnd?'Ne pas déranger : personne ne peut te parler':'Prêt·e · '+esc(target)}</span>`}</div>
@@ -1394,6 +1398,7 @@ ltalkie:()=>{const code=UI.ltw;const c=lContact(code);if(!c)return VIEWS.live();
  ${UI.micOK?'':`<button class="btn btn-p" data-a="mic-auth">${ic('mic')} Autoriser le micro d’abord</button>`}
  <button class="mic ptt hold" id="lptt" aria-label="Maintenir pour parler à ${esc(c.n)}" style="-webkit-touch-callout:none">${ic('mic')}</button>
  <p class="mic-state" id="lptt-state">Maintiens pour parler : ${esc(c.n)} t’entend en direct</p>
+ <button class="btn btn-g btn-sm" style="align-self:center" data-a="tw-inv" data-v="${code}">${ic('userplus')} Inviter ${esc(c.n)} à ouvrir le talkie</button>
  <button class="set-row" data-a="dnd" style="padding:6px 0"><span><span style="font-weight:700">Ne pas déranger</span><br><span class="small muted">Plus personne ne peut te parler en direct</span></span><span class="toggle ${S.dnd?'on':''}" role="switch" aria-checked="${!!S.dnd}"></span></button>
  <p class="small muted">Vrai talkie-walkie : ta voix part pendant que tu appuies. Mets des écouteurs pour éviter l’écho.</p>
  ${nav('')}</div>`},
@@ -1559,6 +1564,7 @@ function roomMic(r){
  const inR=R&&R.id===r.id;
  let mic,state,hand='';
  if(!inR){mic=`<button class="mic off" data-a="enter" data-v="${r.id}" aria-label="Rejoindre le salon">${ic('headphones')}</button>`;state=`<span class="muted">Touche pour rejoindre et écouter</span>`}
+ else if(R.role==='listener'&&window.PULSE_SITE){mic=`<button class="mic off" data-a="room-mic" aria-label="Monter sur scène">${ic('hand')}</button>`;state='<span class="muted">Tu écoutes · touche la main pour monter sur scène</span>'}
  else if(R.role==='listener'){mic=`<button class="mic off" data-a="room-mic" aria-label="${t('raise')}">${ic('micoff')}</button>`;state=R.hand?'<span style="color:var(--warn)">Main levée : en attente de l’hôte</span>':`<span class="muted">${t('listening')} · lève la main pour parler</span>`;}
  else{mic=`<button class="mic ${R.muted?'off':'hot'}" data-a="room-mic" aria-label="${R.muted?'Activer le micro':'Couper le micro'}" aria-pressed="${!R.muted}">${ic(R.muted?'micoff':'mic')}</button>`;state=`<span style="color:${R.muted?'var(--text2)':'var(--accent)'}">${R.muted?t('micOff'):t('micOn')}</span> <span class="small muted">· ${CAP.dict?(UI.listening?'tes paroles deviennent des sous-titres':'sous-titres de ta voix prêts'):'simulation'}</span>`}
  const handB=inR&&R.role==='listener'?`<button class="rb ${R.hand?'on':''}" data-a="room-hand" aria-label="${t('raise')}">${ic('hand')}</button>`:`<button class="rb" data-a="invite" data-v="${r.id}" aria-label="Inviter">${ic('userplus')}</button>`;
@@ -1700,6 +1706,8 @@ const ACT={
     if(++n>50){clearInterval(it);try{ctx.close()}catch(e){}s2.getTracks().forEach(t=>t.stop());r.lvl=mx>2;const g=document.getElementById('dg');if(g)g.innerHTML=diagHTML(r);const h=document.getElementById('dg-h');if(h)h.textContent=r.lvl&&!r.env?'Ton micro fonctionne. Si ton ami ne t’entend pas, faites-lui faire la même vérification.':'Corrige les points en rouge, recharge la page, puis refais la vérification.'}},100)}
   catch(e){r.mic=false;r.err=micErr(e);const g=document.getElementById('dg');if(g)g.innerHTML=diagHTML(r)}},
  'dg-beep':()=>{const was=S.sound;S.sound=1;playMelody('lune');S.sound=was;toast('Tu dois entendre une petite mélodie.')},
+ 'tw-inv':v=>{const c=LIVE.conns[v];if(c&&c.open){c.send({t:'tw-inv'});toast(`Invitation envoyée à ${lName(v)}`)}else{liveConnect(v,true);toast(`${lName(v)} n’a pas la démo ouverte en ce moment.`)}},
+ 'room-inv':v=>{const rid=R?R.id:V.p;const c=LIVE.conns[v];if(c&&c.open&&rid){c.send({t:'room-inv',room:rid});closeSheet();toast(`Invitation envoyée à ${lName(v)}`)}else{liveConnect(v,true);toast(`${lName(v)} n’a pas la démo ouverte en ce moment.`)}},
  'lc-mute':()=>{const L=LIVE.call;if(!L)return;L.muted=!L.muted;if(LIVE.stream)LIVE.stream.getAudioTracks().forEach(t=>t.enabled=!L.muted);render()},
  'call-start':v=>{if(S.blocked.includes(v))return;CALL={who:v,t0:Date.now(),st:'ring',muted:false,li:0};go('call');setTimeout(()=>{if(CALL&&CALL.who===v&&CALL.st==='ring'){CALL.st='on';CALL.t0=Date.now();render();speak('Allô ! Ça fait plaisir de t’entendre.',v,true)}},1800)},
  'call-open':()=>{if(CALL)CALL.bubble=false;go('call')},
@@ -1816,7 +1824,7 @@ const ACT={
  'av-aura':v=>{S.av.aura=+v;save();render()},
  'av-lvl':v=>{S.av.auraLvl=+v;save();render()},
  'av-acc':v=>{const x=ACC.find(a=>a.id===v);S.av.acc={...S.av.acc};if(S.av.acc[x.slot]===v)delete S.av.acc[x.slot];else S.av.acc[x.slot]=v;save();render()},
- 'open-room':v=>go('room',v),
+ 'open-room':v=>{closeSheet();const r=room(v);if(window.PULSE_SITE&&r&&r.live&&!(R&&R.id===v)){R={id:v,role:r.host==='me'?'host':'listener',muted:true,hand:false}}go('room',v)},
  'open-com':v=>{UI.comTab='about';go('com',v)},
  'com-tab':v=>{UI.comTab=v;render()},
  'act-tab':v=>{UI.actTab=v;render()},
@@ -1825,6 +1833,7 @@ const ACT={
  enter:v=>{const r=room(v);R={id:v,role:r.host==='me'?'host':'listener',muted:true,hand:false};render();toast(r.host==='me'?'Ton salon est ouvert. Ton micro est coupé.':'Tu écoutes. Ton micro est coupé.')},
  leave:()=>{if(CAP.dict)CAP.dict.stop().catch(()=>{});R=null;toast('Tu as quitté le salon.');back()},
  'room-mic':()=>{
+  if(R.role==='listener'&&window.PULSE_SITE){R.role='speaker';R.hand=false;render();toast('Tu es sur scène. Touche le micro pour parler.');return}
   if(R.role==='listener'){
    if(R.hand){R.hand=false;render();toast('Main baissée.');return}
    R.hand=true;render();toast('Main levée. L’hôte peut t’inviter à parler.');
@@ -1835,7 +1844,7 @@ const ACT={
  },
  'mic-ok':()=>{S.micOk=1;save();closeSheet();R.muted=false;dictToggle();render();toast('Micro ouvert (simulation).')},
  react:(v,el)=>{lastRx={e:v,t:Date.now()};pushPresence();const r=el.getBoundingClientRect();const f=document.createElement('div');f.className='floaty';f.textContent=v;f.style.left=r.left+'px';f.style.top=(r.top-10)+'px';document.body.appendChild(f);setTimeout(()=>f.remove(),1700)},
- invite:v=>sheet(`<h2>Inviter dans le salon</h2>${S.friends.length?S.friends.map(f=>`<button class="opt" data-a="invited" data-v="${f}">${avatar(PEOPLE[f].av,40)}<span><b>${esc(PEOPLE[f].name)}</b></span></button>`).join(''):'<p class="muted">Ajoute des amis depuis Découvrir pour les inviter.</p>'}<div class="card small muted" style="overflow-wrap:anywhere">Lien de partage (exemple) : pulse.app/s/${esc(v)}</div>`),
+ invite:v=>sheet(`<h2>Inviter dans le salon</h2>${window.PULSE_SITE&&(S.lcontacts||[]).length?`<p class="eyebrow">Mes amis, en vrai</p>${S.lcontacts.map(c=>`<button class="opt" data-a="room-inv" data-v="${c.code}">${avatar(c.av,40)}<span style="flex:1"><b>${esc(c.n)}</b><br><span class="small muted">${lOnline(c.code)?'En ligne':'Hors ligne'}</span></span>${ic('send')}</button>`).join('')}<p class="eyebrow">Amis de démo</p>`:''}${S.friends.length?S.friends.map(f=>`<button class="opt" data-a="invited" data-v="${f}">${avatar(PEOPLE[f].av,40)}<span><b>${esc(PEOPLE[f].name)}</b></span></button>`).join(''):'<p class="muted">Ajoute des amis depuis Découvrir pour les inviter.</p>'}<div class="card small muted" style="overflow-wrap:anywhere">Lien de partage (exemple) : pulse.app/s/${esc(v)}</div>`),
  invited:v=>{closeSheet();toast(`Invitation préparée pour ${PEOPLE[v].name} (démo, non envoyée).`)},
  'room-menu':v=>{const r=room(v);sheet(`<h2>${esc(r.title)}</h2><button class="opt" data-a="report" data-v="salon"><span class="ic-b">${ic('flag')}</span><span><b>Signaler le salon</b></span></button><button class="opt" data-a="rules"><span class="ic-b">${ic('shield')}</span><span><b>Règles et modération</b><br><span class="small muted">L’hôte peut couper un micro, retirer de la scène ou exclure.</span></span></button>${R&&R.id===v?`<button class="opt" data-a="leave"><span class="ic-b">${ic('logout')}</span><span><b>${t('leave')}</b></span></button>`:''}`)},
  report:v=>sheet(`<h2>Signaler</h2><p class="muted">Pourquoi ? Ton signalement reste confidentiel.</p>${['Harcèlement ou insultes','Contenu choquant ou dangereux','Usurpation d’identité','Personne mineure','Arnaque ou fraude','Autre'].map(x=>`<button class="opt" data-a="reported">${esc(x)}</button>`).join('')}`),

@@ -39,6 +39,8 @@ Réglages → « Se déconnecter et effacer ce prototype » remet tout à zéro.
 - « Ma voix en 15 secondes » et le Pulse du jour enregistrent la vraie voix sur le site (gardée sur l'appareil).
 - Se trouver sans code : chaque testeur a un @nom d'utilisateur ; « En ligne maintenant » (accueil, Découvrir, Tester en vrai) liste les testeurs connectés, la recherche trouve un nom ou un @, et un salon montre « Ici en vrai » les testeurs présents. Le premier téléphone connecté sert d'annuaire (identifiant `pulse-demo-v1-hub`) ; s'il part, un autre prend le relais (signal toutes les 8 s, nettoyage après 20 s).
 - Salons à plusieurs en vrai : micro ouvert, la voix part vers chaque testeur présent dans le même salon (en maillage, adapté à quelques personnes).
+- Talkie-walkie : l'écran Talkie liste d'abord les vrais amis (Parler, Inviter). Invitations au talkie et dans un salon (bouton Inviter du salon) : l'ami reçoit une fenêtre pour ouvrir ou rejoindre.
+- Sur le site, ouvrir un salon en direct suffit pour y être présent, et toucher la main fait monter directement sur scène (pas d'hôte simulé à attendre).
 - Réglage « Apparaître en ligne pour les autres testeurs » pour se rendre invisible.
 - Construire le site anonyme : `python3 tools/build_site.py <dossier>` produit `pulse-site/` et `pulse-site.zip`.
 
