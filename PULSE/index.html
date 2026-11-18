@@ -64,6 +64,7 @@ p{margin:0}
 /* Boutons */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 24px;border-radius:var(--r-pill);font-weight:700;font-size:15px;transition:transform .15s, filter .15s}
 .btn:active{transform:scale(.97)}
+a.btn{text-decoration:none;color:#fff}
 .btn-p{background:linear-gradient(180deg,color-mix(in srgb,var(--electric) 60%,var(--primary)),var(--primary));color:#fff;box-shadow:0 8px 26px -8px color-mix(in srgb,var(--electric) 85%,transparent),inset 0 1px 0 rgba(255,255,255,.25)}
 .btn-g{background:color-mix(in srgb,var(--surface2) 80%,transparent);border:1px solid var(--line)}
 .btn-sm{min-height:38px;padding:0 16px;font-size:13.5px}
@@ -313,6 +314,14 @@ textarea.inp{height:auto;min-height:90px;padding:12px 16px;resize:vertical}
 .ptt .ico{width:56px;height:56px}
 .duo-face{display:flex;align-items:center;justify-content:center;gap:18px}
 .timer{font-size:44px;font-weight:800;text-align:center;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.tw-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px 8px}
+.tw-f{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;font-weight:700;min-width:0}
+.tw-f .av{border-radius:50%;box-shadow:0 0 0 2px var(--line)}
+.tw-f.on .av{box-shadow:0 0 0 3px var(--electric),0 0 18px var(--electric)}
+.tw-f.talk .av{box-shadow:0 0 0 3px var(--accent),0 0 26px 6px var(--accent);animation:talk 1s infinite}
+.tw-live{display:flex;align-items:center;justify-content:center;gap:10px;min-height:24px;font-weight:800;font-size:14px}
+.tw-group{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,var(--accent),var(--primary));box-shadow:0 0 0 2px var(--line)}
+.tw-f.on .tw-group{box-shadow:0 0 0 3px var(--electric),0 0 18px var(--electric)}
 .quick{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .quick .com-tile .big{width:48px;height:48px}
 .quick .com-tile .big .ico{width:24px;height:24px}
@@ -637,7 +646,7 @@ const DEF=()=>({ui:'fr',skin:'cosmic',logo:'b',univers:'cite',calm:0,sound:1,sim
  convos:JSON.parse(JSON.stringify(CONVOS)),notif:{rooms:1,msgs:1,acts:1}});
 let S;
 try{S=Object.assign(DEF(),JSON.parse(localStorage.getItem(KEY)||'null')||{})}catch(e){S=DEF()}
-S.interests=(S.interests||[]).filter(i=>ACTIVE.includes(i));S.created=(S.created||[]).filter(r=>r&&ACTIVE.includes(r.com));S.reminders=(S.reminders||[]).filter(x=>typeof x==='string');S.friends=(S.friends||[]).filter(f=>PEOPLE[f]);S.blocked=(S.blocked||[]).filter(f=>PEOPLE[f]);S.convos=(S.convos||[]).filter(c=>c&&PEOPLE[c.id]&&Array.isArray(c.msgs));S.joined=S.joined||[];S.joined=S.joined.filter(i=>ACTIVE.includes(i));if(!['fr','en'].includes(S.ui))S.ui='fr';
+S.skin='cosmic';S.logo='b';S.interests=(S.interests||[]).filter(i=>ACTIVE.includes(i));S.created=(S.created||[]).filter(r=>r&&ACTIVE.includes(r.com));S.reminders=(S.reminders||[]).filter(x=>typeof x==='string');S.friends=(S.friends||[]).filter(f=>PEOPLE[f]);S.blocked=(S.blocked||[]).filter(f=>PEOPLE[f]);S.convos=(S.convos||[]).filter(c=>c&&PEOPLE[c.id]&&Array.isArray(c.msgs));S.joined=S.joined||[];S.joined=S.joined.filter(i=>ACTIVE.includes(i));if(!['fr','en'].includes(S.ui))S.ui='fr';
 if(S.onboarded&&S.interests.length<2)S.interests=[...new Set([...S.interests,'musique','discussions'])].slice(0,3);
 if(S.onboarded&&!S.joined.length)S.joined=S.interests.slice(0,3);
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
@@ -829,6 +838,7 @@ home:()=>{
    <h2 style="font-size:21px">${t('stage')} 🎤</h2><p class="muted small">Chante, fais vibrer la communauté et tente de remporter le vote !</p>
    <button class="btn btn-p btn-sm" style="align-self:flex-start" data-a="open-act" data-v="a1">${t('join')} ${ic('arrow')}</button>
    <img class="exp-img" src="assets/exp-mic.webp" alt=""></div></div>
+ <button class="list-item" data-a="tw-open" style="border-color:color-mix(in srgb,var(--cyan) 50%,transparent)"><div class="glyph" style="--c1:#22D3EE;--c2:#fff">${ic('speaker')}</div><div class="grow"><div style="font-weight:700">Talkie-walkie</div><div class="small muted">Appuie, parle : tes amis t’entendent en direct</div></div><div class="faces">${(S.friends.length?S.friends:['lea','marco','nora']).filter(f=>PEOPLE[f]).slice(0,3).map(f=>avatar(PEOPLE[f].av,26)).join('')}</div></button>
  ${dailyCard()}
  <section class="stack"><div class="sec-h"><h2>${t('reco')}</h2><button class="link" data-a="go" data-v="rooms">${t('seeall')} ${ic('arrow')}</button></div><div class="com-grid">${coms.map(comTile).join('')}</div></section>
  <section class="stack"><div class="sec-h"><h2>Tes activités</h2><span class="tag" style="background:var(--primary);color:#fff">Nouveau</span></div>
@@ -836,6 +846,7 @@ home:()=>{
   <button class="link" style="align-self:flex-start" data-a="go" data-v="activities">Toutes les activités ${ic('arrow')}</button></section>
  <section class="stack"><div class="sec-h"><h2>Rendez-vous de la semaine</h2></div><div class="hscroll" style="grid-auto-columns:62%">${RDV.map(rdvCard).join('')}</div></section>
  <section class="stack"><div class="sec-h"><h2>En direct maintenant</h2><button class="link" data-a="go" data-v="rooms">${t('rooms')} ${ic('arrow')}</button></div><div class="hscroll">${live.map(roomCard).join('')}</div></section>
+ <button class="hero" style="min-height:0;text-align:left" data-a="go" data-v="avis"><span class="gold">${ic('heart')} Tu testes PULSE ?</span><h2>Donne ton avis en 1 minute</h2><p class="small muted">Ce que tu aimes, ce qui bloque, et inscris-toi à la bêta.</p></button>
  ${demo('<b>Prototype :</b> salons, personnes et compteurs sont des exemples. <button class="link" data-a="go" data-v="status">Voir ce qui fonctionne</button>')}
  ${nav('home')}</div>`;
 },
@@ -913,17 +924,31 @@ room:(id)=>{const r=room(id),c=com(r.com),k=cat(r.com),inR=R&&R.id===id,img=r.co
 },
 
 /* ----- Talkie-walkie ----- */
-talkie:()=>{const fr=S.friends.filter(f=>!S.blocked.includes(f));if(fr.length&&!fr.includes(UI.tw))UI.tw=fr[0];const who=UI.tw&&PEOPLE[UI.tw];
+talkie:()=>{const real=S.friends.filter(f=>!S.blocked.includes(f)&&PEOPLE[f]);const fr=real.length?real:['lea','marco','nora'];
+ if(UI.tw!=='all'&&!fr.includes(UI.tw))UI.tw=fr[0];const who=UI.tw==='all'?null:PEOPLE[UI.tw];const target=who?who.name:'tout le groupe';
  return `<div class="scr">${topBar('Talkie-walkie')}
- <p class="muted">Garde le doigt appuyé pour parler, relâche pour envoyer. Ton ami t’entend tout de suite.</p>
- ${fr.length?`<div class="chips">${fr.map(f=>`<button class="chip ${UI.tw===f?'on':''}" data-a="tw-pick" data-v="${f}">${esc(PEOPLE[f].name)}</button>`).join('')}</div>
-  <div class="stack" style="align-items:center;gap:6px">${avatar(who.av,96)}<b>${esc(who.name)}</b><span class="st on">En ligne</span></div>
-  <button class="mic ptt" id="ptt" aria-label="Maintenir pour parler à ${esc(who.name)}">${ic('mic')}</button>
-  <p class="mic-state" id="ptt-state">Maintiens pour parler</p>
-  <section class="stack"><h2>Derniers échanges</h2>${(S.tw||[]).filter(m=>m.to===UI.tw||m.from===UI.tw).slice(-6).reverse().map(m=>m.from?`<div class="list-item">${avatar(who.av,32)}<div class="grow small"><b>${esc(who.name)}</b> : « ${esc(m.x)} »</div><button class="chip" data-a="say" data-v="${m.from}|${esc(m.x)}" aria-label="Écouter">${ic('play')}</button></div>`:`<div class="list-item">${ic('speaker')}<div class="grow small">Toi → ${esc(who.name)} · ${m.d} s</div><span class="small muted">démo</span></div>`).join('')||'<p class="small muted">Aucun échange pour l’instant.</p>'}</section>`
- :`<div class="card stack"><h3>Ajoute d’abord des amis</h3><p class="small muted">Le talkie-walkie marche entre amis. Voici des personnes qui partagent tes passions :</p></div>${Object.keys(PEOPLE).filter(p=>!S.blocked.includes(p)).slice(0,3).map(personRow).join('')}`}
- ${demo('<b>Prototype :</b> rien n’est capté ni envoyé. À trancher : conversation en direct ou message vocal envoyé tout de suite.')}
+ <p class="muted">Appuie, parle : ${real.length?'tes amis':'tes amis'} t’entendent en direct, comme avec un vrai talkie-walkie. Rien n’est enregistré.</p>
+ ${real.length?'':`<div class="demo-note">${ic('info')}<span>Tu n’as pas encore d’amis : voici des <b>amis de démo</b> pour essayer.</span></div>`}
+ <div class="tw-grid">${fr.map(f=>`<button class="tw-f ${UI.tw===f?'on':''} ${UI.twIn===f?'talk':''}" data-a="tw-pick" data-v="${f}" aria-pressed="${UI.tw===f}"><span class="av">${avatar(PEOPLE[f].av,56)}</span><span class="ellip" style="max-width:70px">${esc(PEOPLE[f].name)}</span></button>`).join('')}
+  <button class="tw-f ${UI.tw==='all'?'on':''}" data-a="tw-pick" data-v="all" aria-pressed="${UI.tw==='all'}"><span class="tw-group">${ic('users')}</span><span>Groupe</span></button></div>
+ <div class="tw-live" id="tw-live" aria-live="polite">${UI.twIn?`<span class="wave"><i></i><i></i><i></i><i></i></span> ${esc(PEOPLE[UI.twIn].name)} te parle…`:`<span class="muted small">${S.dnd?'Ne pas déranger : personne ne peut te parler':'Prêt·e · '+esc(target)}</span>`}</div>
+ <button class="mic ptt" id="ptt" aria-label="Maintenir pour parler à ${esc(target)}">${ic('mic')}</button>
+ <p class="mic-state" id="ptt-state">Maintiens pour parler à ${esc(target)}</p>
+ <button class="set-row" data-a="dnd" style="padding:6px 0"><span><span style="font-weight:700">Ne pas déranger</span><br><span class="small muted">Plus personne ne peut te parler en direct</span></span><span class="toggle ${S.dnd?'on':''}" role="switch" aria-checked="${!!S.dnd}"></span></button>
+ <section class="stack"><h2>Derniers échanges</h2>${(S.tw||[]).slice(-6).reverse().map(m=>m.from?`<div class="list-item">${avatar(PEOPLE[m.from].av,32)}<div class="grow small"><b>${esc(PEOPLE[m.from].name)}</b> : « ${esc(m.x)} »</div><button class="chip" data-a="say" data-v="${m.from}|${esc(m.x)}" aria-label="Réécouter">${ic('play')}</button></div>`:`<div class="list-item">${ic('speaker')}<div class="grow small">Toi → ${esc(m.to==='all'?'Groupe':(PEOPLE[m.to]||{name:'?'}).name)} · ${m.d} s en direct</div></div>`).join('')||'<p class="small muted">Aucun échange pour l’instant.</p>'}</section>
+ ${demo('<b>Prototype :</b> aucun son n’est capté ni transmis. Dans la vraie appli, ta voix part en direct, pendant que tu parles.')}
  ${nav('')}</div>`},
+
+/* ----- Avis des testeurs ----- */
+avis:()=>`<div class="scr no-nav">${topBar('Donne ton avis')}
+ <p class="muted">1 minute pour aider à construire PULSE. Ton avis part dans un message que tu envoies toi-même.</p>
+ <div class="field"><label for="fb-name">Ton prénom ou pseudo</label><input class="inp" id="fb-name" maxlength="30" value="${esc(S.me.name)}"></div>
+ <div class="field"><label for="fb-like">Ce que tu as aimé</label><textarea class="inp" id="fb-like" maxlength="600" placeholder="Le talkie-walkie, le blind test…"></textarea></div>
+ <div class="field"><label for="fb-dislike">Ce que tu n’as pas compris ou à améliorer</label><textarea class="inp" id="fb-dislike" maxlength="600"></textarea></div>
+ <fieldset class="field" style="border:0;padding:0;margin:0"><legend style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:6px">Tu l’utiliserais pour de vrai ?</legend><div class="row wrap">${['Oui, sûrement','Peut-être','Non'].map((o,i)=>`<label class="chip"><input type="radio" name="fb-use" id="fb-use-${i}" value="${o}"> ${o}</label>`).join('')}</div></fieldset>
+ <label class="row" style="gap:10px"><input type="checkbox" id="fb-beta" checked> <span>Je veux tester la vraie version (bêta)</span></label>
+ <button class="btn btn-p" data-a="fb-send">Préparer mon message</button>
+</div>`,
 
 /* ----- Mode Duo ----- */
 duo:()=>{const D=UI.duo||{st:'pick'};const k=cat(D.cat||S.interests[0]||'musique');
@@ -1009,10 +1034,7 @@ prefs:()=>{const tg=(k,on,label,sub='')=>`<button class="set-row" data-a="${k}">
  <section class="card"><h3 class="eyebrow" style="margin-bottom:6px">Compte & langue</h3>
   <div class="set-row"><label for="ui-lang2" style="font-weight:700">${t('lang')} de l’interface</label><select class="chip" id="ui-lang2">${uiLangOpts()}</select></div>
   <p class="small muted" style="padding-bottom:10px">Français et anglais au lancement ; espagnol, italien, allemand et portugais ensuite. Les salons restent dans leur langue d’origine.</p></section>
- <section class="card"><h3 class="eyebrow" style="margin-bottom:6px">Apparence · à arbitrer</h3>
-  <div class="tabs" style="margin:8px 0"><button class="${S.skin==='cosmic'?'on':''}" data-a="skin" data-v="cosmic">Cosmique</button><button class="${S.skin==='ocean'?'on':''}" data-a="skin" data-v="ocean">Ocean Signal</button></div>
-  <p class="small muted" style="padding-bottom:6px">Deux pistes à comparer avant de verrouiller la palette. Les couleurs Ocean Signal sont une proposition.</p>
-  <div class="set-row" style="flex-direction:column;align-items:stretch;gap:8px"><span style="font-weight:700">Logo · à choisir</span><div class="tabs"><button class="${S.logo==='a'?'on':''}" data-a="logo" data-v="a">A · violet-rose</button><button class="${S.logo==='b'?'on':''}" data-a="logo" data-v="b">B · violet-cyan</button></div><div class="row" style="justify-content:center;padding:6px 0">${logo(26)}</div></div>
+ <section class="card"><h3 class="eyebrow" style="margin-bottom:6px">Apparence</h3>
   ${tg('calm',S.calm,'Réduire les animations','Coupe halos, pulsations et ondes')}</section>
  <section class="card"><h3 class="eyebrow" style="margin-bottom:6px">Démo</h3>
   ${tg('sound',S.sound,'Son','Voix de synthèse, mélodies du blind test')}
@@ -1027,7 +1049,7 @@ prefs:()=>{const tg=(k,on,label,sub='')=>`<button class="set-row" data-a="${k}">
  <section class="card"><h3 class="eyebrow" style="margin-bottom:6px">Notifications</h3>
   ${tg('n-rooms',S.notif.rooms,'Salons de mes communautés')}${tg('n-msgs',S.notif.msgs,'Messages privés')}${tg('n-acts',S.notif.acts,'Activités et rappels')}
   <p class="small muted" style="padding-bottom:6px">Préférences enregistrées ; l’envoi de notifications n’est pas encore branché.</p></section>
- <section class="card"><button class="set-row" data-a="go" data-v="status"><span style="font-weight:700">État du prototype</span>${ic('info')}</button>
+ <section class="card"><button class="set-row" data-a="go" data-v="avis"><span style="font-weight:700">Donner mon avis sur la démo</span>${ic('heart')}</button><button class="set-row" data-a="go" data-v="status"><span style="font-weight:700">État du prototype</span>${ic('info')}</button>
   <button class="set-row" data-a="reset" style="color:var(--live)"><span style="font-weight:700">Supprimer mon compte</span>${ic('logout')}</button></section>
  ${nav('')}</div>`},
 
@@ -1081,6 +1103,7 @@ function roomMic(r){
   ${inR?`<button class="rb" data-a="leave" aria-label="${t('leave')}" style="color:var(--live)">${ic('logout')}</button>`:`<button class="rb" data-a="room-menu" data-v="${r.id}" aria-label="Plus">${ic('dots')}</button>`}</div>`;
 }
 
+function selPre(){const el=document.getElementById('fb-pre');if(!el)return;const r=document.createRange();r.selectNodeContents(el);const sl=getSelection();sl.removeAllRanges();sl.addRange(r);toast('Texte sélectionné : copie-le avec ton téléphone.')}
 function dailyCard(){const q=QDAY[dayIdx()%QDAY.length],done=S.daily===today();
  const ans=[['lea','0:21'],['marco','0:17'],['sofia','0:28']];
  return `<section class="card stack" style="border-color:color-mix(in srgb,var(--accent) 45%,transparent)">
@@ -1128,7 +1151,7 @@ function pulseSheet(){
  ${R?`<button class="opt" data-a="open-room" data-v="${R.id}"><span class="ic-b">${ic('speaker')}</span><span><b>Revenir à « ${esc(room(R.id).title)} »</b><br><span class="small muted">${R.role==='listener'?'Tu écoutes':R.muted?'Micro coupé':'Micro ouvert'}</span></span></button>`:''}
  <button class="opt" data-a="open-room" data-v="${best.id}"><span class="ic-b">${ic('mic')}</span><span><b>Parler maintenant</b><br><span class="small muted">Entrer dans « ${esc(best.title)} » (en direct)</span></span></button>
  <button class="opt" data-a="go" data-v="create"><span class="ic-b">${ic('plus')}</span><span><b>${t('create')}</b><br><span class="small muted">Public ou privé, sur le thème de ton choix</span></span></button>
- <button class="opt" data-a="go" data-v="talkie"><span class="ic-b">${ic('speaker')}</span><span><b>Talkie-walkie</b><br><span class="small muted">Appuie et parle à un ami, il t’entend tout de suite</span></span></button>
+ <button class="opt" data-a="tw-open"><span class="ic-b">${ic('speaker')}</span><span><b>Talkie-walkie</b><br><span class="small muted">Appuie et parle à un ami, il t’entend tout de suite</span></span></button>
  <button class="opt" data-a="duo-open"><span class="ic-b">${ic('duo')}</span><span><b>Mode Duo</b> <span class="tag">Bêta</span><br><span class="small muted">3 minutes avec quelqu’un qui partage ta passion</span></span></button>
  <button class="opt" data-a="go" data-v="tandem"><span class="ic-b">${ic('translate')}</span><span><b>Échange de langues</b><br><span class="small muted">Parle avec un natif qui apprend ta langue</span></span></button>
  <p class="small muted">Le micro ne s’ouvre jamais tout seul : uniquement dans un salon, quand tu l’actives toi-même.</p>`)}
@@ -1174,6 +1197,12 @@ const ACT={
  read:()=>{S.readAloud=S.readAloud?0:1;save();render()},
  cc:()=>{UI.cc=!UI.cc;render()},
  'tw-pick':v=>{UI.tw=v;render()},
+ 'tw-open':()=>{go('talkie');if(S.sim&&!S.dnd){clearTimeout(window.__twT);window.__twT=setTimeout(()=>{if(V.name==='talkie'){const real=S.friends.filter(f=>PEOPLE[f]);twIncoming((real.length?real:['lea'])[0])}},4000)}},
+ dnd:()=>{S.dnd=S.dnd?0:1;save();render()},
+ 'fb-send':()=>{const g=id=>(document.getElementById(id)||{}).value||'';const v=document.querySelector('input[name=fb-use]:checked');
+  const txt=`Avis sur la démo PULSE\nPseudo : ${g('fb-name')||'—'}\nJ’ai aimé : ${g('fb-like')||'—'}\nPas compris / à améliorer : ${g('fb-dislike')||'—'}\nJe l’utiliserais : ${v?v.value:'—'}\nBêta : ${document.getElementById('fb-beta').checked?'oui, je veux tester':'non'}`;
+  UI.fbText=txt;sheet(`<h2>Ton avis est prêt</h2><pre class="card small" style="white-space:pre-wrap;margin:0;font-family:inherit" id="fb-pre">${esc(txt)}</pre><a class="btn btn-p" href="https://wa.me/?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener">Envoyer par WhatsApp</a><button class="btn btn-g" data-a="fb-copy">Copier le texte</button><p class="small muted">Choisis la personne qui t’a partagé PULSE. La démo n’enregistre rien.</p>`)},
+ 'fb-copy':()=>{const t2=UI.fbText||'';try{navigator.clipboard.writeText(t2).then(()=>toast('Copié : colle-le dans un message.'),()=>{selPre()})}catch(e){selPre()}},
  'duo-open':()=>{UI.duo={st:'pick',cat:S.interests[0]};go('duo')},
  'duo-cat':v=>{UI.duo.cat=v;render()},
  'duo-start':()=>{const c=UI.duo.cat||S.interests[0];UI.duo={st:'search',cat:c};render();setTimeout(()=>{if(!UI.duo||UI.duo.st!=='search')return;const cand=Object.keys(PEOPLE).filter(k=>!S.blocked.includes(k)&&!S.friends.includes(k)&&PEOPLE[k].int.includes(c));UI.duo={st:'call',cat:c,who:cand[0]||'lea',end:Date.now()+180000};if(V.name==='duo')render()},1800)},
@@ -1287,9 +1316,12 @@ document.addEventListener('submit',e=>{if(e.target.id==='rc-form'){e.preventDefa
  if(e.target.id!=='composer')return;e.preventDefault();const i=document.getElementById('msg-in');const x=i.value.trim();if(!x)return;S.convos.find(c=>c.id===V.p).msgs.push({f:'me',x});save();simReply(V.p);render();window.scrollTo(0,document.body.scrollHeight);document.getElementById('msg-in').focus()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet()});
 let pttT0=0;
-document.addEventListener('pointerdown',e=>{const b=e.target.closest('#ptt');if(!b)return;e.preventDefault();pttT0=Date.now();b.classList.add('hot');const st=document.getElementById('ptt-state');if(st)st.textContent=`${PEOPLE[UI.tw].name} t’entend…`});
-const pttUp=()=>{if(!pttT0)return;const d=Math.max(1,Math.round((Date.now()-pttT0)/1000));pttT0=0;const to=UI.tw;S.tw=[...(S.tw||[]),{to,d}].slice(-30);save();render();toast(`Envoyé à ${PEOPLE[to].name} (démo, aucun son).`);
- if(S.sim)setTimeout(()=>{const x=['Je t’entends ! On se retrouve au salon ?','Haha trop drôle, j’arrive !','Ok, je te rappelle dans 5 minutes.'][S.tw.length%3];S.tw=[...S.tw,{from:to,x}].slice(-30);save();if(V.name==='talkie'&&UI.tw===to)render();speak(x,to,true);toast(`${PEOPLE[to].name} t’a répondu (simulation).`)},2500)};
+document.addEventListener('pointerdown',e=>{const b=e.target.closest('#ptt');if(!b)return;e.preventDefault();pttT0=Date.now();b.classList.add('hot');const n=UI.tw==='all'?'Le groupe':PEOPLE[UI.tw].name;const st=document.getElementById('ptt-state');if(st)st.textContent=`En direct · ${n} t’entend`;const lv=document.getElementById('tw-live');if(lv)lv.innerHTML='<span class="wave"><i></i><i></i><i></i><i></i></span> Tu parles…'});
+const pttUp=()=>{if(!pttT0)return;const d=Math.max(1,Math.round((Date.now()-pttT0)/1000));pttT0=0;const to=UI.tw;S.tw=[...(S.tw||[]),{to,d}].slice(-30);save();render();toast(`Fin de transmission (${d} s, démo sans son).`);
+ if(S.sim&&!S.dnd)setTimeout(()=>twIncoming(to==='all'?['lea','marco','nora'][d%3]:to),1800)};
+function twIncoming(f){if(!PEOPLE[f]||S.dnd||UI.twIn)return;const x=['Je t’entends ! On se retrouve au salon ?','Haha trop drôle, j’arrive !','Ok, je te rappelle dans 5 minutes.','Coucou ! Tu viens au karaoké ce soir ?'][(S.tw||[]).length%4];
+ UI.twIn=f;if(V.name==='talkie')render();else toast(`${PEOPLE[f].name} te parle en talkie-walkie (simulation)`);speak(x,f,true);
+ setTimeout(()=>{UI.twIn=null;S.tw=[...(S.tw||[]),{from:f,x}].slice(-30);save();if(V.name==='talkie')render()},3500)}
 document.addEventListener('pointerup',pttUp);document.addEventListener('pointercancel',pttUp);
 setInterval(()=>{const el=document.getElementById('duo-t');if(el&&UI.duo&&UI.duo.end){const l=Math.max(0,Math.round((UI.duo.end-Date.now())/1000));el.textContent=Math.floor(l/60)+':'+String(l%60).padStart(2,'0');if(!l){UI.duo.st='end';S.duoDone=1;save();render()}}
  window.__tick=(window.__tick||0)+1;

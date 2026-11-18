@@ -19,6 +19,12 @@ Réglages → « Se déconnecter et effacer ce prototype » remet tout à zéro.
 - Retirés pour le lancement : PULSE Premium et les accessoires PULSE+, traduction vocale en direct, appels vidéo.
 - Plan de construction et de publication : document « PULSE — Plan pour construire et publier l'application » (Claude Docs).
 
+## Décisions de Kelly (18 novembre 2026)
+
+- Logo B (violet-rose-cyan, « Logo futuriste PULSE en néon cosmique ») et palette Cosmique violette : verrouillés dans le prototype.
+- Talkie-walkie en direct, façon Tenten : on appuie, l'ami entend pendant qu'on parle, rien n'est enregistré. Amis et groupe, mode « Ne pas déranger ».
+- Avis des testeurs : écran « Donne ton avis » qui prépare un message à envoyer par WhatsApp ou à copier (la démo n'enregistre rien).
+
 ## Interactivité ajoutée
 
 - Voix de synthèse pour les exemples (Pulse du jour, présentations, réponses du talkie-walkie), via la voix Claude de la page publiée ou la synthèse vocale du navigateur.
