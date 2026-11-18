@@ -29,6 +29,7 @@ Réglages → « Se déconnecter et effacer ce prototype » remet tout à zéro.
 
 - **Onde** : jeu de cartes original aux couleurs de PULSE (même couleur ou même chiffre, cartes Saut, Inverse, +2 et Prisme, annonce « Pulse ! »), jouable contre 3 joueurs simulés.
 - **L'Intrus** : jeu de mots à rôle caché (un joueur a un mot proche), indices puis vote, jouable contre 3 joueurs simulés.
+- **Quiz** (7 thèmes dont emoji-rébus, bonus de rapidité), **Petit bac**, **Pendu**, **Quatre en ligne**, **Tu préfères ?**, **Qui de nous ?**, **Action ou vérité**, plus le **Blind test** : 11 jeux en tout, contre des joueurs simulés.
 - Les noms et visuels de jeux existants (Uno, Undercover…) ne sont pas utilisés : ce sont des marques.
 
 ## Interactivité ajoutée

@@ -342,6 +342,33 @@ textarea.inp{height:auto;min-height:90px;padding:12px 16px;resize:vertical}
 .game-tile .gi{width:64px;height:64px;border-radius:18px;display:grid;place-items:center;flex:none;background:radial-gradient(circle at 35% 30%,var(--c2),var(--c1) 70%);box-shadow:0 0 20px -4px var(--c1)}
 .game-tile .gi .ico{width:32px;height:32px;color:#fff}
 .word{font-size:30px;font-weight:800;text-align:center;letter-spacing:.02em;text-shadow:0 0 18px var(--electric)}
+.g-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g-mini{display:flex;flex-direction:column;gap:8px;text-align:left;padding:12px;border-radius:20px;min-width:0;background:linear-gradient(160deg,color-mix(in srgb,var(--c1) 28%,var(--surface)),var(--surface) 80%);border:1px solid color-mix(in srgb,var(--c1) 50%,transparent)}
+.g-mini .gi{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,var(--c2),var(--c1) 70%);box-shadow:0 0 16px -4px var(--c1);font-size:22px}
+.g-mini .gi .ico{width:24px;height:24px;color:#fff}
+.g-mini b{font-size:14px}
+.score-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.score-row .sc{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11.5px;font-weight:700;padding:6px 2px;border-radius:14px;background:color-mix(in srgb,var(--surface2) 70%,transparent);border:1px solid var(--line)}
+.score-row .sc b{font-size:15px;font-variant-numeric:tabular-nums}
+.ans{display:block;width:100%;text-align:left;padding:14px;border-radius:16px;background:rgba(255,255,255,.04);border:1.5px solid var(--line);font-weight:700}
+.ans.good{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 18%,transparent)}
+.ans.bad{border-color:var(--live);background:color-mix(in srgb,var(--live) 15%,transparent)}
+.qz-q{font-size:20px;font-weight:800;line-height:1.3}
+.qz-emoji{font-size:46px;text-align:center;letter-spacing:6px}
+.bar{height:6px;border-radius:3px;background:var(--line2);overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--primary));transition:width 1s linear}
+.kb{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.kb button{height:40px;border-radius:10px;font-weight:800;background:color-mix(in srgb,var(--surface2) 80%,transparent);border:1px solid var(--line)}
+.kb button[disabled]{opacity:.3}
+.hang{font-size:30px;font-weight:800;letter-spacing:8px;text-align:center;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.p4{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;padding:8px;border-radius:18px;background:linear-gradient(160deg,#2B1466,#140A2E);border:1px solid var(--line)}
+.p4 button{aspect-ratio:1;border-radius:50%;background:#0A0520;box-shadow:inset 0 2px 6px rgba(0,0,0,.6)}
+.p4 button.y{background:radial-gradient(circle at 35% 30%,#fff,var(--accent) 45%);box-shadow:0 0 10px var(--accent)}
+.p4 button.b{background:radial-gradient(circle at 35% 30%,#fff,var(--cyan) 45%);box-shadow:0 0 10px var(--cyan)}
+.p4 button.w{outline:3px solid var(--warn);outline-offset:1px}
+.pct{position:relative;overflow:hidden}
+.pct .fill{position:absolute;inset:0 auto 0 0;background:color-mix(in srgb,var(--electric) 25%,transparent);z-index:0}
+.pct>*:not(.fill){position:relative;z-index:1}
+.bac-row{display:grid;grid-template-columns:110px 1fr;gap:8px;align-items:center}
 .quick{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .quick .com-tile .big{width:48px;height:48px}
 .quick .com-tile .big .ico{width:24px;height:24px}
@@ -777,11 +804,48 @@ function cgBots(){const cg=UI.cg;if(!cg||cg.over!==null||cg.turn===0)return;
   if(idx<0){cgDraw(cg,i,1);const last=h.length-1;if(canPlay(h[last],cg))idx=last;else{cg.log=`${PEOPLE[BOTS[i-1]].name} pioche`;cg.turn=nextI(cg);render();cgBots();return}}
   let ch=null;if(h[idx].v==='prisme'){const cnt={};h.forEach(k=>{if(k.c)cnt[k.c]=(cnt[k.c]||0)+1});ch=Object.keys(GC).sort((a,b)=>(cnt[b]||0)-(cnt[a]||0))[0]}
   cgPlay(i,idx,ch);render();cgBots()},1000)}
+const QZ_TH={culture:'Culture générale',musique:'Musique',cinema:'Cinéma',geo:'Géographie',sport:'Sport',sciences:'Sciences',emoji:'Emoji-rébus'};
+const QZ={
+culture:[['Quelle est la capitale du Canada ?','Ottawa','Toronto','Montréal','Vancouver'],['Combien de jours compte une année bissextile ?','366','365','364','367'],['Qui a peint La Joconde ?','Léonard de Vinci','Michel-Ange','Raphaël','Botticelli'],['Quelle langue parle-t-on au Brésil ?','Le portugais','L’espagnol','Le brésilien','L’anglais'],['Combien de côtés a un hexagone ?','6','5','7','8'],['En quelle année a-t-on marché sur la Lune pour la première fois ?','1969','1965','1972','1959'],['Combien de minutes dans une journée ?','1 440','1 240','1 640','2 400']],
+musique:[['Combien de touches compte un piano standard ?','88','76','92','100'],['Combien de cordes a une guitare classique ?','6','4','5','7'],['Que veut dire « a cappella » ?','Sans instruments','Très vite','En duo','À voix basse'],['Avec quoi joue-t-on du violon ?','Un archet','Un médiator','Des baguettes','Un plectre'],['Combien de notes dans une gamme majeure ?','7','5','8','12'],['Mozart était…','Autrichien','Allemand','Italien','Suisse'],['Combien de musiciens dans un quatuor ?','4','3','5','6']],
+cinema:[['Combien d’images par seconde au cinéma traditionnel ?','24','12','30','60'],['Quelle récompense remet le Festival de Cannes ?','La Palme d’or','Le Lion d’or','L’Ours d’or','L’Oscar'],['Quel festival remet le Lion d’or ?','Venise','Berlin','Cannes','Toronto'],['Comment appelle-t-on la première projection publique d’un film ?','L’avant-première','Le prélude','La générale','L’ouverture'],['Les frères Lumière étaient…','Français','Belges','Italiens','Américains'],['Qui choisit les lieux de tournage ?','Le repéreur','Le monteur','L’étalonneur','Le perchiste']],
+geo:[['Quel est le plus long fleuve de France ?','La Loire','La Seine','Le Rhône','La Garonne'],['Quelle est la capitale de l’Australie ?','Canberra','Sydney','Melbourne','Perth'],['Quel est le plus grand océan ?','Le Pacifique','L’Atlantique','L’Indien','L’Arctique'],['Quel pays a la forme d’une botte ?','L’Italie','La Grèce','Le Portugal','La Croatie'],['Quel est le plus haut sommet des Alpes ?','Le mont Blanc','Le Cervin','Le mont Rose','Le Grand Paradis'],['Dans quel pays se trouve Marrakech ?','Le Maroc','La Tunisie','L’Algérie','L’Égypte']],
+sport:[['Combien de joueurs par équipe sur un terrain de foot ?','11','9','10','12'],['Tous les combien d’années ont lieu les JO d’été ?','4 ans','2 ans','3 ans','5 ans'],['Le Tour de France est une course…','À vélo','À pied','En voilier','À moto'],['Combien de joueurs par équipe sur un terrain de basket ?','5','4','6','7'],['Quelle ville a accueilli les JO d’été 2024 ?','Paris','Londres','Tokyo','Los Angeles'],['En finale masculine de Grand Chelem, il faut gagner combien de sets ?','3','2','4','5']],
+sciences:[['Quelle est la formule de l’eau ?','H₂O','CO₂','O₂','NaCl'],['Quelle planète est la plus proche du Soleil ?','Mercure','Vénus','Mars','La Terre'],['Combien d’os compte un adulte ?','206','106','306','406'],['Quel gaz les plantes absorbent-elles ?','Le dioxyde de carbone','L’oxygène','L’azote','L’hélium'],['Combien de planètes dans le système solaire ?','8','7','9','10'],['Quelle est la vitesse de la lumière, environ ?','300 000 km/s','30 000 km/s','3 000 km/s','3 millions de km/s']],
+emoji:[['🦁👑 · Quel film ?','Le Roi Lion','Le Livre de la jungle','Madagascar','Kung Fu Panda'],['❄️👸 · Quel film ?','La Reine des neiges','Cendrillon','Raiponce','Rebelle'],['🚢🧊💔 · Quel film ?','Titanic','Le Grand Bleu','Pirates des Caraïbes','Waterworld'],['🐀👨‍🍳 · Quel film ?','Ratatouille','Les Aristochats','Chicken Run','Zootopie'],['🦈🌊 · Quel film ?','Les Dents de la mer','Le Monde de Nemo','Aquaman','Le Grand Bleu'],['🐱👅 · Quelle expression ?','Donner sa langue au chat','Avoir un chat dans la gorge','Il n’y a pas un chat','Appeler un chat un chat'],['☁️7️⃣ · Quelle expression ?','Être au septième ciel','Tomber des nues','Avoir la tête dans les nuages','Faire la pluie et le beau temps']]};
+const BAC_CATS=['Prénom','Pays','Animal','Fruit ou légume','Métier','Objet'];
+const BAC={A:[['Alice','Antoine'],['Allemagne','Argentine'],['Âne','Abeille'],['Abricot','Artichaut'],['Avocat','Architecte'],['Aspirateur','Agenda']],B:[['Bastien','Béatrice'],['Brésil','Belgique'],['Baleine','Blaireau'],['Banane','Brocoli'],['Boulanger','Bijoutier'],['Bouteille','Brosse']],C:[['Camille','Chloé'],['Canada','Chine'],['Chat','Cheval'],['Cerise','Carotte'],['Coiffeur','Cuisinier'],['Chaise','Crayon']],M:[['Manon','Mehdi'],['Maroc','Mexique'],['Mouton','Marmotte'],['Mangue','Melon'],['Médecin','Musicien'],['Miroir','Montre']],P:[['Paul','Pauline'],['Portugal','Pérou'],['Panda','Pingouin'],['Poire','Poireau'],['Pompier','Pilote'],['Parapluie','Peigne']],S:[['Sarah','Samir'],['Suède','Sénégal'],['Serpent','Singe'],['Salade','Salsifis'],['Serveur','Styliste'],['Stylo','Sac']]};
+const norm=x=>String(x||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim();
+const PENDU=['MICROPHONE','KARAOKE','GUITARE','CONCERT','PLAYLIST','CASQUE','REFRAIN','MELODIE','BATTERIE','TALKIE','CINEMA','POPCORN','VOYAGE','SOIREE','AMITIE'];
+const TP=[['Pouvoir voler','Être invisible'],['Ne plus jamais écouter de musique','Ne plus jamais regarder de films'],['Vivre à la mer','Vivre à la montagne'],['Chanter devant 1 000 personnes','Danser devant 1 000 personnes'],['Avoir toujours trop chaud','Avoir toujours trop froid'],['Parler toutes les langues','Jouer de tous les instruments'],['Un été sans fin','Un hiver sans fin'],['Revoir ton premier concert','Revivre ton meilleur voyage'],['Être drôle','Être intelligent·e'],['Petit-déjeuner pizza pour toujours','Ne plus jamais manger de pizza']];
+const QN=['Qui de nous est le plus susceptible de chanter sous la douche à fond ?','Qui de nous arrive toujours en retard ?','Qui de nous partirait vivre à l’autre bout du monde du jour au lendemain ?','Qui de nous connaît toutes les paroles par cœur ?','Qui de nous s’endort devant un film ?','Qui de nous deviendrait célèbre ?','Qui de nous oublie toujours les anniversaires ?','Qui de nous gagnerait un concours de danse ?','Qui de nous rit le plus fort ?','Qui de nous survivrait le plus longtemps sur une île déserte ?'];
+const AOV={a:['Chante le refrain de ta chanson préférée','Imite un animal pendant 10 secondes','Parle avec un accent pendant le prochain tour','Fais une déclaration d’amour à ta pizza préférée','Raconte une blague nulle','Fais un beatbox de 10 secondes','Dis une phrase dans une langue que tu ne parles pas','Fais le bruit d’un stade en délire'],v:['Quelle est ta plus grosse honte en public ?','Quelle chanson écoutes-tu en cachette ?','Quel est ton pire fou rire ?','Qui t’a le plus inspiré·e ?','Quel est ton rêve le plus fou ?','Quelle est la chose la plus bizarre que tu aies mangée ?','Quel talent caché as-tu ?','Quel est ton plus beau souvenir de voyage ?']};
 const PAIRS=[['Plage','Piscine'],['Café','Thé'],['Guitare','Violon'],['Pizza','Burger'],['Chat','Chien'],['Train','Avion'],['Cinéma','Série'],['Karaoké','Concert']];
 const CLUES={Plage:['sable','vagues','serviette'],Piscine:['chlore','plongeoir','bonnet'],Café:['matin','tasse','noir'],Thé:['infusion','sachet','tasse'],Guitare:['cordes','accords','feu de camp'],Violon:['archet','cordes','orchestre'],Pizza:['four','fromage','part'],Burger:['pain','steak','frites'],Chat:['ronronne','griffes','moustaches'],Chien:['laisse','aboie','balade'],Train:['gare','rails','wagon'],Avion:['aéroport','ailes','décollage'],Cinéma:['écran','popcorn','salle'],Série:['épisode','saison','canapé'],Karaoké:['micro','paroles','fausse note'],Concert:['scène','foule','billet']};
 function igNew(){const pr=shuffle([...PAIRS[Math.floor(Math.random()*PAIRS.length)]]);const intr=Math.floor(Math.random()*4);
  UI.ig={words:[0,1,2,3].map(i=>i===intr?pr[1]:pr[0]),intr,phase:'clue',clues:[],votes:null,out:null}}
 const igName=i=>i===0?'Toi':PEOPLE[BOTS[i-1]].name;
+const PL=['me',...BOTS];const plName=k=>k==='me'?'Toi':PEOPLE[k].name;const plAv=k=>k==='me'?S.av:PEOPLE[k].av;
+const scoreRow=sc=>`<div class="score-row">${PL.map(k=>`<div class="sc">${avatar(plAv(k),30)}<span>${plName(k)}</span><b>${sc[k]||0}</b></div>`).join('')}</div>`;
+function qzStart(th){const bank=shuffle([...QZ[th]]).slice(0,5).map(q=>{const o=shuffle(q.slice(1));return {q:q[0],o,a:o.indexOf(q[1])}});UI.qz={th,qs:bank,i:0,sc:{me:0,lea:0,marco:0,nora:0},phase:'q'};qzQ()}
+function qzQ(){const z=UI.qz;z.phase='q';z.my=null;z.t0=Date.now();z.end=z.t0+12000;z.bots=BOTS.map(()=>({ok:Math.random()<.6,t:2000+Math.random()*7000}))}
+function qzReveal(){const z=UI.qz;if(z.phase!=='q')return;z.phase='rev';const q=z.qs[z.i];z.gain={};
+ if(z.my!==null&&z.my===q.a){const g=100+Math.round(Math.max(0,z.end-z.myT)/120);z.sc.me+=g;z.gain.me=g}
+ BOTS.forEach((b,i)=>{const bt=z.bots[i];if(bt.ok){const g=100+Math.round(Math.max(0,12000-bt.t)/120);z.sc[b]+=g;z.gain[b]=g}});
+ if(V.name==='quiz')render()}
+function p4Win(b,pl){const d=[[0,1],[1,0],[1,1],[1,-1]];for(let r=0;r<6;r++)for(let c=0;c<7;c++){if(b[r][c]!==pl)continue;for(const [dr,dc] of d){const cells=[[r,c]];for(let k=1;k<4;k++){const rr=r+dr*k,cc=c+dc*k;if(rr<0||rr>5||cc<0||cc>6||b[rr][cc]!==pl)break;cells.push([rr,cc])}if(cells.length===4)return cells}}return null}
+const p4Drop=(b,c,pl)=>{for(let r=5;r>=0;r--)if(!b[r][c]){b[r][c]=pl;return r}return -1};
+function p4Bot(){const g=UI.p4,b=g.b;const free=[0,1,2,3,4,5,6].filter(c=>!b[0][c]);if(!free.length)return;
+ const tryC=pl=>free.find(c=>{const t=b.map(r=>[...r]);p4Drop(t,c,pl);return p4Win(t,pl)});
+ let c=tryC(2);if(c===undefined)c=tryC(1);if(c===undefined){const pref=[3,2,4,1,5,0,6].filter(x=>free.includes(x));c=Math.random()<.7?pref[0]:pref[Math.floor(Math.random()*pref.length)]}
+ p4Drop(b,c,2);const w=p4Win(b,2);if(w){g.win=w;g.who=2}else if(b[0].every(x=>x))g.who=0;g.turn=1}
+function bacStart(){const L=Object.keys(BAC);const l=L[Math.floor(Math.random()*L.length)];UI.bac={l,end:Date.now()+90000,phase:'play',mine:BAC_CATS.map(()=>'')}}
+function bacEnd(){const g=UI.bac;if(g.phase!=='play')return;BAC_CATS.forEach((_,i)=>{const el=document.getElementById('bac-'+i);if(el)g.mine[i]=el.value.trim()});
+ g.bots=BOTS.map(()=>BAC_CATS.map((_,i)=>Math.random()<.82?BAC[g.l][i][Math.floor(Math.random()*2)]:''));
+ const all=k=>[g.mine[k],...g.bots.map(b=>b[k])];g.sc={me:0,lea:0,marco:0,nora:0};g.ok=[];
+ BAC_CATS.forEach((_,k)=>{const words=all(k).map(w=>norm(w));PL.forEach((p,pi)=>{const w=words[pi];const valid=w.length>=2&&w[0]===g.l.toLowerCase();if(pi===0)g.ok[k]=valid;if(!valid)return;const same=words.filter(x=>x===w).length;g.sc[p]+=same>1?5:10})});
+ g.phase='done';if(V.name==='bac')render()}
+
 
 /* ---------- Rendu ---------- */
 const app=document.getElementById('app'), layer=document.getElementById('layer');
@@ -889,7 +953,7 @@ home:()=>{
    <button class="btn btn-p btn-sm" style="align-self:flex-start" data-a="open-act" data-v="a1">${t('join')} ${ic('arrow')}</button>
    <img class="exp-img" src="assets/exp-mic.webp" alt=""></div></div>
  <button class="list-item" data-a="tw-open" style="border-color:color-mix(in srgb,var(--cyan) 50%,transparent)"><div class="glyph" style="--c1:#22D3EE;--c2:#fff">${ic('speaker')}</div><div class="grow"><div style="font-weight:700">Talkie-walkie</div><div class="small muted">Appuie, parle : tes amis t’entendent en direct</div></div><div class="faces">${(S.friends.length?S.friends:['lea','marco','nora']).filter(f=>PEOPLE[f]).slice(0,3).map(f=>avatar(PEOPLE[f].av,26)).join('')}</div></button>
- <button class="game-tile" style="--c1:#8B5CF6;--c2:#FF4FD8" data-a="go" data-v="games"><span class="gi">${ic('star')}</span><span style="flex:1;min-width:0"><b>Jeux entre amis</b><br><span class="small muted">Onde, L’Intrus, Blind test… en vocal</span></span>${ic('chev')}</button>
+ <button class="game-tile" style="--c1:#8B5CF6;--c2:#FF4FD8" data-a="go" data-v="games"><span class="gi">${ic('star')}</span><span style="flex:1;min-width:0"><b>Jeux entre amis</b><br><span class="small muted">11 jeux : quiz, cartes, Petit bac, Tu préfères…</span></span>${ic('chev')}</button>
  ${dailyCard()}
  <section class="stack"><div class="sec-h"><h2>${t('reco')}</h2><button class="link" data-a="go" data-v="rooms">${t('seeall')} ${ic('arrow')}</button></div><div class="com-grid">${coms.map(comTile).join('')}</div></section>
  <section class="stack"><div class="sec-h"><h2>Tes activités</h2><span class="tag" style="background:var(--primary);color:#fff">Nouveau</span></div>
@@ -991,14 +1055,24 @@ talkie:()=>{const real=S.friends.filter(f=>!S.blocked.includes(f)&&PEOPLE[f]);co
  ${nav('')}</div>`},
 
 /* ----- Jeux ----- */
-games:()=>`<div class="scr">${topBar('Jeux entre amis')}
- <div class="hero" style="min-height:0"><div class="planet" style="width:110px;height:110px"></div><span class="gold">${ic('sparkle')} Nouveau</span><h2 style="font-size:22px">Jouer, rire, parler</h2><p class="muted small" style="max-width:30ch">Des jeux à plusieurs, en vocal avec tes amis ou dans un salon.</p></div>
- <button class="game-tile" style="--c1:#8B5CF6;--c2:#FF4FD8" data-a="cards-open"><span class="gi">${ic('star')}</span><span class="grow" style="flex:1;min-width:0"><b>Onde</b><br><span class="small muted">Jeu de cartes : même couleur ou même chiffre. Le premier sans carte gagne. 2 à 4 joueurs.</span></span>${ic('chev')}</button>
- <button class="game-tile" style="--c1:#DB2777;--c2:#F59E0B" data-a="intrus-open"><span class="gi">${ic('users')}</span><span class="grow" style="flex:1;min-width:0"><b>L’Intrus</b><br><span class="small muted">Chacun a un mot secret, sauf un. Indices au micro, puis vote. 4 à 8 joueurs.</span></span>${ic('chev')}</button>
- <button class="game-tile" style="--c1:#4F46E5;--c2:#22D3EE" data-a="open-act" data-v="a9"><span class="gi">${ic('music')}</span><span class="grow" style="flex:1;min-width:0"><b>Blind test</b><br><span class="small muted">Trouve la mélodie avant les autres.</span></span>${ic('chev')}</button>
- <section class="stack"><h2>Bientôt</h2><div class="row wrap" style="gap:8px">${['Loup-garou vocal','Petit bac','Dessine et devine','Quatre en ligne','Pendu','Action ou vérité'].map(x=>`<span class="chip">${x}</span>`).join('')}</div></section>
+games:()=>{const tile=(a,v,c1,c2,icon,emoji,name,desc)=>`<button class="g-mini" style="--c1:${c1};--c2:${c2}" data-a="${a}" ${v?`data-v="${v}"`:''}><span class="gi">${emoji||ic(icon)}</span><b>${name}</b><span class="small muted">${desc}</span></button>`;
+ return `<div class="scr">${topBar('Jeux entre amis')}
+ <div class="hero" style="min-height:0"><div class="planet" style="width:110px;height:110px"></div><span class="gold">${ic('sparkle')} 11 jeux</span><h2 style="font-size:22px">Jouer, rire, parler</h2><p class="muted small" style="max-width:30ch">Des jeux à plusieurs, en vocal avec tes amis ou dans un salon.</p></div>
+ <section class="stack"><h2>Quiz et réflexion</h2><div class="g-grid">
+  ${tile('qz-go','','#4F46E5','#22D3EE','trophy','','Quiz','7 thèmes, le plus rapide gagne')}
+  ${tile('cards-open','','#8B5CF6','#FF4FD8','star','','Onde','Cartes : couleur ou chiffre')}
+  ${tile('intrus-open','','#DB2777','#F59E0B','users','','L’Intrus','Un mot secret, un intrus')}
+  ${tile('bac-open','','#059669','#22D3EE','','🔤','Petit bac','Une lettre, six catégories')}
+  ${tile('pendu-open','','#7C3AED','#A855F7','','🎯','Pendu','Trouve le mot lettre par lettre')}
+  ${tile('open-act','a9','#4F46E5','#FF4FD8','music','','Blind test','Reconnais la mélodie')}</div></section>
+ <section class="stack"><h2>Ambiance entre amis</h2><div class="g-grid">
+  ${tile('tp-open','','#FF4F7B','#A855F7','','🤔','Tu préfères ?','Deux choix, un seul')}
+  ${tile('qn-open','','#F59E0B','#FF4FD8','','👀','Qui de nous ?','Votez pour vos amis')}
+  ${tile('av-open','','#DB2777','#8B5CF6','','🎲','Action ou vérité','À tour de rôle, au micro')}
+  ${tile('p4-open','','#0891B2','#FF4FD8','','🔴','Quatre en ligne','Aligne 4 pions')}</div></section>
+ <section class="stack"><h2>Bientôt</h2><div class="row wrap" style="gap:8px">${['Loup-garou vocal','Dessine et devine','Karaoké battle'].map(x=>`<span class="chip">${x}</span>`).join('')}</div></section>
  ${demo('<b>Prototype :</b> tu joues contre des joueurs simulés. Dans l’appli, tu joueras avec tes amis, en vocal.')}
- ${nav('')}</div>`,
+ ${nav('')}</div>`},
 
 cards:()=>{const cg=UI.cg;if(!cg){cgNew();return VIEWS.cards()}const me=cg.hands[0],myTurn=cg.turn===0&&cg.over===null;
  return `<div class="scr" style="gap:16px">${topBar('Onde')}
@@ -1022,6 +1096,63 @@ intrus:()=>{const g=UI.ig;if(!g){igNew();return VIEWS.intrus()}
   <div class="stack">${[0,1,2,3].map(i=>`<div class="list-item">${avatar(i===0?S.av:PEOPLE[BOTS[i-1]].av,32)}<div class="grow small"><b>${igName(i)}</b> a voté ${igName(g.votes[i])}</div></div>`).join('')}</div><button class="btn btn-p" data-a="ig-new">Nouvelle manche</button>`}
  return `<div class="scr">${topBar('L’Intrus')}<div class="stage">${[0,1,2,3].map(i=>seat(i)).join('')}</div>${body}
  ${demo('<b>Prototype :</b> Léa, Marco et Nora sont simulés. Dans l’appli, chacun dit son indice au micro, dans un salon ou entre amis.')}${nav('')}</div>`},
+
+quiz:()=>{const z=UI.qz;
+ if(!z||z.phase==='pick')return `<div class="scr">${topBar('Quiz')}<p class="muted">Choisis un thème : 5 questions, 12 secondes chacune. Bonne réponse = 100 points, plus un bonus de rapidité.</p>
+  <div class="g-grid">${Object.keys(QZ_TH).map((k,i)=>`<button class="g-mini" style="--c1:${['#4F46E5','#8B5CF6','#FF4F7B','#0891B2','#059669','#6366F1','#F59E0B'][i]};--c2:#22D3EE" data-a="qz-th" data-v="${k}"><span class="gi">${['🧠','🎵','🎬','🌍','⚽','🔬','😀'][i]}</span><b>${QZ_TH[k]}</b></button>`).join('')}</div>${nav('')}</div>`;
+ if(z.phase==='end'){const rk=PL.map(k=>[k,z.sc[k]]).sort((a,b)=>b[1]-a[1]);return `<div class="scr">${topBar('Quiz · '+QZ_TH[z.th])}<div class="card stack" style="align-items:center;text-align:center"><span class="gold">${ic('trophy')} ${rk[0][0]==='me'?'Victoire !':plName(rk[0][0])+' gagne'}</span><h2>Classement</h2></div>
+  <div class="stack">${rk.map(([k,v],i)=>`<div class="list-item"><b style="width:22px">${i+1}</b>${avatar(plAv(k),36)}<div class="grow" style="font-weight:700">${plName(k)}</div><span class="tag">${v} pts</span></div>`).join('')}</div>
+  <button class="btn btn-p" data-a="qz-th" data-v="${z.th}">Rejouer</button><button class="btn btn-g" data-a="qz-pick">Changer de thème</button>${nav('')}</div>`}
+ const q=z.qs[z.i],rev=z.phase==='rev',emo=z.th==='emoji';const parts=emo?q.q.split(' · '):null;const left=Math.max(0,Math.ceil((z.end-Date.now())/1000));
+ return `<div class="scr" style="gap:16px">${topBar('Quiz · '+QZ_TH[z.th])}${scoreRow(z.sc)}
+  <div class="row between"><span class="tag">Question ${z.i+1}/${z.qs.length}</span><span class="tag" id="qz-t">${rev?'Terminé':left+' s'}</span></div>
+  <div class="bar"><i id="qz-bar" style="width:${rev?0:left/12*100}%"></i></div>
+  ${emo?`<div class="qz-emoji">${esc(parts[0])}</div><p class="qz-q" style="text-align:center">${esc(parts[1])}</p>`:`<p class="qz-q">${esc(q.q)}</p>`}
+  <div class="stack" style="gap:8px">${q.o.map((o,i)=>`<button class="ans ${rev&&i===q.a?'good':''} ${rev&&i===z.my&&i!==q.a?'bad':''} ${!rev&&i===z.my?'good':''}" data-a="qz-ans" data-v="${i}" ${z.my!==null||rev?'disabled':''}>${esc(o)}</button>`).join('')}</div>
+  ${rev?`<div class="card small">${PL.map(k=>`<div class="row between"><span>${plName(k)}</span><b style="color:${z.gain[k]?'var(--ok)':'var(--muted)'}">${z.gain[k]?'+'+z.gain[k]:'0'}</b></div>`).join('')}</div><button class="btn btn-p" data-a="qz-next">${z.i+1<z.qs.length?'Question suivante':'Voir le classement'}</button>`:`<p class="small muted" style="text-align:center">${z.my!==null?'Réponse enregistrée…':'Réponds vite pour gagner plus de points'}</p>`}
+  ${nav('')}</div>`},
+
+bac:()=>{const g=UI.bac;if(!g){bacStart();return VIEWS.bac()}const left=Math.max(0,Math.ceil((g.end-Date.now())/1000));
+ if(g.phase==='play')return `<div class="scr no-nav" style="gap:14px">${topBar('Petit bac')}
+  <div class="card row between"><div><span class="eyebrow">Lettre</span><div class="word" style="text-align:left">${g.l}</div></div><span class="timer" id="bac-t" style="font-size:30px">${left} s</span></div>
+  <div class="stack" style="gap:10px">${BAC_CATS.map((c,i)=>`<div class="bac-row"><label for="bac-${i}" class="small" style="font-weight:700">${c}</label><input class="inp" id="bac-${i}" autocomplete="off" placeholder="${g.l}…" value="${esc(g.mine[i])}"></div>`).join('')}</div>
+  <button class="btn btn-p" data-a="bac-stop">Stop !</button><p class="small muted">10 points pour un mot que personne d’autre n’a trouvé, 5 s’il est partagé. Dans l’appli, le groupe valide les mots.</p></div>`;
+ return `<div class="scr">${topBar('Petit bac · lettre '+g.l)}${scoreRow(g.sc)}
+  <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12.5px"><thead><tr><th style="text-align:left;padding:6px">Catégorie</th>${PL.map(k=>`<th style="padding:6px">${plName(k)}</th>`).join('')}</tr></thead><tbody>${BAC_CATS.map((c,i)=>`<tr style="border-top:1px solid var(--line2)"><td style="padding:6px;font-weight:700">${c}</td><td style="padding:6px;color:${g.ok[i]?'var(--ok)':'var(--live)'}">${esc(g.mine[i]||'—')}</td>${g.bots.map(b=>`<td style="padding:6px">${esc(b[i]||'—')}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+  <button class="btn btn-p" data-a="bac-open">Nouvelle lettre</button>${nav('')}</div>`},
+
+pendu:()=>{const g=UI.pd;const shown=g.w.split('').map(ch=>g.found.includes(ch)?ch:'_').join('');const won=!shown.includes('_'),lost=g.err>=7;
+ return `<div class="scr">${topBar('Pendu')}
+  <div class="row" style="justify-content:center;gap:4px" aria-label="${7-g.err} vies restantes">${Array.from({length:7},(_,i)=>`<span style="font-size:20px;opacity:${i<7-g.err?1:.2}">💜</span>`).join('')}</div>
+  <div class="hang" aria-live="polite">${won||lost?g.w:shown}</div>
+  ${won?`<div class="card" style="text-align:center"><b>Bravo, mot trouvé !</b></div>`:lost?`<div class="card" style="text-align:center"><b>Perdu…</b> le mot était ${g.w}</div>`:`<p class="small muted" style="text-align:center">Thème : musique, sorties et amitié</p>`}
+  ${won||lost?`<button class="btn btn-p" data-a="pendu-open">Nouveau mot</button>`:`<div class="kb">${'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map(l=>`<button data-a="pd-l" data-v="${l}" ${g.tried.includes(l)?'disabled':''}>${l}</button>`).join('')}</div>`}
+  <p class="small muted">En groupe : chacun propose une lettre à son tour, au micro.</p>${nav('')}</div>`},
+
+p4:()=>{const g=UI.p4;const msg=g.win?(g.who===1?'Tu as gagné !':'Le bot gagne cette fois.'):g.who===0?'Match nul.':g.turn===1?'À toi : touche une colonne.':'Le bot réfléchit…';
+ return `<div class="scr">${topBar('Quatre en ligne')}
+  <div class="row" style="justify-content:center;gap:16px"><span class="tag" style="color:var(--accent)">● Toi</span><span class="tag" style="color:var(--cyan)">● Marco (bot)</span></div>
+  <div class="p4">${g.b.map((row,r)=>row.map((v,c)=>`<button class="${v===1?'y':v===2?'b':''} ${g.win&&g.win.some(([a,b])=>a===r&&b===c)?'w':''}" data-a="p4-col" data-v="${c}" aria-label="Colonne ${c+1}"></button>`).join('')).join('')}</div>
+  <p class="mic-state" aria-live="polite">${msg}</p>${g.win||g.who===0?`<button class="btn btn-p" data-a="p4-open">Rejouer</button>`:''}
+  <p class="small muted">Dans l’appli : à deux, en vocal, pendant une conversation.</p>${nav('')}</div>`},
+
+tpref:()=>{const g=UI.tp||(UI.tp={i:0,pick:null});const pr=TP[g.i%TP.length];const pa=35+(g.i*37)%31;
+ return `<div class="scr">${topBar('Tu préfères ?')}<p class="eyebrow">Question ${g.i%TP.length+1}/${TP.length}</p>
+  <div class="stack">${pr.map((o,k)=>{const pc=k?100-pa:pa;return `<button class="ans pct ${g.pick===k?'good':''}" data-a="tp-pick" data-v="${k}" ${g.pick!==null?'disabled':''}>${g.pick!==null?`<span class="fill" style="width:${pc}%"></span>`:''}<span style="font-size:17px">${esc(o)}</span>${g.pick!==null?`<span class="small muted" style="display:block">${pc} % des joueurs (exemple)</span>`:''}</button>`}).join('<p style="text-align:center;font-weight:800;margin:0">ou</p>')}</div>
+  ${g.pick!==null?`<div class="card small">${BOTS.map((b,i)=>`<div class="row between"><span>${PEOPLE[b].name}</span><b>${esc(pr[(g.i+i)%2])}</b></div>`).join('')}</div><button class="btn btn-p" data-a="tp-next">Question suivante</button>`:''}
+  <p class="small muted">En salon : chacun explique son choix au micro.</p>${nav('')}</div>`},
+
+quinous:()=>{const g=UI.qn;const q=QN[g.i%QN.length];
+ return `<div class="scr">${topBar('Qui de nous ?')}<div class="card"><p class="qz-q">${esc(q)}</p></div>
+  ${g.votes?`<div class="stack">${PL.map(k=>{const n=g.votes.filter(v=>v===k).length;return `<div class="list-item">${avatar(plAv(k),36)}<div class="grow" style="font-weight:700">${plName(k)}</div><span class="tag">${n} vote${n>1?'s':''}</span></div>`}).join('')}</div><button class="btn btn-p" data-a="qn-next">Question suivante</button>`
+  :`<div class="stage">${PL.map(k=>`<button class="seat" data-a="qn-vote" data-v="${k}"><span class="av">${avatar(plAv(k),60)}</span><span>${plName(k)}</span></button>`).join('')}</div><p class="small muted" style="text-align:center">Touche la personne de ton choix.</p>`}${nav('')}</div>`},
+
+aov:()=>{const g=UI.av||(UI.av={turn:0,card:null,type:null});const k=PL[g.turn%4];
+ return `<div class="scr">${topBar('Action ou vérité')}
+  <div class="stack" style="align-items:center;gap:6px">${avatar(plAv(k),80)}<b>Au tour de ${k==='me'?'toi':plName(k)}</b></div>
+  ${g.card?`<div class="card stack" style="text-align:center;align-items:center"><span class="gold">${g.type==='a'?'Action':'Vérité'}</span><p class="qz-q">${esc(g.card)}</p>${k!=='me'?`<p class="small muted">${plName(k)} répond au micro (simulé).</p>`:''}</div><button class="btn btn-p" data-a="av-next">Joueur suivant</button>`
+  :k==='me'?`<div class="row"><button class="btn btn-p" style="flex:1" data-a="av-pick" data-v="a">Action</button><button class="btn btn-g" style="flex:1" data-a="av-pick" data-v="v">Vérité</button></div>`:`<button class="btn btn-p" data-a="av-bot">Voir le choix de ${plName(k)}</button>`}
+  <p class="small muted">Questions et défis gentils, adaptés à tout le monde. On peut toujours passer son tour.</p>${nav('')}</div>`},
 
 /* ----- Avis des testeurs ----- */
 avis:()=>`<div class="scr no-nav">${topBar('Donne ton avis')}
@@ -1237,7 +1368,7 @@ function pulseSheet(){
  <button class="opt" data-a="open-room" data-v="${best.id}"><span class="ic-b">${ic('mic')}</span><span><b>Parler maintenant</b><br><span class="small muted">Entrer dans « ${esc(best.title)} » (en direct)</span></span></button>
  <button class="opt" data-a="go" data-v="create"><span class="ic-b">${ic('plus')}</span><span><b>${t('create')}</b><br><span class="small muted">Public ou privé, sur le thème de ton choix</span></span></button>
  <button class="opt" data-a="tw-open"><span class="ic-b">${ic('speaker')}</span><span><b>Talkie-walkie</b><br><span class="small muted">Appuie et parle à un ami, il t’entend tout de suite</span></span></button>
- <button class="opt" data-a="go" data-v="games"><span class="ic-b">${ic('star')}</span><span><b>Jeux entre amis</b><br><span class="small muted">Onde, L’Intrus, Blind test</span></span></button>
+ <button class="opt" data-a="go" data-v="games"><span class="ic-b">${ic('star')}</span><span><b>Jeux entre amis</b><br><span class="small muted">Quiz, Onde, L’Intrus, Petit bac…</span></span></button>
  <button class="opt" data-a="duo-open"><span class="ic-b">${ic('duo')}</span><span><b>Mode Duo</b> <span class="tag">Bêta</span><br><span class="small muted">3 minutes avec quelqu’un qui partage ta passion</span></span></button>
  <button class="opt" data-a="go" data-v="tandem"><span class="ic-b">${ic('translate')}</span><span><b>Échange de langues</b><br><span class="small muted">Parle avec un natif qui apprend ta langue</span></span></button>
  <p class="small muted">Le micro ne s’ouvre jamais tout seul : uniquement dans un salon, quand tu l’actives toi-même.</p>`)}
@@ -1284,6 +1415,27 @@ const ACT={
  cc:()=>{UI.cc=!UI.cc;render()},
  'tw-pick':v=>{UI.tw=v;render()},
  'cards-open':()=>{cgNew();go('cards')},
+ 'qz-pick':()=>{UI.qz=null;render()},
+ 'qz-go':()=>{UI.qz=null;go('quiz')},
+ 'qz-th':v=>{qzStart(v);if(V.name!=='quiz')go('quiz');else render()},
+ 'qz-ans':v=>{const z=UI.qz;if(z.phase!=='q'||z.my!==null)return;z.my=+v;z.myT=Date.now();render();setTimeout(qzReveal,700)},
+ 'qz-next':()=>{const z=UI.qz;z.i++;if(z.i>=z.qs.length)z.phase='end';else qzQ();render()},
+ 'bac-open':()=>{bacStart();if(V.name!=='bac')go('bac');else render()},
+ 'bac-stop':()=>bacEnd(),
+ 'pendu-open':()=>{UI.pd={w:PENDU[Math.floor(Math.random()*PENDU.length)],found:[],tried:[],err:0};if(V.name!=='pendu')go('pendu');else render()},
+ 'pd-l':v=>{const g=UI.pd;if(g.tried.includes(v))return;g.tried.push(v);if(g.w.includes(v))g.found.push(v);else g.err++;render()},
+ 'p4-open':()=>{UI.p4={b:Array.from({length:6},()=>Array(7).fill(0)),turn:1,win:null,who:null};if(V.name!=='p4')go('p4');else render()},
+ 'p4-col':v=>{const g=UI.p4;if(g.turn!==1||g.win||g.who===0)return;if(p4Drop(g.b,+v,1)<0)return;const w=p4Win(g.b,1);if(w){g.win=w;g.who=1;render();return}if(g.b[0].every(x=>x)){g.who=0;render();return}g.turn=2;render();setTimeout(()=>{if(UI.p4!==g)return;p4Bot();if(V.name==='p4')render()},600)},
+ 'tp-open':()=>{UI.tp={i:Math.floor(Math.random()*TP.length),pick:null};go('tpref')},
+ 'av-open':()=>{UI.av={turn:0,card:null,type:null};go('aov')},
+ 'tp-pick':v=>{UI.tp.pick=+v;render()},
+ 'tp-next':()=>{UI.tp.i++;UI.tp.pick=null;render()},
+ 'qn-open':()=>{UI.qn={i:Math.floor(Math.random()*QN.length),votes:null};go('quinous')},
+ 'qn-vote':v=>{UI.qn.votes=[v,...BOTS.map(b=>{const o=PL.filter(x=>x!==b);return o[Math.floor(Math.random()*o.length)]})];render()},
+ 'qn-next':()=>{UI.qn.i++;UI.qn.votes=null;render()},
+ 'av-pick':v=>{const g=UI.av;g.type=v;const L=AOV[v];g.card=L[Math.floor(Math.random()*L.length)];render()},
+ 'av-bot':()=>{ACT['av-pick'](Math.random()<.5?'a':'v')},
+ 'av-next':()=>{const g=UI.av;g.turn++;g.card=null;g.type=null;render()},
  'cg-new':()=>{cgNew();render()},
  'cg-pulse':()=>{UI.cg.pulsed=true;toast('« Pulse ! » 🔥');render()},
  'cg-play':v=>{const cg=UI.cg,k=cg.hands[0][+v];if(!k||cg.turn!==0||!canPlay(k,cg))return;
@@ -1428,6 +1580,8 @@ function twIncoming(f){if(!PEOPLE[f]||S.dnd||UI.twIn)return;const x=['Je t’ent
 document.addEventListener('pointerup',pttUp);document.addEventListener('pointercancel',pttUp);
 setInterval(()=>{const el=document.getElementById('duo-t');if(el&&UI.duo&&UI.duo.end){const l=Math.max(0,Math.round((UI.duo.end-Date.now())/1000));el.textContent=Math.floor(l/60)+':'+String(l%60).padStart(2,'0');if(!l){UI.duo.st='end';S.duoDone=1;save();render()}}
  window.__tick=(window.__tick||0)+1;
+ if(V.name==='quiz'&&UI.qz&&UI.qz.phase==='q'){const l=Math.max(0,Math.ceil((UI.qz.end-Date.now())/1000));const t=document.getElementById('qz-t');if(t)t.textContent=l+' s';const b=document.getElementById('qz-bar');if(b)b.style.width=(l/12*100)+'%';if(!l)qzReveal()}
+ if(V.name==='bac'&&UI.bac&&UI.bac.phase==='play'){const l=Math.max(0,Math.ceil((UI.bac.end-Date.now())/1000));const t=document.getElementById('bac-t');if(t)t.textContent=l+' s';if(!l)bacEnd()}
  if(V.name==='room'){const r=room(V.p);if(r&&r.live){const cc=document.getElementById('cc');if(UI.cc&&cc&&window.__tick%3===0&&!(UI.listening)){UI.ccI=(UI.ccI||0)+1;cc.innerHTML=ccLine(cc.dataset.com)}if(S.sim&&!UI.cc&&window.__tick%4===0)simEvent(r)}}},1000);
 
 /* ---------- Étoiles ---------- */
