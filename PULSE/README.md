@@ -27,6 +27,11 @@ Réglages → « Se déconnecter et effacer ce prototype » remet tout à zéro.
 - Anonymat : rien dans le site ne mentionne Kelly ni l'outil utilisé ; les avis passeront par une adresse e-mail dédiée (à créer).
 - Avis des testeurs : écran « Donne ton avis » qui prépare un message à envoyer par WhatsApp ou à copier (la démo n'enregistre rien).
 
+## Persos 3D
+
+- 9 persos 3D fournis par Kelly (Amani, Maya, Jade, Inaya, Lina, Kenzo, Rayan, Kai, Noah), recadrés dans `assets/persos/`, à choisir dans l'éditeur d'avatar (onglet Forme), en plus de « Crée le tien ».
+- Les membres de démo (Léa, Marco, Nora…) utilisent ces persos. Les accessoires ne s'appliquent pas encore aux persos 3D : il faudra des couches 3D séparées.
+
 ## Appels entre amis
 
 - Appel vocal à deux qui reste ouvert : barre « En appel avec… » en haut de l'écran pendant qu'on navigue, micro coupé, raccrocher.

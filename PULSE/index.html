@@ -389,6 +389,10 @@ body.in-call .scr{padding-top:76px}
 .player .rx{position:absolute;bottom:10px;font-size:26px;pointer-events:none;animation:floatUp 1.8s ease-out forwards}
 .pctl{display:flex;align-items:center;gap:10px}
 .pctl .prog{flex:1;height:6px;border-radius:3px;background:var(--line2);overflow:hidden}.pctl .prog i{display:block;height:100%;background:linear-gradient(90deg,var(--primary),var(--accent))}
+.perso-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.perso-grid .pick{padding:8px 4px}
+.perso-grid img{width:84px;height:84px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 2px var(--line)}
+.perso-grid .pick.on img{box-shadow:0 0 0 3px var(--electric),0 0 18px var(--electric)}
 .quick{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .quick .com-tile .big{width:48px;height:48px}
 .quick .com-tile .big .ico{width:24px;height:24px}
@@ -526,6 +530,8 @@ const ACC=[
  {id:'echarpe',slot:'neck',name:'Écharpe',vb:'60 122 80 66'},
  {id:'sac',slot:'back',name:'Sac à dos',vb:'48 104 104 100'}
 ];
+const PERSOS=[{id:'amani',name:'Amani'},{id:'maya',name:'Maya'},{id:'jade',name:'Jade'},{id:'inaya',name:'Inaya'},{id:'lina',name:'Lina'},{id:'kenzo',name:'Kenzo'},{id:'rayan',name:'Rayan'},{id:'kai',name:'Kai'},{id:'noah',name:'Noah'}];
+const isPerso=id=>PERSOS.some(x=>x.id===id);
 const SLOTN={hand:'Tenu en main',head:'Sur la tête',face:'Visage',back:'Dans le dos',extra:'Compagnon',neck:'Au cou'};
 const ACCF=[['all','Tous'],['head','Chapeaux'],['face','Lunettes'],['hand','Objets'],['other','Autres']];
 
@@ -617,6 +623,7 @@ function headSVG(a,id){
  return {back,head,front};
 }
 function avatar(a,size=120,opt={}){
+ if(a&&a.photo&&isPerso(a.photo))return `<img src="assets/persos/${a.photo}.webp" alt="" width="${size}" height="${size}" loading="lazy" style="display:block;width:${size}px;height:${size}px;border-radius:50%;object-fit:cover;max-width:none">`;
  const id=++UID, glow=AURA[a.aura]||AURA[0], acc=a.acc||{};
  const lvl=a.auraLvl??1;
  const hp=headSVG(a,id);
@@ -644,15 +651,15 @@ function avatar(a,size=120,opt={}){
 const accTile=(x,col)=>`<svg viewBox="${x.vb}" aria-hidden="true">${accSVG(x.id,col)}${x.id==='sac'?accSVG('sac-front',col):''}</svg>`;
 
 const PEOPLE={
- lea:{name:'Léa',age:27,country:'FR',city:'Lyon',langs:['FR','EN'],int:['musique','voyages'],av:{arch:'human',tint:1,head:1,hair:1,aura:1,auraLvl:1,acc:{hand:'micro'}}},
- marco:{name:'Marco',age:31,country:'IT',city:'Milan',langs:['IT','FR','EN'],int:['musique','sport'],av:{arch:'human',tint:2,head:0,hair:0,aura:2,auraLvl:1,acc:{head:'casque'}}},
- sofia:{name:'Sofia',age:24,country:'ES',city:'Valence',langs:['ES','EN'],int:['cinema','discussions'],av:{arch:'cosmic',tint:2,head:0,hair:0,aura:0,auraLvl:1,acc:{extra:'papillon'}}},
- jonas:{name:'Jonas',age:29,country:'DE',city:'Berlin',langs:['DE','EN'],int:['jeux','tech'],av:{arch:'droid',tint:1,head:0,hair:0,aura:2,auraLvl:1,acc:{hand:'manette'}}},
- ana:{name:'Ana',age:33,country:'PT',city:'Porto',langs:['PT','ES','FR'],int:['lecture','bienetre'],av:{arch:'animal',tint:0,head:0,hair:0,aura:4,auraLvl:1,acc:{face:'lunettes'}}},
- sam:{name:'Sam',age:26,country:'GB',city:'Manchester',langs:['EN'],int:['sport','cinema'],av:{arch:'human',tint:4,head:2,hair:7,aura:3,auraLvl:1,acc:{head:'bonnet'}}},
- nora:{name:'Nora',age:22,country:'FR',city:'Bordeaux',langs:['FR'],int:['musique'],av:{arch:'human',tint:0,head:3,hair:2,aura:1,auraLvl:2,acc:{hand:'guitare'}}},
- malik:{name:'Malik',age:28,country:'FR',city:'Marseille',langs:['FR','EN','ES'],int:['sport','jeux','voyages'],av:{arch:'animal',tint:2,head:2,hair:0,aura:5,auraLvl:1,acc:{head:'chapeau'}}},
- ines:{name:'Inès',age:30,country:'FR',city:'Paris',langs:['FR','IT'],int:['cinema','lecture'],av:{arch:'cosmic',tint:1,head:2,hair:0,aura:3,auraLvl:1,acc:{}}},
+ lea:{name:'Léa',age:27,country:'FR',city:'Lyon',langs:['FR','EN'],int:['musique','voyages'],av:{photo:'jade',arch:'human',tint:1,head:1,hair:1,aura:1,auraLvl:1,acc:{hand:'micro'}}},
+ marco:{name:'Marco',age:31,country:'IT',city:'Milan',langs:['IT','FR','EN'],int:['musique','sport'],av:{photo:'rayan',arch:'human',tint:2,head:0,hair:0,aura:2,auraLvl:1,acc:{head:'casque'}}},
+ sofia:{name:'Sofia',age:24,country:'ES',city:'Valence',langs:['ES','EN'],int:['cinema','discussions'],av:{photo:'lina',arch:'cosmic',tint:2,head:0,hair:0,aura:0,auraLvl:1,acc:{extra:'papillon'}}},
+ jonas:{name:'Jonas',age:29,country:'DE',city:'Berlin',langs:['DE','EN'],int:['jeux','tech'],av:{photo:'kai',arch:'droid',tint:1,head:0,hair:0,aura:2,auraLvl:1,acc:{hand:'manette'}}},
+ ana:{name:'Ana',age:33,country:'PT',city:'Porto',langs:['PT','ES','FR'],int:['lecture','bienetre'],av:{photo:'inaya',arch:'animal',tint:0,head:0,hair:0,aura:4,auraLvl:1,acc:{face:'lunettes'}}},
+ sam:{name:'Sam',age:26,country:'GB',city:'Manchester',langs:['EN'],int:['sport','cinema'],av:{photo:'kenzo',arch:'human',tint:4,head:2,hair:7,aura:3,auraLvl:1,acc:{head:'bonnet'}}},
+ nora:{name:'Nora',age:22,country:'FR',city:'Bordeaux',langs:['FR'],int:['musique'],av:{photo:'maya',arch:'human',tint:0,head:3,hair:2,aura:1,auraLvl:2,acc:{hand:'guitare'}}},
+ malik:{name:'Malik',age:28,country:'FR',city:'Marseille',langs:['FR','EN','ES'],int:['sport','jeux','voyages'],av:{photo:'noah',arch:'animal',tint:2,head:2,hair:0,aura:5,auraLvl:1,acc:{head:'chapeau'}}},
+ ines:{name:'Inès',age:30,country:'FR',city:'Paris',langs:['FR','IT'],int:['cinema','lecture'],av:{photo:'amani',arch:'cosmic',tint:1,head:2,hair:0,aura:3,auraLvl:1,acc:{}}},
  tom:{name:'Tom',age:35,country:'US',city:'Austin',langs:['EN','ES'],int:['tech','musique'],av:{arch:'droid',tint:4,head:3,hair:0,aura:1,auraLvl:1,acc:{}}}
 };
 const ROOMS=[
@@ -765,7 +772,7 @@ const REPLIES=['Trop bien ! On en parle ce soir dans le salon ?','Haha, j’ador
 function simReply(id){if(!S.sim)return;setTimeout(()=>{const c=S.convos.find(x=>x.id===id);if(!c||S.blocked.includes(id))return;c.msgs.push({f:'them',x:REPLIES[c.msgs.length%REPLIES.length],sim:1});save();if(V.name==='chat'&&V.p===id){render();window.scrollTo(0,document.body.scrollHeight)}else toast(`${person(id).name} t’a répondu (simulation).`)},2200)}
 /* présence réelle : les personnes qui ont la page ouverte en même temps */
 const cleanAv=a=>{a=a&&typeof a==='object'?a:{};const arch=ARCH.some(x=>x.id===a.arch)?a.arch:'human';const n=(v,m)=>Number.isInteger(v)&&v>=0&&v<m?v:0;const acc={};if(a.acc&&typeof a.acc==='object')for(const x of ACC){if(a.acc[x.slot]===x.id)acc[x.slot]=x.id}
- return {arch,tint:n(a.tint,6),head:n(a.head,4),hair:n(a.hair,8),aura:n(a.aura,6),auraLvl:n(a.auraLvl,3),acc}};
+ return {arch,tint:n(a.tint,6),head:n(a.head,4),hair:n(a.hair,8),aura:n(a.aura,6),auraLvl:n(a.auraLvl,3),acc,photo:isPerso(a.photo)?a.photo:undefined}};
 const seenRx={},seenSay={};
 function pushPresence(){if(!CAP.room)return;const o={v:1,n:String(S.me.name||'Invité').slice(0,20),av:S.av,in:R?R.id:null,m:R?(R.role==='listener'?(R.hand?'h':'l'):(R.muted?'x':'o')):null,rx:lastRx,say:lastSay};const j=JSON.stringify(o);if(j===pushPresence.last)return;pushPresence.last=j;CAP.room.presence(o).catch(()=>{})}
 function livePeers(rid){if(!CAP.room)return [];return CAP.room.peers().filter(p=>!p.isMe&&p.kind==='viewer'&&p.presence&&p.presence.in===rid)}
@@ -1416,10 +1423,11 @@ function recSheet(kind){const max=kind==='voice'?15:30;let left=max;
 function avatarEditor(){
  const a=S.av, tab=UI.avTab;
  const tabs=`<div class="tabs" role="tablist">${[['forme','Forme'],['tetes','Têtes'],['acc','Accessoires'],['aura','Aura']].map(([k,l])=>`<button role="tab" class="${tab===k?'on':''}" data-a="av-tab" data-v="${k}">${l}</button>`).join('')}</div>`;
- let body='';
- if(tab==='forme') body=`<div class="pick-grid">${ARCH.map(x=>`<button class="pick ${a.arch===x.id?'on':''}" data-a="av-arch" data-v="${x.id}">${avatar({...a,arch:x.id,tint:a.arch===x.id?a.tint:1,acc:{}},92)}<span class="nm">${x.name}</span><span class="ds">${x.ds}</span></button>`).join('')}</div>
+ let body='';const persoNote=a.photo?`<div class="demo-note">${ic('info')}<span>Tu as choisi le perso 3D <b>${esc((PERSOS.find(x=>x.id===a.photo)||{}).name||'')}</b>. Les coiffures et accessoires s’appliquent aux avatars que tu crées ; pour les persos 3D, ils arriveront avec les couches 3D. <button class="link" data-a="av-unphoto">Créer le mien à la place</button></span></div>`:'';
+ if(tab==='forme') body=`<div class="stack" style="gap:8px"><h3>Persos 3D</h3><p class="small muted">Choisis un perso prêt à l’emploi.</p><div class="perso-grid">${PERSOS.map(x=>`<button class="pick ${a.photo===x.id?'on':''}" data-a="av-photo" data-v="${x.id}" aria-pressed="${a.photo===x.id}"><img src="assets/persos/${x.id}.webp" alt="" loading="lazy"><span class="nm">${x.name}</span></button>`).join('')}</div></div>
+  <h3>Ou crée le tien</h3><div class="pick-grid">${ARCH.map(x=>`<button class="pick ${!a.photo&&a.arch===x.id?'on':''}" data-a="av-arch" data-v="${x.id}">${avatar({...a,photo:undefined,arch:x.id,tint:a.arch===x.id?a.tint:1,acc:{}},92)}<span class="nm">${x.name}</span><span class="ds">${x.ds}</span></button>`).join('')}</div>
   <div class="stack" style="gap:8px"><h3>${a.arch==='human'?'Carnation':a.arch==='droid'?'Finition':a.arch==='animal'?'Pelage':'Teinte'}</h3><div class="swatches">${SKIN[a.arch].map((c,i)=>`<button class="sw ${a.tint===i?'on':''}" style="background:${c}" data-a="av-tint" data-v="${i}" aria-label="Couleur ${i+1}"></button>`).join('')}</div></div>`;
- if(tab==='tetes') body=`<div class="pick-grid">${ARCH.find(x=>x.id===a.arch).heads.map((n,i)=>`<button class="pick ${a.head===i?'on':''}" data-a="av-head" data-v="${i}">${avatar({...a,head:i,acc:{}},92)}<span class="nm">${n}</span></button>`).join('')}</div>
+ if(tab==='tetes') body=`<div class="pick-grid">${ARCH.find(x=>x.id===a.arch).heads.map((n,i)=>`<button class="pick ${a.head===i?'on':''}" data-a="av-head" data-v="${i}">${avatar({...a,photo:undefined,head:i,acc:{}},92)}<span class="nm">${n}</span></button>`).join('')}</div>
   ${a.arch==='human'?`<div class="stack" style="gap:8px"><h3>Couleur des cheveux</h3><div class="swatches">${HAIR.map((c,i)=>`<button class="sw ${a.hair===i?'on':''}" style="background:${c}" data-a="av-hair" data-v="${i}" aria-label="Cheveux ${i+1}"></button>`).join('')}</div></div>`:''}`;
  const F=UI.accF||'all', inF=x=>F==='all'||x.slot===F||(F==='other'&&['neck','back','extra'].includes(x.slot));
  if(tab==='acc') body=`<div class="chips">${ACCF.map(([k,l])=>`<button class="chip ${F===k?'on':''}" data-a="acc-f" data-v="${k}">${l}</button>`).join('')}</div>
@@ -1427,7 +1435,7 @@ function avatarEditor(){
   <div class="acc-grid">${ACC.filter(inF).map(x=>{const on=a.acc[x.slot]===x.id;return `<button class="pick ${on?'on':''}" data-a="av-acc" data-v="${x.id}" aria-pressed="${on}">${x.plus?'<span class="plus">PULSE+</span>':''}${accTile(x,AURA[a.aura])}<span class="nm">${x.name}</span><span class="ds">${SLOTN[x.slot]}</span></button>`}).join('')}</div>`;
  if(tab==='aura') body=`<div class="stack" style="gap:8px"><h3>Couleur d’aura</h3><div class="swatches">${AURA.map((c,i)=>`<button class="sw ${a.aura===i?'on':''}" style="background:${c}" data-a="av-aura" data-v="${i}" aria-label="Aura ${i+1}"></button>`).join('')}</div></div>
   <div class="stack" style="gap:8px"><h3>Intensité</h3><div class="tabs">${['Aucune','Douce','Éclatante'].map((l,i)=>`<button class="${(a.auraLvl??1)===i?'on':''}" data-a="av-lvl" data-v="${i}">${l}</button>`).join('')}</div></div>`;
- return `<div class="av-stage" style="filter:drop-shadow(0 0 30px ${AURA[a.aura]}70)">${avatar(a,190)}</div>${tabs}<div class="stack">${body}</div>`;
+ return `<div class="av-stage" style="filter:drop-shadow(0 0 30px ${AURA[a.aura]}70)">${avatar(a,190)}</div>${tabs}<div class="stack">${tab!=='forme'&&tab!=='aura'?persoNote:''}${body}</div>`;
 }
 
 /* ---------- Feuilles, toasts ---------- */
@@ -1596,7 +1604,9 @@ const ACT={
  'ob-int':v=>{const L=S.interests;S.interests=L.includes(v)?L.filter(x=>x!==v):[...L,v];save();render()},
  'ob-done':()=>{S.onboarded=1;S.joined=[...new Set([...S.interests.slice(0,3)])];save();V={name:'home'};HIST=[];render(true);toast(`Bienvenue dans PULSE, ${S.me.name} !`)},
  'av-tab':v=>{UI.avTab=v;render()},
- 'av-arch':v=>{S.av.arch=v;S.av.head=Math.min(S.av.head,3);save();render()},
+ 'av-photo':v=>{if(isPerso(v)){S.av.photo=v;save();render()}},
+ 'av-unphoto':()=>{delete S.av.photo;UI.avTab='forme';save();render()},
+ 'av-arch':v=>{delete S.av.photo;S.av.arch=v;S.av.head=Math.min(S.av.head,3);save();render()},
  'av-tint':v=>{S.av.tint=+v;save();render()},
  'av-head':v=>{S.av.head=+v;save();render()},
  'av-hair':v=>{S.av.hair=+v;save();render()},
