@@ -41,6 +41,7 @@ Réglages → « Se déconnecter et effacer ce prototype » remet tout à zéro.
 - Salons à plusieurs en vrai : micro ouvert, la voix part vers chaque testeur présent dans le même salon (en maillage, adapté à quelques personnes).
 - Talkie-walkie : l'écran Talkie liste d'abord les vrais amis (Parler, Inviter). Invitations au talkie et dans un salon (bouton Inviter du salon) : l'ami reçoit une fenêtre pour ouvrir ou rejoindre.
 - Sur le site, ouvrir un salon en direct suffit pour y être présent, et toucher la main fait monter directement sur scène (pas d'hôte simulé à attendre).
+- Rencontre surprise (bouton PULSE) : tête-à-tête vocal anonyme avec un testeur au hasard, mis en relation par l'annuaire. Question « Tu veux rester avec cette personne ? » : l'autre entend un son joyeux pour oui, un son grave pour non ; si les deux disent oui, prénoms et avatars se dévoilent et on peut s'ajouter. Deux appuis sur PULSE pour partir. Version simulée dans l'aperçu.
 - Réglage « Apparaître en ligne pour les autres testeurs » pour se rendre invisible.
 - Construire le site anonyme : `python3 tools/build_site.py <dossier>` produit `pulse-site/` et `pulse-site.zip`.
 

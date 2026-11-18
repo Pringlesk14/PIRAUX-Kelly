@@ -955,13 +955,14 @@ function playStream(a,rs){a.srcObject=rs;a.muted=false;a.volume=1;const pr=a.pla
 function diagHTML(r){const L=(ok,t,fix)=>`<div class="list-item" style="align-items:flex-start"><span style="font-size:18px">${ok===true?'✅':ok===false?'❌':'⏳'}</span><div class="grow"><b>${t}</b>${fix?`<div class="small muted">${fix}</div>`:''}</div></div>`;
  return `${L(!r.env,'Navigateur',r.env?ENVMSG[r.env]:'')}${L(r.mic,'Micro autorisé',r.mic===false?esc(r.err):'')}${L(r.lvl,'Ta voix est captée',r.lvl===false?'La barre n’a pas bougé : vérifie que le micro n’est pas couvert ou utilisé par une autre appli.':'')}${L(r.rec,'Enregistrement des vocaux',r.rec===false?'Mets à jour Chrome ou Safari.':'')}${L(r.net,'Connexion au service',r.net===false?'Recharge la page. Si ça persiste, change de réseau (Wi-Fi).':'')}`}
 async function getMic(){if(LIVE.stream&&LIVE.stream.active)return LIVE.stream;LIVE.stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});return LIVE.stream}
-function micRelease(){if(LIVE.call||LIVE.tw||LIVE.rec||Object.keys(LIVE.roomCalls||{}).length)return;if(LIVE.stream){LIVE.stream.getTracks().forEach(t=>t.stop());LIVE.stream=null}}
+function micRelease(){if((typeof MATCH!=='undefined'&&MATCH&&MATCH.call)||LIVE.call||LIVE.tw||LIVE.rec||Object.keys(LIVE.roomCalls||{}).length)return;if(LIVE.stream){LIVE.stream.getTracks().forEach(t=>t.stop());LIVE.stream=null}}
 async function liveCall(code){if(LIVE.call)return toast('Tu es déjà en appel.');if(!lOnline(code))return toast(`${lName(code)} n’a pas la démo ouverte en ce moment.`);
  try{const s2=await getMic();s2.getAudioTracks().forEach(t=>t.enabled=true);const call=LIVE.peer.call(pid(code),s2,{metadata:{kind:'call'}});LIVE.call={call,code,st:'ring',t0:Date.now(),muted:false};wireCall(call);go('lcall')}catch(e){toast(micErr(e))}}
 function watchIce(call){const chk=()=>{const pc=call.peerConnection;if(!pc)return setTimeout(chk,300);pc.addEventListener('iceconnectionstatechange',()=>{if(pc.iceConnectionState==='failed'){if(LIVE.call&&LIVE.call.call===call){LIVE.call.noAudio=1;reLive()}toast('Le son ne passe pas sur ce réseau. Essayez tous les deux en Wi-Fi.')}})};chk()}
 function wireCall(call){watchIce(call);setTimeout(()=>{if(LIVE.call&&LIVE.call.call===call&&LIVE.call.st!=='on'&&LIVE.call.answered){LIVE.call.noAudio=1;reLive()}},12000);call.on('error',e=>toast('Appel : '+((e&&e.type)||'erreur')));call.on('stream',rs=>{const a=document.getElementById('remote-audio');playStream(a,rs);if(LIVE.call&&LIVE.call.call===call&&LIVE.call.st!=='on'){LIVE.call.st='on';LIVE.call.t0=Date.now();reLive()}});
  call.on('close',()=>{if(LIVE.call&&LIVE.call.call===call){LIVE.call=null;micRelease();toast('Appel terminé');if(V.name==='lcall')back();else reLive()}});call.on('error',()=>{})}
 function liveIncoming(call){const code=codeOf(call);const kind=call.metadata&&call.metadata.kind;
+ if(kind==='match'){if(!MATCH||MATCH.with!==code||MATCH.st!=='call'){call.close();return}getMic().then(s2=>{s2.getAudioTracks().forEach(t=>t.enabled=true);call.answer(s2);matchWire(call)}).catch(e=>{toast(micErr(e));call.close()});return}
  if(kind==='room'){const rid=call.metadata&&call.metadata.room;if(!R||R.id!==rid){call.close();return}call.answer();LIVE.roomIn[code]=call;call.on('stream',rs=>roomAudio(code,rs));call.on('close',()=>{if(LIVE.roomIn[code]===call)delete LIVE.roomIn[code];const a=document.getElementById('ra-'+code);if(a)a.remove()});return}
  if(kind==='talkie'){if(S.dnd||!lContact(code)){call.close();return}call.answer();call.on('stream',rs=>{const a=document.getElementById('tw-audio');playStream(a,rs)});toast(`Talkie-walkie ouvert avec ${lName(code)}`);return}
  if(LIVE.call||!lContact(code)){call.close();return}
@@ -977,11 +978,15 @@ const cleanEntry=e=>({code:e.code,n:String(e.n||'Testeur').slice(0,20),h:String(
 function hubConnect(){if(!LIVE.peer||LIVE.st!=='on'||S.visible===0)return;if(LIVE.hubConn&&(LIVE.hubConn.open||Date.now()-LIVE.hubTry<4000))return;LIVE.hubTry=Date.now();
  const c=LIVE.peer.connect(HUB,{reliable:true});LIVE.hubConn=c;
  c.on('open',()=>{LIVE.lastReg='';liveReg()});
- c.on('data',d=>{if(!d||d.t!=='dir'||!Array.isArray(d.list))return;LIVE.lastDir=Date.now();const D={};d.list.slice(0,300).forEach(e=>{if(e&&/^\d{6}$/.test(e.code)&&e.code!==S.liveCode)D[e.code]=cleanEntry(e)});LIVE.dir=D;onDir()});
+ c.on('data',d=>{if(d&&typeof d.t==='string'&&d.t.startsWith('match'))return matchMsg(d);if(!d||d.t!=='dir'||!Array.isArray(d.list))return;LIVE.lastDir=Date.now();const D={};d.list.slice(0,300).forEach(e=>{if(e&&/^\d{6}$/.test(e.code)&&e.code!==S.liveCode)D[e.code]=cleanEntry(e)});LIVE.dir=D;onDir()});
  c.on('close',()=>{if(LIVE.hubConn===c){LIVE.hubConn=null;LIVE.dir={};onDir();setTimeout(hubConnect,600+Math.random()*2400)}});c.on('error',()=>{})}
 function becomeHub(){if(LIVE.hubPeer||S.visible===0)return;let h;try{h=new Peer(HUB,window.PULSE_PEER_OPTS||{})}catch(e){return}LIVE.hubPeer=h;const reg={},conns={};
  const bcast=()=>{clearTimeout(h._t);h._t=setTimeout(()=>{const list=Object.values(reg);Object.values(conns).forEach(c=>{try{if(c.open)c.send({t:'dir',list})}catch(e){}})},150)};
- h.on('connection',c=>{c.on('open',()=>{conns[c.peer]=c;bcast()});c.on('data',d=>{const code=codeOf(c);if(!code||!d||d.t!=='reg')return;const prev=reg[code];reg[code]={code,n:d.n,h:d.h,av:d.av,room:d.room,mic:d.mic,at:Date.now()};if(!prev||JSON.stringify({...prev,at:0})!==JSON.stringify({...reg[code],at:0}))bcast()});c.on('close',()=>{delete conns[c.peer];delete reg[codeOf(c)];bcast()});c.on('error',()=>{})});
+ h.on('connection',c=>{c.on('open',()=>{conns[c.peer]=c;bcast()});c.on('data',d=>{const code=codeOf(c);if(!code||!d)return;
+  if(d.t==='match-want'){h._q=(h._q||[]).filter(x=>x!==code&&conns[pid(x)]&&conns[pid(x)].open);const other=h._q.shift();if(other){try{conns[pid(other)].send({t:'match',with:code,init:true});c.send({t:'match',with:other,init:false})}catch(e){}}else h._q.push(code);return}
+  if(d.t==='match-cancel'){h._q=(h._q||[]).filter(x=>x!==code);return}
+  if(['match-vote','match-reveal','match-end'].includes(d.t)&&/^\d{6}$/.test(d.to||'')){const to=conns[pid(d.to)];if(to&&to.open){try{to.send({t:d.t,from:code,v:d.v==='yes'?'yes':'no',n:String(d.n||'').slice(0,20),av:d.av})}catch(e){}}return}
+  if(d.t!=='reg')return;const prev=reg[code];reg[code]={code,n:d.n,h:d.h,av:d.av,room:d.room,mic:d.mic,at:Date.now()};if(!prev||JSON.stringify({...prev,at:0})!==JSON.stringify({...reg[code],at:0}))bcast()});c.on('close',()=>{delete conns[c.peer];delete reg[codeOf(c)];h._q=(h._q||[]).filter(x=>x!==codeOf(c));bcast()});c.on('error',()=>{})});
  h._purge=setInterval(()=>{const now=Date.now();let ch=false;for(const k in reg)if(now-(reg[k].at||0)>20000){delete reg[k];ch=true}const list=Object.values(reg);Object.values(conns).forEach(c=>{try{if(c.open)c.send({t:'dir',list})}catch(e){}})},5000);
  h.on('open',()=>{LIVE.hubConn=null;LIVE.hubTry=0;setTimeout(hubConnect,250)});
  h.on('error',e=>{if(e.type==='unavailable-id'){try{h.destroy()}catch(_){}LIVE.hubPeer=null;LIVE.hubConn=null;LIVE.hubTry=0;setTimeout(hubConnect,400)}});
@@ -1003,6 +1008,22 @@ function syncRoomCalls(){if(typeof LIVE==='undefined'||!LIVE.peer||LIVE.st!=='on
  if(!speaking||!rid){micRelease();return}
  const targets=dirList().filter(e=>e.room===rid&&!LIVE.roomCalls[e.code]);if(!targets.length)return;
  getMic().then(s2=>{s2.getAudioTracks().forEach(t=>t.enabled=true);targets.forEach(e=>{if(LIVE.roomCalls[e.code])return;const call=LIVE.peer.call(pid(e.code),s2,{metadata:{kind:'room',room:rid}});LIVE.roomCalls[e.code]=call;call.on('close',()=>{if(LIVE.roomCalls[e.code]===call)delete LIVE.roomCalls[e.code]});call.on('error',()=>{})})}).catch(e=>toast(micErr(e)))}
+/* rencontre surprise : tête-à-tête anonyme */
+let MATCH=null;
+function sfx(kind){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();const notes=kind==='yes'?[[523,0],[659,.12],[784,.24],[1047,.36]]:[[392,0],[311,.22],[262,.44]];
+ notes.forEach(([f,t0])=>{const o=AC.createOscillator(),g=AC.createGain();o.type=kind==='yes'?'sine':'triangle';o.frequency.value=f;const t=AC.currentTime+t0;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.25,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+(kind==='yes'?.35:.5));o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+.6)})}catch(e){}window.__lastSfx=kind}
+const hubSend=o=>{const c=LIVE&&LIVE.hubConn;if(c&&c.open){try{c.send(o)}catch(e){}return true}return false};
+function matchStart(){MATCH={st:'search',t0:Date.now(),sim:!liveOK()};if(MATCH.sim){setTimeout(()=>{if(MATCH&&MATCH.st==='search'){const ks=Object.keys(PEOPLE);MATCH={...MATCH,st:'call',with:ks[Math.floor(Math.random()*ks.length)],t0:Date.now(),audio:true};if(V.name==='match')render();speak('Salut ! Je suis tombé sur toi par hasard. Tu fais quoi de beau ce soir ?','x',true)}},2200);return}
+ if(!hubSend({t:'match-want'})){toast('Connexion au service en cours, réessaie dans quelques secondes.');MATCH=null}}
+async function matchMsg(d){if(d.t==='match'){if(!MATCH||MATCH.st!=='search')return hubSend({t:'match-end',to:d.with});MATCH={st:'call',with:d.with,t0:Date.now(),audio:false};if(V.name==='match')render();else go('match');
+  if(d.init){try{const s2=await getMic();s2.getAudioTracks().forEach(t=>t.enabled=true);const call=LIVE.peer.call(pid(d.with),s2,{metadata:{kind:'match'}});matchWire(call)}catch(e){toast(micErr(e))}}return}
+ if(!MATCH||d.from!==MATCH.with)return;
+ if(d.t==='match-vote'){MATCH.their=d.v;sfx(d.v);toast(d.v==='yes'?'La personne veut rester avec toi 💜':'La personne préfère passer');if(d.v==='yes'&&MATCH.mine==='yes')matchReveal();if(V.name==='match')render();return}
+ if(d.t==='match-reveal'){MATCH.reveal={n:String(d.n||'Testeur').slice(0,20),av:cleanAv(d.av),code:d.from};if(V.name==='match')render();return}
+ if(d.t==='match-end'){matchStop(false);toast('L’autre personne est partie.')}}
+function matchWire(call){MATCH.call=call;watchIce(call);call.on('stream',rs=>{playStream(document.getElementById('remote-audio'),rs);if(MATCH&&MATCH.call===call){MATCH.audio=true;if(V.name==='match')render()}});call.on('close',()=>{if(MATCH&&MATCH.call===call&&MATCH.st==='call'){matchStop(false)}});call.on('error',()=>{})}
+function matchReveal(){if(MATCH.sim){const p=PEOPLE[MATCH.with];MATCH.reveal={n:p.name,av:p.av,code:null};return}hubSend({t:'match-reveal',to:MATCH.with,n:S.me.name||'Testeur',av:S.av})}
+function matchStop(notify){if(!MATCH)return;if(MATCH.st==='search'&&!MATCH.sim)hubSend({t:'match-cancel'});if(notify&&MATCH.with&&!MATCH.sim)hubSend({t:'match-end',to:MATCH.with});const c=MATCH.call;MATCH={...MATCH,st:'ended',call:null};if(c){try{c.close()}catch(e){}}micRelease();if(V.name==='match')render()}
 /* enregistreur de vocaux */
 async function recStart(max,onDone){try{const s2=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});const mime=['audio/mp4','audio/webm;codecs=opus','audio/webm'].find(m=>window.MediaRecorder&&MediaRecorder.isTypeSupported(m))||'';const r=new MediaRecorder(s2,mime?{mimeType:mime}:{});const parts=[];const t0=Date.now();
  r.ondataavailable=e=>{if(e.data&&e.data.size)parts.push(e.data)};r.onstop=()=>{LIVE.rec=null;s2.getTracks().forEach(t=>t.stop());micRelease();const b=new Blob(parts,{type:r.mimeType||mime||'audio/webm'});onDone(b,Math.max(1,Math.round((Date.now()-t0)/1000)))};
@@ -1031,7 +1052,7 @@ function render(top){
 const navTabs=['home','discover','messages','profile'];
 function nav(active){
  const b=(id,icon,label)=>`<button class="nav-b ${active===id?'on':''}" data-a="tab" data-v="${id}" aria-label="${label}">${ic(icon)}<span>${label}</span></button>`;
- const st=R?(R.role==='listener'?'':(R.muted?'off':'hot')):'';
+ const st=(typeof MATCH!=='undefined'&&MATCH&&MATCH.st==='call')?'hot':R?(R.role==='listener'?'':(R.muted?'off':'hot')):'';
  return `${R?miniRoom():''}<nav class="nav" aria-label="Navigation principale"><div class="nav-in">
   ${b('home','home',t('home'))}${b('discover','compass',t('discover'))}
   <div class="mic-wrap"><button class="pulse-btn ${st}" data-a="pulse" aria-label="PULSE : parler">${waveSVG('lgn')}<span>PULSE</span></button></div>
@@ -1403,6 +1424,26 @@ ltalkie:()=>{const code=UI.ltw;const c=lContact(code);if(!c)return VIEWS.live();
  <p class="small muted">Vrai talkie-walkie : ta voix part pendant que tu appuies. Mets des écouteurs pour éviter l’écho.</p>
  ${nav('')}</div>`},
 
+match:()=>{const M=MATCH;
+ if(!M||M.st==='ended')return `<div class="scr">${topBar('Rencontre surprise')}
+  <div class="stack" style="align-items:center;text-align:center;gap:14px;padding-top:20px"><div class="mic" style="width:120px;height:120px;font-size:52px">?</div><h2>${M?'Conversation terminée':'Tombe sur quelqu’un, au hasard'}</h2><p class="muted small" style="max-width:32ch">Un tête-à-tête vocal avec une personne en ligne. Vous ne savez pas qui est l’autre. Si vous voulez tous les deux rester, vos profils se dévoilent.</p>
+  <button class="btn btn-p" data-a="match-start">${ic('sparkle')} ${M?'Nouvelle rencontre':'Lancer une rencontre'}</button></div>
+  ${M&&M.reveal?`<div class="card row">${avatar(M.reveal.av,48)}<div class="grow"><b>${esc(M.reveal.n)}</b><div class="small muted">Votre dernière rencontre</div></div>${M.reveal.code&&!lContact(M.reveal.code)?`<button class="btn btn-p btn-sm" data-a="match-add">${ic('userplus')} Ajouter</button>`:''}</div>`:''}
+  <div class="card small muted">Pour partir pendant une rencontre, touche <b>2 fois</b> le bouton PULSE. 18 ans et plus. Tu peux signaler à tout moment.</div>${nav('')}</div>`;
+ if(M.st==='search')return `<div class="scr">${topBar('Rencontre surprise')}<div class="stack" style="align-items:center;text-align:center;gap:14px;padding-top:30px"><div class="mic hot" style="width:120px;height:120px">${ic('sparkle')}</div><h2>On cherche quelqu’un…</h2><p class="muted small">${M.sim?'Démo : un membre simulé va répondre.':(dirList().length?dirList().length+' testeur(s) en ligne. Il faut qu’une autre personne lance aussi une rencontre.':'Personne d’autre en ligne pour l’instant. Garde cette page ouverte.')}</p><button class="btn btn-g" data-a="match-cancel">Annuler</button></div>${nav('')}</div>`;
+ const tt=Math.floor((Date.now()-M.t0)/1000);const who=M.reveal;
+ return `<div class="scr" style="gap:16px">${topBar('Rencontre surprise')}
+  <div class="duo-face"><div class="seat"><div class="av speaking">${avatar(S.av,92)}</div><span>Toi</span></div>${ic('sparkle')}<div class="seat"><div class="av ${M.audio?'speaking':''}">${who?avatar(who.av,92):`<div style="width:92px;height:92px;border-radius:50%;display:grid;place-items:center;font-size:44px;font-weight:800;background:radial-gradient(circle at 35% 30%,#3B2A6B,#120830)">?</div>`}</div><span>${who?esc(who.n):'Inconnu·e'}</span></div></div>
+  <div class="timer" id="match-t" style="font-size:34px">${Math.floor(tt/60)}:${String(tt%60).padStart(2,'0')}</div>
+  <span class="st ${M.audio?'on':'soon'}" style="align-self:center">${M.audio?'Vous vous entendez':'Connexion de la voix…'}</span>
+  <div class="card stack" style="align-items:center;text-align:center"><b>Tu veux rester avec cette personne ?</b>
+   ${M.mine?`<span class="small">Tu as répondu <b>${M.mine==='yes'?'oui':'non'}</b>.</span>`:`<div class="row" style="width:100%"><button class="btn btn-g" style="flex:1" data-a="match-vote" data-v="no">Non</button><button class="btn btn-p" style="flex:1" data-a="match-vote" data-v="yes">${ic('heart')} Oui</button></div>`}
+   <span class="small ${M.their==='yes'?'':'muted'}" style="${M.their==='yes'?'color:var(--ok)':''}">${M.their==='yes'?'💜 La personne veut rester avec toi':M.their==='no'?'La personne préfère passer':'Sa réponse arrivera avec un petit son'}</span></div>
+  ${who?`<div class="card row">${avatar(who.av,44)}<div class="grow"><b>Vous voulez rester tous les deux !</b><div class="small muted">C’est ${esc(who.n)}.</div></div>${who.code&&!lContact(who.code)?`<button class="btn btn-p btn-sm" data-a="match-add">${ic('userplus')} Ajouter</button>`:''}</div>`:''}
+  <div class="row" style="justify-content:center;gap:10px"><button class="btn btn-g btn-sm" data-a="match-report">${ic('flag')} Signaler</button><button class="btn btn-g btn-sm" data-a="audio-on">${ic('speaker')} Je n’entends rien</button></div>
+  <p class="small muted" style="text-align:center">Pour partir : touche <b>2 fois</b> le bouton PULSE.</p>
+  ${nav('')}</div>`},
+
 /* ----- Avis des testeurs ----- */
 avis:()=>`<div class="scr no-nav">${topBar('Donne ton avis')}
  <p class="muted">1 minute pour aider à construire PULSE. Ton avis part dans un message que tu envoies toi-même.</p>
@@ -1628,6 +1669,7 @@ function pulseSheet(){
  ${R?`<button class="opt" data-a="open-room" data-v="${R.id}"><span class="ic-b">${ic('speaker')}</span><span><b>Revenir à « ${esc(room(R.id).title)} »</b><br><span class="small muted">${R.role==='listener'?'Tu écoutes':R.muted?'Micro coupé':'Micro ouvert'}</span></span></button>`:''}
  <button class="opt" data-a="open-room" data-v="${best.id}"><span class="ic-b">${ic('mic')}</span><span><b>Parler maintenant</b><br><span class="small muted">Entrer dans « ${esc(best.title)} » (en direct)</span></span></button>
  <button class="opt" data-a="go" data-v="create"><span class="ic-b">${ic('plus')}</span><span><b>${t('create')}</b><br><span class="small muted">Public ou privé, sur le thème de ton choix</span></span></button>
+ <button class="opt" data-a="match-open" style="border-color:color-mix(in srgb,var(--accent) 50%,transparent)"><span class="ic-b">${ic('sparkle')}</span><span><b>Rencontre surprise</b><br><span class="small muted">Tête-à-tête vocal avec une personne au hasard</span></span></button>
  <button class="opt" data-a="call-pick"><span class="ic-b">${ic('phone')}</span><span><b>Appeler un ami</b><br><span class="small muted">Rester en appel, jouer ou regarder un film ensemble</span></span></button>
  <button class="opt" data-a="tw-open"><span class="ic-b">${ic('speaker')}</span><span><b>Talkie-walkie</b><br><span class="small muted">Appuie et parle à un ami, il t’entend tout de suite</span></span></button>
  <button class="opt" data-a="go" data-v="games"><span class="ic-b">${ic('star')}</span><span><b>Jeux entre amis</b><br><span class="small muted">Quiz, Onde, L’Intrus, Petit bac…</span></span></button>
@@ -1794,7 +1836,15 @@ const ACT={
  'sheet-bg':(v,el,e)=>{if(e.target===el)closeSheet()},
  go:(v,el)=>go(v,el.dataset.p),
  tab:v=>{HIST=[];V={name:v};closeSheet();render(true)},
- pulse:()=>pulseSheet(),
+ pulse:()=>{if(MATCH&&(MATCH.st==='call'||MATCH.st==='search')){const now=Date.now();if(now-(UI.lastPulse||0)<500){UI.lastPulse=0;matchStop(true);toast('Tu as quitté la rencontre.');return}UI.lastPulse=now;if(V.name!=='match')go('match');else toast('Touche encore une fois pour partir');return}pulseSheet()},
+ 'match-open':()=>{go('match')},
+ 'match-start':async()=>{if(liveOK()){try{await getMic();micRelease()}catch(e){return toast(micErr(e))}if(!LIVE.peer)liveStart()}matchStart();if(V.name!=='match')go('match');else render()},
+ 'match-cancel':()=>{matchStop(false);MATCH=null;render()},
+ 'match-vote':v=>{if(!MATCH||MATCH.st!=='call')return;MATCH.mine=v==='yes'?'yes':'no';
+  if(MATCH.sim){setTimeout(()=>{if(!MATCH||MATCH.st!=='call')return;MATCH.their=Math.random()<.7?'yes':'no';sfx(MATCH.their);if(MATCH.their==='yes'&&MATCH.mine==='yes')matchReveal();render()},1600)}
+  else{hubSend({t:'match-vote',to:MATCH.with,v:MATCH.mine});if(MATCH.mine==='yes'&&MATCH.their==='yes')matchReveal()}render()},
+ 'match-add':()=>{const r=MATCH&&MATCH.reveal;if(!r||!r.code)return;S.lcontacts=S.lcontacts||[];if(!lContact(r.code)){S.lcontacts.push({code:r.code,n:r.n,av:r.av});save()}liveConnect(r.code,true);toast(`${r.n} est ajouté·e à tes amis`);render()},
+ 'match-report':()=>{matchStop(true);toast('Signalement noté. Tu as quitté la rencontre.')},
  notifs:()=>sheet(`<h2>Notifications</h2>${[['Léa a démarré « Karaoké libre & auditions »','open-room','r1'],['Nouveau salon dans Café des langues','open-com','discussions'],['Quiz cinéma demain à 20:30','go','activities']].map(([x,a,v])=>`<button class="opt" data-a="${a}" data-v="${v}"><span class="ic-b">${ic('bell')}</span><span>${x}</span></button>`).join('')}<p class="small muted">Exemples de notifications.</p>`),
  'ob-start':()=>{V={name:'ob'};render(true)},
  'ob-prev':()=>{UI.err='';if(S.obStep===0){V={name:'welcome'}}else S.obStep--;render(true)},
@@ -1917,6 +1967,7 @@ function twIncoming(f){if(!PEOPLE[f]||S.dnd||UI.twIn)return;const x=['Je t’ent
 document.addEventListener('pointerup',pttUp);document.addEventListener('pointercancel',pttUp);
 setInterval(()=>{const el=document.getElementById('duo-t');if(el&&UI.duo&&UI.duo.end){const l=Math.max(0,Math.round((UI.duo.end-Date.now())/1000));el.textContent=Math.floor(l/60)+':'+String(l%60).padStart(2,'0');if(!l){UI.duo.st='end';S.duoDone=1;save();render()}}
  window.__tick=(window.__tick||0)+1;
+ if(MATCH&&MATCH.st==='call'){const el=document.getElementById('match-t');if(el){const tt=Math.floor((Date.now()-MATCH.t0)/1000);el.textContent=Math.floor(tt/60)+':'+String(tt%60).padStart(2,'0')}}
  if(LIVE.call&&LIVE.call.st==='on'){const el=document.getElementById('lcall-t');if(el){const tt=Math.floor((Date.now()-LIVE.call.t0)/1000);el.textContent=Math.floor(tt/60)+':'+String(tt%60).padStart(2,'0')}}
  if(CALL&&CALL.st==='on'){const ct=document.getElementById('call-t');if(ct)ct.textContent=callTime();const cb=document.getElementById('cb-t');if(cb)cb.textContent=callTime();if(window.__tick%7===0){CALL.li++;const cc=document.getElementById('call-cc');if(cc)cc.innerHTML=`<b style="color:var(--electric)">${esc(PEOPLE[CALL.who].name)}</b> ${esc(CALLLINES[CALL.li%CALLLINES.length])}`}}
  if(V.name==='quiz'&&UI.qz&&UI.qz.phase==='q'){const l=Math.max(0,Math.ceil((UI.qz.end-Date.now())/1000));const t=document.getElementById('qz-t');if(t)t.textContent=l+' s';const b=document.getElementById('qz-bar');if(b)b.style.width=(l/12*100)+'%';if(!l)qzReveal()}
