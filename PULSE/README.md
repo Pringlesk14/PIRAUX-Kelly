@@ -37,6 +37,9 @@ Réglages → « Se déconnecter et effacer ce prototype » remet tout à zéro.
 - Fonctionnement pair à pair avec PeerJS (`vendor/peerjs-1.5.4.min.js`, licence MIT) et son serveur public gratuit : la voix et les messages passent directement d'un appareil à l'autre, rien n'est stocké sur un serveur PULSE. Les deux personnes doivent avoir la démo ouverte en même temps ; les messages écrits hors ligne partent à la reconnexion.
 - Limites : service public sans garantie, certains réseaux bloquent les connexions directes, appels à deux seulement. La vraie bêta passera par Supabase et LiveKit.
 - « Ma voix en 15 secondes » et le Pulse du jour enregistrent la vraie voix sur le site (gardée sur l'appareil).
+- Se trouver sans code : chaque testeur a un @nom d'utilisateur ; « En ligne maintenant » (accueil, Découvrir, Tester en vrai) liste les testeurs connectés, la recherche trouve un nom ou un @, et un salon montre « Ici en vrai » les testeurs présents. Le premier téléphone connecté sert d'annuaire (identifiant `pulse-demo-v1-hub`) ; s'il part, un autre prend le relais (signal toutes les 8 s, nettoyage après 20 s).
+- Salons à plusieurs en vrai : micro ouvert, la voix part vers chaque testeur présent dans le même salon (en maillage, adapté à quelques personnes).
+- Réglage « Apparaître en ligne pour les autres testeurs » pour se rendre invisible.
 - Construire le site anonyme : `python3 tools/build_site.py <dossier>` produit `pulse-site/` et `pulse-site.zip`.
 
 ## Persos 3D

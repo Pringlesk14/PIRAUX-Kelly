@@ -406,7 +406,7 @@ body.in-call .scr{padding-top:76px}
 <canvas id="stars" aria-hidden="true"></canvas>
 <div id="app"></div>
 <div id="layer"></div>
-<audio id="remote-audio" autoplay playsinline></audio><audio id="tw-audio" autoplay playsinline></audio>
+<audio id="remote-audio" autoplay playsinline></audio><audio id="tw-audio" autoplay playsinline></audio><div id="room-audio" hidden></div>
 
 <script>
 (function(){
@@ -791,7 +791,9 @@ const cleanAv=a=>{a=a&&typeof a==='object'?a:{};const arch=ARCH.some(x=>x.id===a
 const seenRx={},seenSay={};
 function pushPresence(){if(!CAP.room)return;const o={v:1,n:String(S.me.name||'Invité').slice(0,20),av:S.av,in:R?R.id:null,m:R?(R.role==='listener'?(R.hand?'h':'l'):(R.muted?'x':'o')):null,rx:lastRx,say:lastSay};const j=JSON.stringify(o);if(j===pushPresence.last)return;pushPresence.last=j;CAP.room.presence(o).catch(()=>{})}
 function livePeers(rid){if(!CAP.room)return [];return CAP.room.peers().filter(p=>!p.isMe&&p.kind==='viewer'&&p.presence&&p.presence.in===rid)}
-function realPeers(rid){if(!CAP.room)return '';const ps=livePeers(rid);
+function realPeers(rid){if(window.PULSE_SITE&&typeof LIVE!=='undefined'){const ps=dirList().filter(e=>e.room===rid);
+  return `<h2>Ici en vrai <span class="count">(${ps.length})</span></h2>${ps.length?`<div class="stack">${ps.map(e=>`<div class="list-item"><div class="seat"><div class="av ${e.mic==='o'?'speaking':''}">${avatar(e.av,48)}<span class="badge">${ic(e.mic==='o'?'mic':e.mic==='x'?'micoff':e.mic==='h'?'hand':'headphones')}</span></div></div><div class="grow"><div style="font-weight:700">${esc(e.n)}</div><div class="small muted">@${esc(e.h||'—')} · ${e.mic==='o'?'parle':e.mic==='h'?'main levée':e.mic==='x'?'micro coupé':'écoute'}</div></div>${lContact(e.code)?`<button class="icon-btn" data-a="lchat" data-v="${e.code}" aria-label="Message">${ic('message')}</button>`:`<button class="btn btn-p btn-sm" data-a="dir-add" data-v="${e.code}">${ic('userplus')} Ajouter</button>`}</div>`).join('')}</div><p class="small muted">Quand ton micro est ouvert, les personnes ici en vrai t’entendent pour de bon.</p>`:'<p class="small muted">Aucun autre testeur dans ce salon pour l’instant. Les personnes qui ouvrent ce salon en même temps que toi apparaîtront ici.</p>'}`}
+ if(!CAP.room)return '';const ps=livePeers(rid);
  return `<h2>Ici en vrai <span class="count">(${ps.length})</span></h2>${ps.length?`<div class="row wrap" style="gap:10px">${ps.map(p=>{const pr=p.presence,st=pr.m==='o'?'mic':pr.m==='x'?'micoff':pr.m==='h'?'hand':'headphones';return `<div class="seat"><div class="av ${pr.m==='o'?'speaking':''}">${avatar(cleanAv(pr.av),52)}<span class="badge">${ic(st)}</span></div><span class="ellip" style="max-width:76px">${esc(String(pr.n||'Invité').slice(0,20))}</span></div>`}).join('')}</div>`:'<p class="small muted">Partage le lien de la page : les personnes qui ouvrent ce salon en même temps que toi apparaissent ici, en temps réel.</p>'}`}
 function onPeersChange(ch){const rid=R&&R.id;
  for(const p of [...ch.joined,...ch.updated]){if(p.isMe||!p.presence)continue;const pr=p.presence,nm=esc(String(pr.n||'Invité').slice(0,20));
@@ -920,11 +922,12 @@ const lOnline=code=>!!(LIVE.conns[code]&&LIVE.conns[code].open);
 function reLive(){if(['live','lchat','lcall','ltalkie','messages'].includes(V.name))render()}
 function liveStart(){if(!liveOK()||LIVE.peer)return;S.liveOn=1;save();LIVE.st='connecting';LIVE.err='';
  let p;try{p=new Peer(pid(liveCode()),window.PULSE_PEER_OPTS||{})}catch(e){LIVE.st='off';LIVE.err='indisponible';return}LIVE.peer=p;
- p.on('open',()=>{LIVE.st='on';reLive();(S.lcontacts||[]).forEach(c=>liveConnect(c.code,true))});
+ p.on('open',()=>{LIVE.st='on';reLive();onDir();hubConnect();(S.lcontacts||[]).forEach(c=>liveConnect(c.code,true))});
  p.on('connection',c=>liveWire(c));
  p.on('call',call=>liveIncoming(call));
  p.on('disconnected',()=>{LIVE.st='off';reLive();setTimeout(()=>{try{if(!p.destroyed)p.reconnect()}catch(e){}},4000)});
  p.on('error',e=>{if(e.type==='unavailable-id'){S.liveCode=null;save();try{p.destroy()}catch(_){}LIVE.peer=null;liveStart();return}
+  if(e.type==='peer-unavailable'&&String(e.message||'').includes(HUB)){LIVE.hubConn=null;LIVE.hubTry=0;becomeHub();return}
   if(e.type==='peer-unavailable'){if(UI.lWant){toast('Cette personne n’a pas la démo ouverte en ce moment.');UI.lWant=0}return}
   LIVE.err=e.type||'erreur';reLive()})}
 const codeOf=c=>String(c.peer||'').startsWith(PFX)?c.peer.slice(PFX.length):'';
@@ -934,18 +937,19 @@ function liveWire(c){c.on('open',()=>{const code=codeOf(c);if(!code)return c.clo
  c.on('data',d=>liveData(c,d));c.on('close',()=>{const code=codeOf(c);if(LIVE.conns[code]===c)delete LIVE.conns[code];reLive()});c.on('error',()=>{})}
 function lPush(code,m){S.lmsgs=S.lmsgs||{};(S.lmsgs[code]=S.lmsgs[code]||[]).push({...m,ts:Date.now()});S.lmsgs[code]=S.lmsgs[code].slice(-200);save()}
 function liveData(c,d){const code=codeOf(c);if(!code||!d||typeof d!=='object')return;
- if(d.t==='hello'){S.lcontacts=S.lcontacts||[];const n=String(d.n||'Testeur').slice(0,20),av=cleanAv(d.av);const ex=lContact(code);if(ex){ex.n=n;ex.av=av}else{S.lcontacts.push({code,n,av});toast(`${n} est maintenant dans tes contacts`)}save();reLive();return}
+ if(d.t==='hello'){S.lcontacts=S.lcontacts||[];const n=String(d.n||'Testeur').slice(0,20),av=cleanAv(d.av);const ex=lContact(code);if(ex){ex.n=n;ex.av=av}else{S.lcontacts.push({code,n,av});toast(`${n} et toi êtes maintenant amis`)}save();reLive();return}
  if(d.t==='msg'&&typeof d.x==='string'){lPush(code,{f:'them',x:d.x.slice(0,1000)});if(V.name==='lchat'&&V.p===code){render();window.scrollTo(0,document.body.scrollHeight)}else toast(`Message de ${lName(code)}`);return}
  if(d.t==='voice'&&d.b){const m=String(d.m||'');if(!m.startsWith('audio/'))return;const id='v'+Date.now()+Math.random().toString(36).slice(2,6);LIVE.voices[id]=URL.createObjectURL(new Blob([d.b],{type:m}));lPush(code,{f:'them',v:id,d:Math.min(60,+d.d||0)});
   if(V.name==='lchat'&&V.p===code){render();window.scrollTo(0,document.body.scrollHeight)}else toast(`Vocal de ${lName(code)}`)}}
 const micErr=e=>e&&e.name==='NotAllowedError'?'Micro refusé : autorise le micro dans ton navigateur pour parler.':'Micro indisponible sur cet appareil.';
 async function getMic(){if(LIVE.stream&&LIVE.stream.active)return LIVE.stream;LIVE.stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});return LIVE.stream}
-function micRelease(){if(LIVE.call||LIVE.tw||LIVE.rec)return;if(LIVE.stream){LIVE.stream.getTracks().forEach(t=>t.stop());LIVE.stream=null}}
+function micRelease(){if(LIVE.call||LIVE.tw||LIVE.rec||Object.keys(LIVE.roomCalls||{}).length)return;if(LIVE.stream){LIVE.stream.getTracks().forEach(t=>t.stop());LIVE.stream=null}}
 async function liveCall(code){if(LIVE.call)return toast('Tu es déjà en appel.');if(!lOnline(code))return toast(`${lName(code)} n’a pas la démo ouverte en ce moment.`);
  try{const s2=await getMic();s2.getAudioTracks().forEach(t=>t.enabled=true);const call=LIVE.peer.call(pid(code),s2,{metadata:{kind:'call'}});LIVE.call={call,code,st:'ring',t0:Date.now(),muted:false};wireCall(call);go('lcall')}catch(e){toast(micErr(e))}}
 function wireCall(call){call.on('stream',rs=>{const a=document.getElementById('remote-audio');a.srcObject=rs;a.play().catch(()=>{});if(LIVE.call&&LIVE.call.call===call&&LIVE.call.st!=='on'){LIVE.call.st='on';LIVE.call.t0=Date.now();reLive()}});
  call.on('close',()=>{if(LIVE.call&&LIVE.call.call===call){LIVE.call=null;micRelease();toast('Appel terminé');if(V.name==='lcall')back();else reLive()}});call.on('error',()=>{})}
 function liveIncoming(call){const code=codeOf(call);const kind=call.metadata&&call.metadata.kind;
+ if(kind==='room'){const rid=call.metadata&&call.metadata.room;if(!R||R.id!==rid){call.close();return}call.answer();LIVE.roomIn[code]=call;call.on('stream',rs=>roomAudio(code,rs));call.on('close',()=>{if(LIVE.roomIn[code]===call)delete LIVE.roomIn[code];const a=document.getElementById('ra-'+code);if(a)a.remove()});return}
  if(kind==='talkie'){if(S.dnd||!lContact(code)){call.close();return}call.answer();call.on('stream',rs=>{const a=document.getElementById('tw-audio');a.srcObject=rs;a.play().catch(()=>{})});toast(`Talkie-walkie ouvert avec ${lName(code)}`);return}
  if(LIVE.call||!lContact(code)){call.close();return}
  UI.inCall=call;sheet(`<div class="stack" style="align-items:center;text-align:center">${avatar(lContact(code).av,96)}<h2>${esc(lName(code))} t’appelle</h2><p class="small muted">Appel vocal réel</p></div><div class="row"><button class="btn btn-g" style="flex:1" data-a="lc-no">Refuser</button><button class="btn btn-p" style="flex:1" data-a="lc-yes">${ic('phone')} Répondre</button></div>`);
@@ -954,12 +958,45 @@ async function twStart(){const code=UI.ltw;if(!code||!lOnline(code)){toast(`${lN
  try{const s2=await getMic();if(!LIVE.tw||LIVE.tw.code!==code){if(LIVE.tw)LIVE.tw.call.close();const call=LIVE.peer.call(pid(code),s2,{metadata:{kind:'talkie'}});LIVE.tw={code,call};call.on('close',()=>{if(LIVE.tw&&LIVE.tw.call===call){LIVE.tw=null;micRelease()}});call.on('stream',rs=>{const a=document.getElementById('tw-audio');a.srcObject=rs;a.play().catch(()=>{})})}
   s2.getAudioTracks().forEach(t=>t.enabled=true);return true}catch(e){toast(micErr(e));return false}}
 function twStop(){if(LIVE.stream)LIVE.stream.getAudioTracks().forEach(t=>t.enabled=false)}
+/* annuaire des testeurs en ligne : le premier connecté sert d'annuaire, un autre prend le relais s'il part */
+const HUB=PFX+'hub';LIVE.dir={};LIVE.hubConn=null;LIVE.hubPeer=null;LIVE.roomCalls={};LIVE.roomIn={};
+const cleanEntry=e=>({code:e.code,n:String(e.n||'Testeur').slice(0,20),h:String(e.h||'').replace(/[^a-z0-9_.]/gi,'').slice(0,24),av:cleanAv(e.av),room:typeof e.room==='string'?e.room.slice(0,40):null,mic:['l','o','x','h'].includes(e.mic)?e.mic:''});
+function hubConnect(){if(!LIVE.peer||LIVE.st!=='on'||S.visible===0)return;if(LIVE.hubConn&&(LIVE.hubConn.open||Date.now()-LIVE.hubTry<4000))return;LIVE.hubTry=Date.now();
+ const c=LIVE.peer.connect(HUB,{reliable:true});LIVE.hubConn=c;
+ c.on('open',()=>{LIVE.lastReg='';liveReg()});
+ c.on('data',d=>{if(!d||d.t!=='dir'||!Array.isArray(d.list))return;LIVE.lastDir=Date.now();const D={};d.list.slice(0,300).forEach(e=>{if(e&&/^\d{6}$/.test(e.code)&&e.code!==S.liveCode)D[e.code]=cleanEntry(e)});LIVE.dir=D;onDir()});
+ c.on('close',()=>{if(LIVE.hubConn===c){LIVE.hubConn=null;LIVE.dir={};onDir();setTimeout(hubConnect,600+Math.random()*2400)}});c.on('error',()=>{})}
+function becomeHub(){if(LIVE.hubPeer||S.visible===0)return;let h;try{h=new Peer(HUB,window.PULSE_PEER_OPTS||{})}catch(e){return}LIVE.hubPeer=h;const reg={},conns={};
+ const bcast=()=>{clearTimeout(h._t);h._t=setTimeout(()=>{const list=Object.values(reg);Object.values(conns).forEach(c=>{try{if(c.open)c.send({t:'dir',list})}catch(e){}})},150)};
+ h.on('connection',c=>{c.on('open',()=>{conns[c.peer]=c;bcast()});c.on('data',d=>{const code=codeOf(c);if(!code||!d||d.t!=='reg')return;const prev=reg[code];reg[code]={code,n:d.n,h:d.h,av:d.av,room:d.room,mic:d.mic,at:Date.now()};if(!prev||JSON.stringify({...prev,at:0})!==JSON.stringify({...reg[code],at:0}))bcast()});c.on('close',()=>{delete conns[c.peer];delete reg[codeOf(c)];bcast()});c.on('error',()=>{})});
+ h._purge=setInterval(()=>{const now=Date.now();let ch=false;for(const k in reg)if(now-(reg[k].at||0)>20000){delete reg[k];ch=true}const list=Object.values(reg);Object.values(conns).forEach(c=>{try{if(c.open)c.send({t:'dir',list})}catch(e){}})},5000);
+ h.on('open',()=>{LIVE.hubConn=null;LIVE.hubTry=0;setTimeout(hubConnect,250)});
+ h.on('error',e=>{if(e.type==='unavailable-id'){try{h.destroy()}catch(_){}LIVE.hubPeer=null;LIVE.hubConn=null;LIVE.hubTry=0;setTimeout(hubConnect,400)}});
+ h.on('disconnected',()=>{try{if(!h.destroyed)h.reconnect()}catch(e){}})}
+setInterval(()=>{if(typeof LIVE==='undefined'||!LIVE.hubConn)return;if(LIVE.hubConn.open){LIVE.lastReg='';liveReg();if(LIVE.lastDir&&Date.now()-LIVE.lastDir>14000){const c=LIVE.hubConn;LIVE.lastDir=0;try{c.close()}catch(e){}if(LIVE.hubConn===c){LIVE.hubConn=null;LIVE.dir={};onDir();setTimeout(hubConnect,500+Math.random()*2000)}}}},8000);
+function liveReg(){const c=LIVE.hubConn;if(!c||!c.open)return;const o={t:'reg',n:String(S.me.name||'Testeur').slice(0,20),h:S.me.handle||'',av:S.av,room:R?R.id:null,mic:R?(R.role==='listener'?(R.hand?'h':'l'):(R.muted?'x':'o')):''};const j=JSON.stringify(o);if(j===LIVE.lastReg)return;LIVE.lastReg=j;try{c.send(o)}catch(e){}}
+const dirList=()=>Object.values(LIVE.dir).sort((a,b)=>a.n.localeCompare(b.n));
+function dirRow(e){const isC=!!lContact(e.code);const r=e.room&&room(e.room);
+ return `<div class="list-item">${avatar(e.av,46)}<div class="grow"><div style="font-weight:700">${esc(e.n)} <span class="small muted">@${esc(e.h||'—')}</span></div><div class="small" style="color:var(--ok)">● En ligne${e.room?' · dans '+esc(r?r.title:'un salon'):''}</div></div>
+  ${isC?`<button class="icon-btn" data-a="lchat" data-v="${e.code}" aria-label="Message">${ic('message')}</button><button class="icon-btn" data-a="dir-call" data-v="${e.code}" aria-label="Appeler">${ic('phone')}</button>`:`<button class="btn btn-p btn-sm" data-a="dir-add" data-v="${e.code}">${ic('userplus')} Ajouter</button>`}</div>`}
+function onlineHTML(lim){if(!window.PULSE_SITE)return '';const L=dirList();
+ return `<div class="sec-h"><h2>En ligne maintenant <span class="count">(${L.length})</span></h2><button class="link" data-a="live-open">Par code ${ic('arrow')}</button></div>
+  ${LIVE.st!=='on'?'<p class="small muted">Connexion…</p>':L.length?L.slice(0,lim||20).map(dirRow).join(''):`<div class="card small muted">Personne d’autre en ligne pour l’instant. Partage le lien de la démo : les testeurs connectés apparaîtront ici.</div>`}`}
+function onDir(){document.querySelectorAll('[data-online]').forEach(el=>{el.innerHTML=onlineHTML(+el.dataset.online)});const rp=document.getElementById('real-peers');if(rp&&V.name==='room')rp.innerHTML=realPeers(V.p);const rc=document.getElementById('rc-count');if(rc&&V.name==='room'){const r=room(V.p);if(r)rc.textContent=countTxt(r)}syncRoomCalls()}
+function roomAudio(code,stream){let box=document.getElementById('room-audio');let a=document.getElementById('ra-'+code);if(!a){a=document.createElement('audio');a.id='ra-'+code;a.autoplay=true;a.setAttribute('playsinline','');box.appendChild(a)}a.srcObject=stream;a.play().catch(()=>{})}
+function syncRoomCalls(){if(typeof LIVE==='undefined'||!LIVE.peer||LIVE.st!=='on')return;const rid=R&&R.id;const speaking=!!(R&&R.role!=='listener'&&!R.muted);
+ for(const code in LIVE.roomCalls){const e=LIVE.dir[code];if(!speaking||!rid||!e||e.room!==rid){try{LIVE.roomCalls[code].close()}catch(_){}delete LIVE.roomCalls[code]}}
+ for(const code in LIVE.roomIn){const c=LIVE.roomIn[code];if(!rid||!c.metadata||c.metadata.room!==rid){try{c.close()}catch(_){}delete LIVE.roomIn[code];const a=document.getElementById('ra-'+code);if(a)a.remove()}}
+ if(!speaking||!rid){micRelease();return}
+ const targets=dirList().filter(e=>e.room===rid&&!LIVE.roomCalls[e.code]);if(!targets.length)return;
+ getMic().then(s2=>{s2.getAudioTracks().forEach(t=>t.enabled=true);targets.forEach(e=>{if(LIVE.roomCalls[e.code])return;const call=LIVE.peer.call(pid(e.code),s2,{metadata:{kind:'room',room:rid}});LIVE.roomCalls[e.code]=call;call.on('close',()=>{if(LIVE.roomCalls[e.code]===call)delete LIVE.roomCalls[e.code]});call.on('error',()=>{})})}).catch(e=>toast(micErr(e)))}
 /* enregistreur de vocaux */
 async function recStart(max,onDone){try{const s2=await getMic();const mime=['audio/webm;codecs=opus','audio/mp4','audio/webm'].find(m=>window.MediaRecorder&&MediaRecorder.isTypeSupported(m))||'';const r=new MediaRecorder(s2,mime?{mimeType:mime}:{});const parts=[];const t0=Date.now();
  r.ondataavailable=e=>{if(e.data&&e.data.size)parts.push(e.data)};r.onstop=()=>{LIVE.rec=null;micRelease();const b=new Blob(parts,{type:r.mimeType||mime||'audio/webm'});onDone(b,Math.max(1,Math.round((Date.now()-t0)/1000)))};
  LIVE.rec={r,timer:setTimeout(()=>{if(r.state==='recording')r.stop()},max*1000)};r.start();return true}catch(e){toast(micErr(e));return false}}
 function recStop(){if(LIVE.rec){clearTimeout(LIVE.rec.timer);if(LIVE.rec.r.state==='recording')LIVE.rec.r.stop()}}
 const blobToData=b=>new Promise(res=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.readAsDataURL(b)});
+const makeHandle=()=>((S.me.name||'pulse').toLowerCase().normalize('NFD').replace(/[^a-z0-9]/g,'').slice(0,14)||'pulse')+(10+Math.floor(Math.random()*90));
 const realMic=()=>!!(window.PULSE_SITE&&navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&window.MediaRecorder);
 
 /* ---------- Rendu ---------- */
@@ -975,7 +1012,7 @@ function render(top){
  document.querySelectorAll('.call-bar,.call-bub').forEach(x=>x.remove());if(CALL&&V.name!=='call'){app.insertAdjacentHTML('beforeend',(CALL.bubble||V.name==='watch')?callBub():callBar())}
  if(typeof LIVE!=='undefined'&&LIVE.call&&V.name!=='lcall'){const lc=lContact(LIVE.call.code)||{n:'Ami',av:S.av};app.insertAdjacentHTML('beforeend',`<button class="call-bar" data-a="go" data-v="lcall">${avatar(lc.av,32)}<span style="flex:1;min-width:0"><b>Appel réel avec ${esc(lc.n)}</b><br><span class="small muted">Touche pour revenir à l’appel</span></span><span class="rb end" data-a="lc-end" style="width:38px;height:38px;background:var(--live)" role="button" aria-label="Raccrocher">${ic('phone')}</span></button>`)}
  if(top)window.scrollTo(0,0);
- pushPresence();
+ pushPresence();if(typeof LIVE!=='undefined'){liveReg();syncRoomCalls()}
  const f=app.querySelector('[data-autofocus]'); if(f&&top) f.focus();
 }
 const navTabs=['home','discover','messages','profile'];
@@ -1072,6 +1109,7 @@ home:()=>{
  return `<div class="scr">
  <div class="top">${logo(21)}<button class="icon-btn" data-a="notifs" aria-label="Notifications">${ic('bell')}<span class="dot"></span></button></div>
  <div class="stack" style="gap:6px"><h1>${greet}, ${esc(S.me.name||'toi')} 👋</h1><p class="muted">${t('hook')}</p></div>
+ ${window.PULSE_SITE?`<section class="stack" data-online="5">${onlineHTML(5)}</section>`:''}
  <div class="feature"><div class="art" style="background-image:url(assets/home-hero.webp)" role="img" aria-label="Illustration : une personne écoute de la musique face au cosmos"></div>
   <div class="exp-card"><span class="gold">${ic('star')} Expérience du moment</span>
    <h2 style="font-size:21px">${t('stage')} 🎤</h2><p class="muted small">Chante, fais vibrer la communauté et tente de remporter le vote !</p>
@@ -1153,12 +1191,12 @@ room:(id)=>{const r=room(id),c=com(r.com),k=cat(r.com),inR=R&&R.id===id,img=r.co
   <p class="muted">Ce salon n’a pas encore commencé. Hôte : ${esc(person(r.host).name)}.</p><button class="btn btn-p" data-a="remind-room" data-v="${r.id}">${ic('bell')} Me prévenir au début</button>${demo('<b>Prototype :</b> le rappel est noté sur cet appareil, sans notification réelle.')}${nav('')}</div>`;
  return `<div class="scr in-room">${head}${card}
  <div class="row between"><span class="live">${t('live')}</span><span class="count" id="rc-count">${countTxt(r)}</span></div>
- ${demo('<b>Audio non branché :</b> ce salon est une démonstration visuelle. Aucun son n’est capté ni diffusé.')}
+ ${window.PULSE_SITE?demo('<b>Testeurs réels :</b> les personnes « Ici en vrai » t’entendent pour de bon quand ton micro est ouvert. Léa, Nora et les autres membres de démo sont simulés.'):demo('<b>Audio non branché :</b> ce salon est une démonstration visuelle. Aucun son n’est capté ni diffusé.')}
+ <section class="stack" id="real-peers">${realPeers(r.id)}</section>
  ${r.act?`<button class="list-item" data-a="open-act" data-v="${r.act}" style="border-color:color-mix(in srgb,var(--accent) 50%,transparent)">${glyph(k,'star')}<div class="grow"><div class="eyebrow">Activité en cours</div><div style="font-weight:700">${esc(ACTS.find(a=>a.id===r.act).title)}</div></div><span class="link">Ouvrir</span></button>`:''}
  <section class="stack"><h2>Sur scène</h2><div class="stage" style="padding-top:12px">${r.host==='me'?seat('me','Hôte',inR&&!R.muted):seat(r.host,'Hôte',true)}${sp.map((s,i)=>seat(s,'',i===0&&!(inR&&!R.muted))).join('')}${meSpeaker&&r.host!=='me'?seat('me','',!R.muted):''}
   <button class="seat" data-a="invite" data-v="${r.id}"><span class="invite-seat">${ic('plus')}</span><span>Inviter</span></button></div></section>
  <section class="stack"><h2>À l’écoute</h2><div class="row wrap" style="gap:10px">${(inR&&R.role==='listener'?`<div class="seat">${avatar(S.av,48)}<span>Toi</span></div>`:'')}${Object.keys(PEOPLE).filter(p=>p!==r.host&&!sp.includes(p)).slice(0,5).map(p=>`<div class="seat">${avatar(PEOPLE[p].av,48)}<span>${esc(PEOPLE[p].name)}</span></div>`).join('')}${r.listeners>5?`<div class="seat"><div style="width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:var(--surface2);font-weight:800;font-size:12px">+${fmt(r.listeners-5)}</div><span>autres</span></div>`:''}</div></section>
- <section class="stack" id="real-peers">${realPeers(r.id)}</section>
  </div>
  <div class="cc" id="cc" data-com="${r.com}" aria-live="polite">${UI.cc?ccLine(r.com):feedLine(r)}</div>
  <div class="room-bar"><div class="in">${roomMic(r)}</div></div>`;
@@ -1311,6 +1349,7 @@ live:()=>{if(!liveOK())return `<div class="scr">${topBar('Tester en vrai')}<div 
   <span class="st ${LIVE.st==='on'?'on':'soon'}">${LIVE.st==='on'?'En ligne : tes amis peuvent te joindre':LIVE.st==='connecting'?'Connexion…':'Hors ligne'+(LIVE.err?' ('+esc(LIVE.err)+')':'')}</span>
   <button class="btn btn-g btn-sm" data-a="lcode-copy">Copier mon code</button></div>
  <div class="card stack"><label for="lcode-in" style="font-weight:700">Ajouter un ami avec son code</label><div class="row"><input class="inp" id="lcode-in" inputmode="numeric" maxlength="7" placeholder="123 456" autocomplete="off"><button class="btn btn-p btn-sm" data-a="lcode-add">Ajouter</button></div><p class="small muted">Ton ami doit avoir la démo ouverte au même moment.</p></div>
+ <section class="stack" data-online="30">${onlineHTML(30)}</section>
  <section class="stack"><h2>Mes contacts réels <span class="count">(${cs.length})</span></h2>
   ${cs.map(c=>`<div class="list-item">${avatar(c.av,48)}<div class="grow"><div style="font-weight:700">${esc(c.n)}</div><span class="st ${lOnline(c.code)?'on':'soon'}">${lOnline(c.code)?'En ligne':'Hors ligne'}</span></div>
    <button class="icon-btn" data-a="lchat" data-v="${c.code}" aria-label="Messages">${ic('message')}</button><button class="icon-btn" data-a="lcall" data-v="${c.code}" aria-label="Appeler">${ic('phone')}</button><button class="icon-btn" data-a="ltw" data-v="${c.code}" aria-label="Talkie-walkie">${ic('speaker')}</button></div>`).join('')||'<p class="small muted">Aucun contact pour l’instant : échange ton code avec un ami.</p>'}</section>
@@ -1415,7 +1454,7 @@ profile:()=>{const a=ageOf(S.me.birth);const lvl=level();const UNIV=[['planete',
  <div class="top"><span></span><button class="icon-btn" data-a="go" data-v="prefs" aria-label="${t('settings')}">${ic('gear')}</button></div>
  <div class="orbit"><span class="o"></span><span class="o2"></span>${avatar(S.av,200)}<button class="pen" data-a="go" data-v="avatar" aria-label="${t('editAv')}">${ic('pen')}</button></div>
  <div class="stack" style="gap:6px"><h1>${esc(S.me.name||'Toi')}${S.me.showAge&&a?`, ${a}`:''}</h1>
-  <span class="muted">@${esc((S.me.name||'toi').toLowerCase().normalize('NFD').replace(/[^a-z0-9]/g,''))}_pulse</span>
+  <span class="muted">@${esc(S.me.handle||'toi')}${window.PULSE_SITE&&S.liveCode?` · code ami ${S.liveCode.replace(/(\d{3})(\d{3})/,'$1 $2')}`:''}</span>
   <span class="st on" style="align-self:flex-start">En ligne</span>
   <p style="margin-top:6px">${esc(bio)}</p></div>
  <div class="card row between"><div class="row">${glyph(cat('musique'),'mic')}<div><div style="font-weight:700">Ma voix en 15 secondes</div><div class="small muted">${S.me.voice?'C’est elle qu’on découvre avant ta photo.':'Présente-toi : on découvre ta voix avant ton avatar.'}</div></div></div>${S.me.voice?`<button class="chip" data-a="play" data-v="me">${ic('play')} 0:15</button>`:`<button class="btn btn-p btn-sm" data-a="rec" data-v="voice">${ic('mic')} Enregistrer</button>`}</div>
@@ -1442,6 +1481,7 @@ prefs:()=>{const tg=(k,on,label,sub='')=>`<button class="set-row" data-a="${k}">
  <section class="card"><h3 class="eyebrow" style="margin-bottom:6px">Démo</h3>
   ${tg('sound',S.sound,'Son','Voix de synthèse, mélodies du blind test')}
   ${tg('sim',S.sim,'Activité simulée','Salons qui bougent, réponses automatiques')}
+  ${window.PULSE_SITE?tg('vis',S.visible!==0,'Apparaître en ligne pour les autres testeurs','Ton prénom, ton @ et ton avatar sont visibles des autres testeurs connectés'):''}
   ${tg('read',S.readAloud,'Lire à voix haute les autres','Ce que disent les personnes présentes en vrai')}
   <p class="small muted" style="padding-bottom:6px">${CAP.room?'Salon partagé actif : les personnes qui ouvrent la page en même temps apparaissent dans les salons.':'Salon partagé indisponible dans cette vue.'} ${CAP.dict?'Dictée disponible : quand ton micro est ouvert, tes paroles deviennent des sous-titres.':''}</p></section>
  <section class="card"><h3 class="eyebrow" style="margin-bottom:6px">Confidentialité & sécurité</h3>
@@ -1471,6 +1511,7 @@ function discResults(){
  if(!q&&!UI.discLang&&!UI.discLive){
   return `<div class="stack" style="gap:22px">
   <div class="hero" style="min-height:160px;justify-content:center"><div class="art-r" style="background-image:url(assets/disc-hero.webp)"></div><h2 style="font-size:21px;max-width:13ch">Une communauté pour chaque passion</h2><p class="muted small" style="max-width:20ch">Musique, jeux vidéo, langues, cinéma…</p><button class="btn btn-p btn-sm" style="align-self:flex-start" data-a="scroll-cats">Explorer ${ic('arrow')}</button></div>
+  ${window.PULSE_SITE?`<section class="stack" data-online="20">${onlineHTML(20)}</section>`:''}
   <div class="quick"><button class="com-tile" style="${cv(cat('musique'))}" data-a="duo-open"><div class="big">${ic('duo')}</div><h3>Mode Duo</h3><span class="small muted">3 min avec une personne qui partage ta passion</span><span class="tag" style="align-self:flex-start">Bêta</span></button>
    <button class="com-tile" style="${cv(cat('discussions'))}" data-a="go" data-v="tandem"><div class="big">${ic('translate')}</div><h3>Échange de langues</h3><span class="small muted">Un natif t’aide, tu l’aides en retour</span></button></div>
   <button class="game-tile" style="--c1:#8B5CF6;--c2:#FF4FD8" data-a="go" data-v="games"><span class="gi">${ic('star')}</span><span style="flex:1;min-width:0"><b>Jeux entre amis</b><br><span class="small muted">Cartes, mots, musique : joue à plusieurs</span></span>${ic('chev')}</button>
@@ -1480,10 +1521,12 @@ function discResults(){
    ${ACTS.filter(a=>a.status==='soon').slice(0,2).map(actCard).join('')}</section>
   <section class="stack"><h2>${t('people')}</h2><p class="small muted">Selon vos passions communes. PULSE n’est pas une appli de rencontres amoureuses : on se rencontre par ce qu’on aime.</p>${Object.keys(PEOPLE).filter(p=>!S.blocked.includes(p)).sort((a,b)=>PEOPLE[b].int.filter(i=>S.interests.includes(i)).length-PEOPLE[a].int.filter(i=>S.interests.includes(i)).length).slice(0,5).map(personRow).join('')}</section></div>`;
  }
+ const realP=window.PULSE_SITE&&q?dirList().filter(e=>(e.n+' '+e.h+' @'+e.h).toLowerCase().includes(q.replace(/^@/,'@'))):[];
  const rs=allRooms().filter(r=>fl(r)&&(!q||(r.title+' '+com(r.com).name).toLowerCase().includes(q)));
  const cs=q?COMS.filter(c=>(c.name+' '+c.tags.join(' ')+' '+cat(c.id).name).toLowerCase().includes(q)):[];
  const ps=Object.keys(PEOPLE).filter(p=>!S.blocked.includes(p)&&(!UI.discLang||PEOPLE[p].langs.includes(UI.discLang))&&(!q||PEOPLE[p].name.toLowerCase().includes(q)||PEOPLE[p].int.some(i=>cat(i).name.toLowerCase().includes(q))));
  return `<div class="stack" style="gap:18px">
+  ${realP.length?`<section class="stack"><h2>Testeurs en ligne</h2>${realP.map(dirRow).join('')}</section>`:''}
   ${cs.length?`<section class="stack"><h2>Communautés</h2>${cs.map(c=>{const k=cat(c.id);return `<button class="list-item" data-a="open-com" data-v="${c.id}">${glyph(k)}<div class="grow"><div style="font-weight:800">${esc(c.name)}</div><div class="small muted ellip">${esc(c.tagline)}</div></div></button>`}).join('')}</section>`:''}
   <section class="stack"><h2>${t('rooms')} <span class="count">(${rs.length})</span></h2>${rs.map(roomCard).join('')||'<p class="muted">Aucun salon ne correspond. Essaie une autre langue ou crée le tien.</p>'}</section>
   ${ps.length?`<section class="stack"><h2>Personnes</h2>${ps.slice(0,6).map(personRow).join('')}</section>`:''}</div>`;
@@ -1614,6 +1657,9 @@ const ACT={
  cc:()=>{UI.cc=!UI.cc;render()},
  'tw-pick':v=>{UI.tw=v;render()},
  'cards-open':()=>{cgNew();go('cards')},
+ 'dir-add':v=>{const e=LIVE.dir[v];if(!e)return;if(!lContact(v)){S.lcontacts=S.lcontacts||[];S.lcontacts.push({code:v,n:e.n,av:e.av});save()}liveConnect(v);toast(`${e.n} est ajouté·e à tes amis`);reLive();onDir()},
+ 'dir-call':v=>{if(lOnline(v))return liveCall(v);liveConnect(v,true);toast('Connexion…');setTimeout(()=>liveCall(v),1800)},
+ vis:()=>{S.visible=S.visible===0?1:0;save();if(S.visible===0){if(LIVE.hubConn)LIVE.hubConn.close();if(LIVE.hubPeer){LIVE.hubPeer.destroy();LIVE.hubPeer=null}}else hubConnect();render()},
  'live-open':()=>{if(liveOK())liveStart();go('live')},
  'lcode-copy':()=>{const t2=liveCode();try{navigator.clipboard.writeText(t2).then(()=>toast('Code copié : envoie-le à ton ami.'),()=>toast('Ton code : '+t2))}catch(e){toast('Ton code : '+t2)}},
  'lcode-add':()=>{const v=(document.getElementById('lcode-in').value||'').replace(/\D/g,'');if(v.length!==6)return toast('Un code PULSE a 6 chiffres.');if(v===S.liveCode)return toast('C’est ton propre code.');if(LIVE.st!=='on')return toast('Connexion en cours, réessaie dans quelques secondes.');liveConnect(v);toast('Connexion à ton ami…')},
@@ -1728,7 +1774,7 @@ const ACT={
  },
  'ob-lang':v=>{const L=S.me.langs;S.me.langs=L.includes(v)?L.filter(x=>x!==v):[...L,v];save();render()},
  'ob-int':v=>{const L=S.interests;S.interests=L.includes(v)?L.filter(x=>x!==v):[...L,v];save();render()},
- 'ob-done':()=>{S.onboarded=1;S.joined=[...new Set([...S.interests.slice(0,3)])];save();V={name:'home'};HIST=[];render(true);toast(`Bienvenue dans PULSE, ${S.me.name} !`)},
+ 'ob-done':()=>{S.onboarded=1;if(!S.me.handle)S.me.handle=makeHandle();if(window.PULSE_SITE)setTimeout(liveStart,600);S.joined=[...new Set([...S.interests.slice(0,3)])];save();V={name:'home'};HIST=[];render(true);toast(`Bienvenue dans PULSE, ${S.me.name} !`)},
  'av-tab':v=>{UI.avTab=v;render()},
  'av-photo':v=>{if(isPerso(v)){S.av.photo=v;save();render()}},
  'av-unphoto':()=>{delete S.av.photo;UI.avTab='forme';save();render()},
@@ -1782,9 +1828,9 @@ const ACT={
  calm:()=>{S.calm=S.calm?0:1;save();render()},
  'show-age':()=>{S.me.showAge=S.me.showAge?0:1;save();render()},
  'n-rooms':()=>{S.notif.rooms^=1;save();render()},'n-msgs':()=>{S.notif.msgs^=1;save();render()},'n-acts':()=>{S.notif.acts^=1;save();render()},
- 'edit-profile':()=>sheet(`<h2>Modifier le profil</h2><div class="field"><label for="p-bio">Bio</label><textarea class="inp" id="p-bio" maxlength="160" placeholder="Ce qui te fait vibrer…">${esc(S.me.bio)}</textarea></div><div class="field"><label>Langues parlées</label><div class="row wrap">${LANGS.map(([c])=>{const C=c.toUpperCase();return `<button class="chip ${S.me.langs.includes(C)?'on':''}" data-a="p-lang" data-v="${C}">${C}</button>`}).join('')}</div></div><button class="btn btn-p" data-a="p-save">Enregistrer</button>`),
+ 'edit-profile':()=>sheet(`<h2>Modifier le profil</h2><div class="field"><label for="p-handle">Nom d’utilisateur</label><div class="row"><span style="font-weight:800">@</span><input class="inp" id="p-handle" maxlength="24" value="${esc(S.me.handle||'')}" autocomplete="off"></div><span class="small muted">Lettres, chiffres, point et tiret bas. Les autres testeurs peuvent te chercher avec.</span></div><div class="field"><label for="p-bio">Bio</label><textarea class="inp" id="p-bio" maxlength="160" placeholder="Ce qui te fait vibrer…">${esc(S.me.bio)}</textarea></div><div class="field"><label>Langues parlées</label><div class="row wrap">${LANGS.map(([c])=>{const C=c.toUpperCase();return `<button class="chip ${S.me.langs.includes(C)?'on':''}" data-a="p-lang" data-v="${C}">${C}</button>`}).join('')}</div></div><button class="btn btn-p" data-a="p-save">Enregistrer</button>`),
  'p-lang':(v,el)=>{const L=S.me.langs;if(L.includes(v)&&L.length===1)return;S.me.langs=L.includes(v)?L.filter(x=>x!==v):[...L,v];el.classList.toggle('on');save()},
- 'p-save':()=>{S.me.bio=document.getElementById('p-bio').value.trim();save();closeSheet();render()},
+ 'p-save':()=>{S.me.bio=document.getElementById('p-bio').value.trim();const hd=(document.getElementById('p-handle').value||'').toLowerCase().replace(/[^a-z0-9_.]/g,'').slice(0,24);if(hd.length>=3)S.me.handle=hd;else toast('Nom d’utilisateur : 3 caractères minimum.');save();closeSheet();render()},
  'c-vis':v=>{document.getElementById('vis-pub').classList.toggle('on',v==='pub');document.getElementById('vis-priv').classList.toggle('on',v==='priv')},
  'c-submit':()=>{const ti=document.getElementById('c-title').value.trim();if(ti.length<3){document.getElementById('c-err').textContent='Donne un nom d’au moins 3 caractères à ton salon.';return}
   const r={id:'u'+Date.now(),com:document.getElementById('c-com').value,title:ti,langs:[document.getElementById('c-lang').value],live:1,host:'me',speakers:[],listeners:0,private:document.getElementById('vis-priv').classList.contains('on')};
@@ -1839,6 +1885,6 @@ setInterval(()=>{const el=document.getElementById('duo-t');if(el&&UI.duo&&UI.duo
 (function(){const c=document.getElementById('stars'),x=c.getContext('2d');function draw(){const d=Math.min(devicePixelRatio||1,2);c.width=innerWidth*d;c.height=innerHeight*d;c.style.width=innerWidth+'px';c.style.height=innerHeight+'px';x.scale(d,d);let s=7;const rnd=()=>(s=(s*16807)%2147483647)/2147483647;for(let i=0;i<Math.round(innerWidth*innerHeight/2600);i++){x.globalAlpha=.25+rnd()*.6;x.fillStyle=rnd()>.85?'#E9D5FF':'#fff';x.beginPath();x.arc(rnd()*innerWidth,rnd()*innerHeight,rnd()*1.2+.2,0,7);x.fill()}}draw();addEventListener('resize',draw)})();
 
 render(true);
-if(S.liveOn&&S.onboarded)setTimeout(liveStart,800);
+if(window.PULSE_SITE&&S.onboarded){if(!S.me.handle){S.me.handle=makeHandle();save()}setTimeout(liveStart,800)}
 })();
 </script>
