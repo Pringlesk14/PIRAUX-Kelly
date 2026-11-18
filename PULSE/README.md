@@ -27,6 +27,10 @@ Réglages → « Se déconnecter et effacer ce prototype » remet tout à zéro.
 - Anonymat : rien dans le site ne mentionne Kelly ni l'outil utilisé ; les avis passeront par une adresse e-mail dédiée (à créer).
 - Avis des testeurs : écran « Donne ton avis » qui prépare un message à envoyer par WhatsApp ou à copier (la démo n'enregistre rien).
 
+## Styles d'avatar à créer
+
+- Lumi (version mignonne), Nébuleux (version étrange), Éclat (version stylée), Humain (version « snap ») et Animal totem, chacun avec 4 variantes de tête, 6 couleurs, les accessoires et l'aura. Ils remplacent Androïde et Être cosmique (les anciennes sauvegardes sont converties).
+
 ## Persos 3D
 
 - 9 persos 3D fournis par Kelly (Amani, Maya, Jade, Inaya, Lina, Kenzo, Rayan, Kai, Noah), recadrés dans `assets/persos/`, à choisir dans l'éditeur d'avatar (onglet Forme), en plus de « Crée le tien ».

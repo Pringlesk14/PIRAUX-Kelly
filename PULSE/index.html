@@ -502,14 +502,15 @@ const COMS=[
 const com=id=>COMS.find(c=>c.id===id)||COMS[0];
 
 /* Palettes avatar */
-const SKIN={human:['#F6D2B8','#E8B48F','#C98B62','#8D5A3B','#5E3A26','#F2C7A5'],droid:['#C9D2E3','#8FA3C7','#E4D3FF','#9BE7F0','#FFD48A','#6B7591'],cosmic:['#8A7DFF','#55D6C2','#FF8FD8','#6CB8FF','#B2F27A','#FFB86B'],animal:['#F28C3A','#C9C9D1','#8A5A3B','#F4E1C1','#3A3640','#E8A0BF']};
+const SKIN={lumi:['#C4B5FD','#F9A8D4','#99F6E4','#FDE68A','#A5B4FC','#FBCFE8'],nebuleux:['#A855F7','#22D3EE','#FF4FD8','#34D399','#FFC93C','#6366F1'],eclat:['#A855F7','#22D3EE','#FF4FD8','#FFC93C','#34D399','#E5E7EB'],human:['#F6D2B8','#E8B48F','#C98B62','#8D5A3B','#5E3A26','#F2C7A5'],droid:['#C9D2E3','#8FA3C7','#E4D3FF','#9BE7F0','#FFD48A','#6B7591'],cosmic:['#8A7DFF','#55D6C2','#FF8FD8','#6CB8FF','#B2F27A','#FFB86B'],animal:['#F28C3A','#C9C9D1','#8A5A3B','#F4E1C1','#3A3640','#E8A0BF']};
 const HAIR=['#2B1B14','#6B3E26','#D9A441','#E9E4F0','#FF4FD8','#3BA7FF','#A855F7','#111018'];
 const AURA=['#A855F7','#FF4FD8','#22D3EE','#FFC93C','#34D399','#6366F1'];
 const ARCH=[
- {id:'human',name:'Humain·e',ds:'Visage, coiffure et carnation au choix',heads:['Courts','Longs','Bouclés','Chignon']},
- {id:'droid',name:'Androïde',ds:'Visière lumineuse, look chromé',heads:['Antenne','Double antenne','Crête','Disques']},
- {id:'cosmic',name:'Être cosmique',ds:'Venu d’une autre galaxie',heads:['Antennes','Cornes','Troisième œil','Nageoires']},
- {id:'animal',name:'Animal totem',ds:'Ton esprit animal',heads:['Renard','Chat','Ours','Lapin']}
+ {id:'lumi',name:'Lumi',tag:'Version mignonne',ds:'Rondouillard, grands yeux brillants, joues roses',heads:['Étoile','Cœur','Double antenne','Sans antenne']},
+ {id:'nebuleux',name:'Nébuleux',tag:'Version étrange',ds:'Un œil unique, des volutes à la place des pieds',heads:['Petits yeux','Orbite','Cornes néon','Étoiles']},
+ {id:'eclat',name:'Éclat',tag:'Version stylée',ds:'Tête en cristal, visière lumineuse, tenue sombre',heads:['Auréole','Sans auréole','Cornes néon','Pics de cristal']},
+ {id:'human',name:'Humain',tag:'Version « snap »',ds:'Visage, cheveux et tenue, toutes les carnations',heads:['Courts','Longs','Bouclés','Chignon']},
+ {id:'animal',name:'Animal totem',tag:'Version nature',ds:'Ton esprit animal',heads:['Renard','Chat','Ours','Lapin']}
 ];
 const ACC=[
  {id:'guitare',slot:'hand',name:'Guitare',vb:'14 104 136 136'},
@@ -585,7 +586,7 @@ function accSVG(id,c){
 }
 function headSVG(a,id){
  const skin=SKIN[a.arch][a.tint]||SKIN[a.arch][0], hair=HAIR[a.hair]||HAIR[0], h=a.head, glow=AURA[a.aura];
- let back='',head='',front='';
+ let back='',head='',front='',body;
  if(a.arch==='human'){
   if(h===1) back=`<path d="M58 82C56 38 144 38 142 82l6 58c-18 10-78 10-96 0z" fill="${hair}"/>`;
   if(h===2) back=[[70,52],[100,40],[130,52],[62,78],[138,78],[78,40],[122,40]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="20" fill="${hair}"/>`).join('');
@@ -594,22 +595,32 @@ function headSVG(a,id){
   const fringe=h===2?`<path d="M66 70c4-22 64-22 68 0-14-10-54-10-68 0z" fill="${hair}"/>`:`<path d="M64 78C62 44 88 36 104 38c22 0 36 14 32 40-6-16-18-22-36-22-16 0-28 8-36 22z" fill="${hair}"/>`;
   front=fringe+`<circle cx="87" cy="84" r="4.2" fill="#1A1326"/><circle cx="113" cy="84" r="4.2" fill="#1A1326"/><circle cx="88.4" cy="82.6" r="1.3" fill="#fff"/><circle cx="114.4" cy="82.6" r="1.3" fill="#fff"/>
    <ellipse cx="80" cy="96" rx="6" ry="3.5" fill="#FF7FA8" opacity=".35"/><ellipse cx="120" cy="96" rx="6" ry="3.5" fill="#FF7FA8" opacity=".35"/><path d="M90 101q10 8 20 0" stroke="#7A2E3A" stroke-width="2.6" fill="none" stroke-linecap="round"/>`;
- } else if(a.arch==='droid'){
-  if(h===0) back=`<path d="M100 44V22" stroke="#9CA3AF" stroke-width="3"/><circle cx="100" cy="20" r="6" fill="${glow}"/>`;
-  if(h===1) back=`<path d="M84 46 76 22M116 46l8-24" stroke="#9CA3AF" stroke-width="3"/><circle cx="76" cy="20" r="5" fill="${glow}"/><circle cx="124" cy="20" r="5" fill="${glow}"/>`;
-  if(h===2) back=`<path d="M86 48c0-18 28-18 28 0z" fill="${glow}"/>`;
-  head=`<rect x="62" y="44" width="76" height="78" rx="24" fill="${skin}"/><rect x="62" y="44" width="76" height="78" rx="24" fill="url(#sh${id})"/>`;
-  if(h===3) head+=`<circle cx="60" cy="84" r="10" fill="#6B7280"/><circle cx="60" cy="84" r="5" fill="${glow}"/><circle cx="140" cy="84" r="10" fill="#6B7280"/><circle cx="140" cy="84" r="5" fill="${glow}"/>`;
-  front=`<rect x="70" y="70" width="60" height="24" rx="12" fill="#120C22"/><rect x="80" y="78" width="14" height="7" rx="3.5" fill="${glow}"/><rect x="106" y="78" width="14" height="7" rx="3.5" fill="${glow}"/>
-   <path d="M88 106h24" stroke="#4B5563" stroke-width="3" stroke-linecap="round"/><path d="M92 112h16" stroke="#4B5563" stroke-width="2" stroke-linecap="round" opacity=".6"/>`;
- } else if(a.arch==='cosmic'){
-  if(h===0) back=`<path d="M86 46c-4-12-10-18-16-22M114 46c4-12 10-18 16-22" stroke="${skin}" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="69" cy="23" r="6" fill="${glow}"/><circle cx="131" cy="23" r="6" fill="${glow}"/>`;
-  if(h===1) back=`<path d="M76 54 70 28 88 46zM124 54l6-26-18 18z" fill="#F5F3FF"/>`;
-  if(h===3) back=`<path d="M64 76 40 60l6 30zM136 76l24-16-6 30z" fill="${glow}" opacity=".8"/>`;
-  head=`<path d="M100 40c36 0 42 36 36 56-6 20-24 28-36 28s-30-8-36-28c-6-20 0-56 36-56z" fill="${skin}"/><path d="M100 40c36 0 42 36 36 56-6 20-24 28-36 28s-30-8-36-28c-6-20 0-56 36-56z" fill="url(#sh${id})"/>`;
-  front=`<ellipse cx="85" cy="84" rx="10" ry="13" fill="#120C22" transform="rotate(-12 85 84)"/><ellipse cx="115" cy="84" rx="10" ry="13" fill="#120C22" transform="rotate(12 115 84)"/>
-   <circle cx="88" cy="80" r="3" fill="${glow}"/><circle cx="118" cy="80" r="3" fill="${glow}"/><path d="M93 108q7 5 14 0" stroke="#120C22" stroke-width="2.4" fill="none" stroke-linecap="round"/>`;
-  if(h===2) front+=`<path d="M100 54l6 8-6 8-6-8z" fill="${glow}"/>`;
+ } else if(a.arch==='lumi'){
+  const dk='#5B21B6';
+  if(h===0) back=`<path d="M100 50c-6-14 2-24 10-28" stroke="${skin}" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M111 10l3 7 7 3-7 3-3 7-3-7-7-3 7-3z" fill="#7DF9FF" stroke="#22D3EE" stroke-width="1.5"/>`;
+  if(h===1) back=`<path d="M100 50V36" stroke="${skin}" stroke-width="4" stroke-linecap="round"/><circle cx="95" cy="26" r="6" fill="#FF4FD8"/><circle cx="105" cy="26" r="6" fill="#FF4FD8"/><path d="M89.5 28 100 40l10.5-12z" fill="#FF4FD8"/>`;
+  if(h===2) back=`<path d="M86 54 76 30M114 54l10-24" stroke="${skin}" stroke-width="4" stroke-linecap="round"/><circle cx="75" cy="27" r="6" fill="#7DF9FF"/><circle cx="125" cy="27" r="6" fill="#FF4FD8"/>`;
+  head=`<ellipse cx="84" cy="180" rx="15" ry="9" fill="${dk}"/><ellipse cx="116" cy="180" rx="15" ry="9" fill="${dk}"/><ellipse cx="40" cy="122" rx="10" ry="14" fill="${skin}"/><ellipse cx="160" cy="122" rx="10" ry="14" fill="${skin}"/><ellipse cx="100" cy="114" rx="60" ry="66" fill="${skin}"/><ellipse cx="100" cy="114" rx="60" ry="66" fill="url(#sh${id})"/><ellipse cx="100" cy="142" rx="34" ry="26" fill="#fff" opacity=".2"/>`;
+  front=`<circle cx="80" cy="104" r="13" fill="#1A1326"/><circle cx="120" cy="104" r="13" fill="#1A1326"/><circle cx="85" cy="98" r="4.5" fill="#fff"/><circle cx="125" cy="98" r="4.5" fill="#fff"/><circle cx="77" cy="109" r="2" fill="#fff"/><circle cx="117" cy="109" r="2" fill="#fff"/><ellipse cx="62" cy="124" rx="10" ry="6" fill="#FF8FB8" opacity=".75"/><ellipse cx="138" cy="124" rx="10" ry="6" fill="#FF8FB8" opacity=".75"/><path d="M92 126q8 8 16 0" stroke="#3B1A5A" stroke-width="3" fill="none" stroke-linecap="round"/>`;
+  body='';
+ } else if(a.arch==='nebuleux'){
+  const c=skin;
+  back=`<g fill="none" stroke="${c}" stroke-width="7" stroke-linecap="round"><path d="M82 150c-4 18-18 22-22 36"/><path d="M100 158c-2 16 4 26-2 40"/><path d="M118 150c4 18 18 22 22 36"/></g>`;
+  if(h===1) back+=`<ellipse cx="100" cy="100" rx="84" ry="22" fill="none" stroke="#7DF9FF" stroke-width="1.6" stroke-dasharray="4 5" transform="rotate(-14 100 100)"/><circle cx="176" cy="80" r="5" fill="#FF4FD8"/>`;
+  if(h===2) back+=`<path d="M78 52 70 26 90 46M122 52l8-26-20 20" fill="none" stroke="#FF4FD8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`;
+  if(h===3) back+=`<g fill="#FFC93C"><path d="M70 40l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/><path d="M100 22l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/><path d="M130 40l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/></g>`;
+  head=`<ellipse cx="100" cy="100" rx="50" ry="66" fill="${c}" opacity=".22"/><ellipse cx="100" cy="100" rx="44" ry="60" fill="#120C2E" stroke="${c}" stroke-width="3"/><g fill="#fff" opacity=".7"><circle cx="78" cy="88" r="1.2"/><circle cx="124" cy="120" r="1.4"/><circle cx="84" cy="138" r="1"/><circle cx="120" cy="76" r="1"/></g>`;
+  front=`<ellipse cx="100" cy="102" rx="22" ry="17" fill="#0B1E3A" stroke="#22D3EE" stroke-width="3"/><circle cx="100" cy="102" r="11" fill="#22D3EE"/><ellipse cx="100" cy="102" rx="3" ry="10" fill="#0A0520"/><circle cx="104" cy="97" r="2.4" fill="#fff"/><path d="M84 136l5 5 5-5 5 5 5-5 5 5 5-5" fill="none" stroke="#FF4FD8" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>`;
+  if(h===0) front+=`<circle cx="86" cy="66" r="6" fill="none" stroke="#22D3EE" stroke-width="2"/><circle cx="114" cy="66" r="6" fill="none" stroke="#22D3EE" stroke-width="2"/><circle cx="86" cy="66" r="2" fill="#22D3EE"/><circle cx="114" cy="66" r="2" fill="#22D3EE"/>`;
+  body='';
+ } else if(a.arch==='eclat'){
+  const c=skin;
+  if(h===0) back=`<ellipse cx="100" cy="24" rx="24" ry="6" fill="none" stroke="#7DF9FF" stroke-width="3"/>`;
+  if(h===2) back=`<path d="M74 52 66 28 84 44M126 52l8-24-18 16" fill="none" stroke="#FF4FD8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`;
+  if(h===3) back=`<path d="M76 48 82 24 90 42 100 16 110 42 118 24 124 48z" fill="${c}" opacity=".85"/>`;
+  body=`<rect x="92" y="124" width="16" height="22" fill="#1F1B2E"/><path d="M50 204 66 144h68l16 60z" fill="#0F0A24" stroke="${c}" stroke-width="2.5" stroke-linejoin="round"/><path d="M100 144v60M66 144l14 60M134 144l-14 60" stroke="${c}" stroke-width="1" opacity=".35"/><path d="M80 172h10l4-9 5 16 4-7h17" fill="none" stroke="#FF4FD8" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>`;
+  head=`<path d="M100 36 140 59v46l-40 23-40-23V59z" fill="#140C30" stroke="${c}" stroke-width="3" stroke-linejoin="round"/><path d="M100 36v92M60 59l80 46M140 59 60 105" stroke="#fff" stroke-width=".8" opacity=".14"/>`;
+  front=`<defs><linearGradient id="vz${id}" x1="0" x2="1"><stop offset="0" stop-color="#22D3EE"/><stop offset="1" stop-color="#FF4FD8"/></linearGradient></defs><rect x="70" y="76" width="60" height="17" rx="8.5" fill="url(#vz${id})"/><path d="M78 81h22" stroke="#fff" stroke-width="2.4" stroke-linecap="round" opacity=".8"/>`;
  } else {
   const inner='#FFD6E0';
   if(h===0) back=`<path d="M66 66 62 26 92 52zM134 66l4-40-30 26z" fill="${skin}"/><path d="M70 58 68 36 84 50zM130 58l2-22-16 14z" fill="${inner}"/>`;
@@ -620,7 +631,7 @@ function headSVG(a,id){
   front=`<ellipse cx="100" cy="100" rx="18" ry="13" fill="#FFF7EE" opacity=".9"/><path d="M95 94h10l-5 6z" fill="#1A1326"/><path d="M100 100v4M94 106q6 4 12 0" stroke="#1A1326" stroke-width="2" fill="none" stroke-linecap="round"/>
    <circle cx="86" cy="80" r="4.5" fill="#1A1326"/><circle cx="114" cy="80" r="4.5" fill="#1A1326"/><circle cx="87.5" cy="78.5" r="1.4" fill="#fff"/><circle cx="115.5" cy="78.5" r="1.4" fill="#fff"/>`;
  }
- return {back,head,front};
+ return {back,head,front,body};
 }
 function avatar(a,size=120,opt={}){
  if(a&&a.photo&&isPerso(a.photo))return `<img src="assets/persos/${a.photo}.webp" alt="" width="${size}" height="${size}" loading="lazy" style="display:block;width:${size}px;height:${size}px;border-radius:50%;object-fit:cover;max-width:none">`;
@@ -628,7 +639,7 @@ function avatar(a,size=120,opt={}){
  const lvl=a.auraLvl??1;
  const hp=headSVG(a,id);
  const skin=SKIN[a.arch][a.tint]||SKIN[a.arch][0];
- const neck=a.arch==='droid'?'#6B7280':skin;
+ const neck=skin;
  const auraC=lvl?`<circle cx="100" cy="100" r="${lvl===2?98:90}" fill="url(#au${id})"/>`:'';
  const bg=opt.bg===false?'':`<circle cx="100" cy="100" r="100" fill="url(#bg${id})"/>`;
  return `<svg viewBox="0 0 200 200" width="${size}" height="${size}" role="img" aria-label="Avatar" style="display:block;border-radius:50%">
@@ -639,9 +650,9 @@ function avatar(a,size=120,opt={}){
   <clipPath id="cl${id}"><circle cx="100" cy="100" r="100"/></clipPath></defs>
   <g clip-path="url(#cl${id})">${bg}${auraC}
   ${acc.back?accSVG(acc.back,glow):''}
-  ${hp.back}<rect x="88" y="112" width="24" height="26" fill="${neck}"/>
+  ${hp.back}${hp.body!==undefined?hp.body:`<rect x="88" y="112" width="24" height="26" fill="${neck}"/>
   <path d="M38 204c0-48 30-70 62-70s62 22 62 70z" fill="url(#ou${id})"/>
-  <path d="M84 136l16 14 16-14" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="2.5"/>
+  <path d="M84 136l16 14 16-14" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="2.5"/>`}
   ${acc.neck?accSVG(acc.neck,glow):''}${acc.back==='sac'?accSVG('sac-front',glow):''}
   ${hp.head}${hp.front}
   ${acc.face?accSVG(acc.face,glow):''}${acc.head?accSVG(acc.head,glow):''}
@@ -660,7 +671,7 @@ const PEOPLE={
  nora:{name:'Nora',age:22,country:'FR',city:'Bordeaux',langs:['FR'],int:['musique'],av:{photo:'maya',arch:'human',tint:0,head:3,hair:2,aura:1,auraLvl:2,acc:{hand:'guitare'}}},
  malik:{name:'Malik',age:28,country:'FR',city:'Marseille',langs:['FR','EN','ES'],int:['sport','jeux','voyages'],av:{photo:'noah',arch:'animal',tint:2,head:2,hair:0,aura:5,auraLvl:1,acc:{head:'chapeau'}}},
  ines:{name:'Inès',age:30,country:'FR',city:'Paris',langs:['FR','IT'],int:['cinema','lecture'],av:{photo:'amani',arch:'cosmic',tint:1,head:2,hair:0,aura:3,auraLvl:1,acc:{}}},
- tom:{name:'Tom',age:35,country:'US',city:'Austin',langs:['EN','ES'],int:['tech','musique'],av:{arch:'droid',tint:4,head:3,hair:0,aura:1,auraLvl:1,acc:{}}}
+ tom:{name:'Tom',age:35,country:'US',city:'Austin',langs:['EN','ES'],int:['tech','musique'],av:{arch:'eclat',tint:1,head:0,hair:0,aura:1,auraLvl:1,acc:{}}}
 };
 const ROOMS=[
  {id:'r1',com:'musique',title:'Karaoké libre & auditions',langs:['FR'],live:1,host:'lea',speakers:['nora','marco'],listeners:126,act:'a1'},
@@ -722,7 +733,7 @@ const DEF=()=>({ui:'fr',skin:'cosmic',logo:'b',univers:'cite',calm:0,sound:1,sim
  convos:JSON.parse(JSON.stringify(CONVOS)),notif:{rooms:1,msgs:1,acts:1}});
 let S;
 try{S=Object.assign(DEF(),JSON.parse(localStorage.getItem(KEY)||'null')||{})}catch(e){S=DEF()}
-S.skin='cosmic';S.logo='b';S.interests=(S.interests||[]).filter(i=>ACTIVE.includes(i));S.created=(S.created||[]).filter(r=>r&&ACTIVE.includes(r.com));S.reminders=(S.reminders||[]).filter(x=>typeof x==='string');S.friends=(S.friends||[]).filter(f=>PEOPLE[f]);S.blocked=(S.blocked||[]).filter(f=>PEOPLE[f]);S.convos=(S.convos||[]).filter(c=>c&&PEOPLE[c.id]&&Array.isArray(c.msgs));S.joined=S.joined||[];S.joined=S.joined.filter(i=>ACTIVE.includes(i));if(!['fr','en'].includes(S.ui))S.ui='fr';
+S.skin='cosmic';if(S.av){if(S.av.arch==='droid')S.av.arch='eclat';if(S.av.arch==='cosmic')S.av.arch='nebuleux';if(!SKIN[S.av.arch])S.av.arch='human';if(!Number.isInteger(S.av.head)||S.av.head>3)S.av.head=0}S.logo='b';S.interests=(S.interests||[]).filter(i=>ACTIVE.includes(i));S.created=(S.created||[]).filter(r=>r&&ACTIVE.includes(r.com));S.reminders=(S.reminders||[]).filter(x=>typeof x==='string');S.friends=(S.friends||[]).filter(f=>PEOPLE[f]);S.blocked=(S.blocked||[]).filter(f=>PEOPLE[f]);S.convos=(S.convos||[]).filter(c=>c&&PEOPLE[c.id]&&Array.isArray(c.msgs));S.joined=S.joined||[];S.joined=S.joined.filter(i=>ACTIVE.includes(i));if(!['fr','en'].includes(S.ui))S.ui='fr';
 if(S.onboarded&&S.interests.length<2)S.interests=[...new Set([...S.interests,'musique','discussions'])].slice(0,3);
 if(S.onboarded&&!S.joined.length)S.joined=S.interests.slice(0,3);
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
@@ -1425,8 +1436,8 @@ function avatarEditor(){
  const tabs=`<div class="tabs" role="tablist">${[['forme','Forme'],['tetes','Têtes'],['acc','Accessoires'],['aura','Aura']].map(([k,l])=>`<button role="tab" class="${tab===k?'on':''}" data-a="av-tab" data-v="${k}">${l}</button>`).join('')}</div>`;
  let body='';const persoNote=a.photo?`<div class="demo-note">${ic('info')}<span>Tu as choisi le perso 3D <b>${esc((PERSOS.find(x=>x.id===a.photo)||{}).name||'')}</b>. Les coiffures et accessoires s’appliquent aux avatars que tu crées ; pour les persos 3D, ils arriveront avec les couches 3D. <button class="link" data-a="av-unphoto">Créer le mien à la place</button></span></div>`:'';
  if(tab==='forme') body=`<div class="stack" style="gap:8px"><h3>Persos 3D</h3><p class="small muted">Choisis un perso prêt à l’emploi.</p><div class="perso-grid">${PERSOS.map(x=>`<button class="pick ${a.photo===x.id?'on':''}" data-a="av-photo" data-v="${x.id}" aria-pressed="${a.photo===x.id}"><img src="assets/persos/${x.id}.webp" alt="" loading="lazy"><span class="nm">${x.name}</span></button>`).join('')}</div></div>
-  <h3>Ou crée le tien</h3><div class="pick-grid">${ARCH.map(x=>`<button class="pick ${!a.photo&&a.arch===x.id?'on':''}" data-a="av-arch" data-v="${x.id}">${avatar({...a,photo:undefined,arch:x.id,tint:a.arch===x.id?a.tint:1,acc:{}},92)}<span class="nm">${x.name}</span><span class="ds">${x.ds}</span></button>`).join('')}</div>
-  <div class="stack" style="gap:8px"><h3>${a.arch==='human'?'Carnation':a.arch==='droid'?'Finition':a.arch==='animal'?'Pelage':'Teinte'}</h3><div class="swatches">${SKIN[a.arch].map((c,i)=>`<button class="sw ${a.tint===i?'on':''}" style="background:${c}" data-a="av-tint" data-v="${i}" aria-label="Couleur ${i+1}"></button>`).join('')}</div></div>`;
+  <h3>Ou crée le tien</h3><div class="pick-grid">${ARCH.map(x=>`<button class="pick ${!a.photo&&a.arch===x.id?'on':''}" data-a="av-arch" data-v="${x.id}">${avatar({...a,photo:undefined,arch:x.id,tint:a.arch===x.id?a.tint:1,acc:{}},92)}<span class="nm">${x.name}</span>${x.tag?`<span class="eyebrow" style="color:var(--cyan);font-size:10px">${x.tag}</span>`:''}<span class="ds">${x.ds}</span></button>`).join('')}</div>
+  <div class="stack" style="gap:8px"><h3>${({human:'Carnation',animal:'Pelage',lumi:'Couleur',nebuleux:'Lueur',eclat:'Lueur'})[a.arch]||'Couleur'}</h3><div class="swatches">${SKIN[a.arch].map((c,i)=>`<button class="sw ${a.tint===i?'on':''}" style="background:${c}" data-a="av-tint" data-v="${i}" aria-label="Couleur ${i+1}"></button>`).join('')}</div></div>`;
  if(tab==='tetes') body=`<div class="pick-grid">${ARCH.find(x=>x.id===a.arch).heads.map((n,i)=>`<button class="pick ${a.head===i?'on':''}" data-a="av-head" data-v="${i}">${avatar({...a,photo:undefined,head:i,acc:{}},92)}<span class="nm">${n}</span></button>`).join('')}</div>
   ${a.arch==='human'?`<div class="stack" style="gap:8px"><h3>Couleur des cheveux</h3><div class="swatches">${HAIR.map((c,i)=>`<button class="sw ${a.hair===i?'on':''}" style="background:${c}" data-a="av-hair" data-v="${i}" aria-label="Cheveux ${i+1}"></button>`).join('')}</div></div>`:''}`;
  const F=UI.accF||'all', inF=x=>F==='all'||x.slot===F||(F==='other'&&['neck','back','extra'].includes(x.slot));
