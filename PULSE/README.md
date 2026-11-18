@@ -25,6 +25,12 @@ Réglages → « Se déconnecter et effacer ce prototype » remet tout à zéro.
 - Talkie-walkie en direct, façon Tenten : on appuie, l'ami entend pendant qu'on parle, rien n'est enregistré. Amis et groupe, mode « Ne pas déranger ».
 - Avis des testeurs : écran « Donne ton avis » qui prépare un message à envoyer par WhatsApp ou à copier (la démo n'enregistre rien).
 
+## Appels entre amis
+
+- Appel vocal à deux qui reste ouvert : barre « En appel avec… » en haut de l'écran pendant qu'on navigue, micro coupé, raccrocher.
+- Pendant l'appel : jouer ensemble (emoji-rébus, quiz, Tu préfères, Quatre en ligne, Onde) ou regarder ensemble (liens vers Netflix, Disney+, Prime Video, YouTube, Canal+ et compte à rebours commun). PULSE ne diffuse pas les films : chacun regarde sur son propre abonnement.
+- Accès : bouton téléphone dans une conversation, sur un ami, ou « Appeler un ami » dans le bouton PULSE. Appel simulé dans la démo.
+
 ## Jeux entre amis
 
 - **Onde** : jeu de cartes original aux couleurs de PULSE (même couleur ou même chiffre, cartes Saut, Inverse, +2 et Prisme, annonce « Pulse ! »), jouable contre 3 joueurs simulés.
