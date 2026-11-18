@@ -417,7 +417,7 @@ const COMS=[
  {id:'tech',name:'Tech Talk',tagline:'IA, code, gadgets et nouvelles idées.',tags:['International','IA','Dev'],members:5600,about:'Discussions tech accessibles à tous, du débutant à l’expert.',rules:['Pas d’auto-promotion abusive.']},
  {id:'discussions',name:'Discussions & langues',tagline:'Discuter de tout et pratiquer une langue avec des natifs.',tags:['International','Échange de langues','Débats'],members:10100,about:'Des salons par langue pour pratiquer en douceur avec des personnes du monde entier.',rules:['Patience et bienveillance envers celles et ceux qui apprennent.']}
 ];
-const com=id=>COMS.find(c=>c.id===id);
+const com=id=>COMS.find(c=>c.id===id)||COMS[0];
 
 /* Palettes avatar */
 const SKIN={human:['#F6D2B8','#E8B48F','#C98B62','#8D5A3B','#5E3A26','#F2C7A5'],droid:['#C9D2E3','#8FA3C7','#E4D3FF','#9BE7F0','#FFD48A','#6B7591'],cosmic:['#8A7DFF','#55D6C2','#FF8FD8','#6CB8FF','#B2F27A','#FFB86B'],animal:['#F28C3A','#C9C9D1','#8A5A3B','#F4E1C1','#3A3640','#E8A0BF']};
@@ -637,7 +637,7 @@ const DEF=()=>({ui:'fr',skin:'cosmic',logo:'b',univers:'cite',calm:0,sound:1,sim
  convos:JSON.parse(JSON.stringify(CONVOS)),notif:{rooms:1,msgs:1,acts:1}});
 let S;
 try{S=Object.assign(DEF(),JSON.parse(localStorage.getItem(KEY)||'null')||{})}catch(e){S=DEF()}
-S.interests=S.interests.filter(i=>ACTIVE.includes(i));S.joined=S.joined.filter(i=>ACTIVE.includes(i));if(!['fr','en'].includes(S.ui))S.ui='fr';
+S.interests=(S.interests||[]).filter(i=>ACTIVE.includes(i));S.created=(S.created||[]).filter(r=>r&&ACTIVE.includes(r.com));S.reminders=(S.reminders||[]).filter(x=>typeof x==='string');S.friends=(S.friends||[]).filter(f=>PEOPLE[f]);S.blocked=(S.blocked||[]).filter(f=>PEOPLE[f]);S.convos=(S.convos||[]).filter(c=>c&&PEOPLE[c.id]&&Array.isArray(c.msgs));S.joined=S.joined||[];S.joined=S.joined.filter(i=>ACTIVE.includes(i));if(!['fr','en'].includes(S.ui))S.ui='fr';
 if(S.onboarded&&S.interests.length<2)S.interests=[...new Set([...S.interests,'musique','discussions'])].slice(0,3);
 if(S.onboarded&&!S.joined.length)S.joined=S.interests.slice(0,3);
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
@@ -731,7 +731,9 @@ function back(){V=HIST.pop()||{name:'home'};render(true)}
 function render(top){
  document.documentElement.dataset.skin=S.skin;document.documentElement.dataset.calm=S.calm?'1':'0';document.documentElement.lang=S.ui;document.body.classList.toggle('has-room',!!R);
  const fn=VIEWS[V.name]||VIEWS.home;
- app.innerHTML=fn(V.p);
+ try{app.innerHTML=fn(V.p)}catch(err){
+  app.innerHTML=`<div class="scr no-nav" style="padding-top:60px"><div class="stack" style="align-items:center;text-align:center;gap:14px">${logo(30)}<h2>Oups, cet écran n’a pas pu s’afficher</h2><p class="muted small">Ce sont sûrement des données gardées d’une ancienne version de la démo.</p><button class="btn btn-p" data-a="go-home">Revenir à l’accueil</button><button class="btn btn-g" data-a="reset-ok">Réinitialiser la démo</button><p class="small muted" style="overflow-wrap:anywhere">${esc(err&&err.message)}</p></div></div>`;
+  return}
  if(top)window.scrollTo(0,0);
  pushPresence();
  const f=app.querySelector('[data-autofocus]'); if(f&&top) f.focus();
@@ -1158,6 +1160,7 @@ function quiz(id,i,score){
 /* ---------- Actions ---------- */
 const ACT={
  back:()=>back(), close:()=>closeSheet(),
+ 'go-home':()=>{HIST=[];R=null;V={name:'home'};render(true)},
  rec:v=>recSheet(v),
  'rec-ok':v=>{clearInterval(window.__rec);if(v==='voice')S.me.voice=1;else S.daily=today();save();closeSheet();render();toast(v==='voice'?'Ta voix est sur ton profil (démo).':'Ta réponse au Pulse du jour est en ligne (démo).')},
  play:v=>{const x=LINES[v]&&V.name==='home'?LINES[v]:intro(v);const ok=speak(x,v,true);toast(`« ${x} »${ok?' · voix de synthèse':''}`)},
