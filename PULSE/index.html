@@ -376,6 +376,19 @@ body.in-call .scr{padding-top:76px}
 .call-ctr .rb{width:58px;height:58px}
 .call-ctr .rb.end{background:var(--live);border-color:var(--live)}
 .count-big{font-size:96px;font-weight:800;text-align:center;line-height:1;text-shadow:0 0 30px var(--electric)}
+.call-bub{position:fixed;z-index:36;width:76px;padding:6px 6px 8px;border-radius:24px;display:flex;flex-direction:column;align-items:center;gap:4px;touch-action:none;cursor:grab;
+  background:color-mix(in srgb,var(--surface) 92%,transparent);border:1.5px solid var(--ok);box-shadow:0 10px 30px rgba(0,0,0,.55),0 0 18px -4px var(--ok);-webkit-user-select:none;user-select:none}
+.call-bub .av{border-radius:50%;box-shadow:0 0 0 2px var(--ok);animation:talk 1.4s infinite}
+.call-bub small{font-size:11px;font-weight:800;font-variant-numeric:tabular-nums}
+.call-bub .hang{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--live)}
+.call-bub .hang .ico{width:16px;height:16px}
+.player{position:relative;border-radius:20px;overflow:hidden;background:#000;aspect-ratio:16/9;max-width:100%;border:1px solid var(--line)}
+.player canvas,.player iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
+.player .sync{position:absolute;left:10px;top:10px;padding:5px 10px;border-radius:999px;font-size:12px;font-weight:800;background:rgba(10,5,32,.75);border:1px solid var(--line);opacity:0;transition:opacity .3s}
+.player .sync.show{opacity:1}
+.player .rx{position:absolute;bottom:10px;font-size:26px;pointer-events:none;animation:floatUp 1.8s ease-out forwards}
+.pctl{display:flex;align-items:center;gap:10px}
+.pctl .prog{flex:1;height:6px;border-radius:3px;background:var(--line2);overflow:hidden}.pctl .prog i{display:block;height:100%;background:linear-gradient(90deg,var(--primary),var(--accent))}
 .quick{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .quick .com-tile .big{width:48px;height:48px}
 .quick .com-tile .big .ico{width:24px;height:24px}
@@ -856,17 +869,35 @@ function bacEnd(){const g=UI.bac;if(g.phase!=='play')return;BAC_CATS.forEach((_,
  g.phase='done';if(V.name==='bac')render()}
 
 
+const fmtT=t=>Math.floor(t/60)+':'+String(Math.floor(t%60)).padStart(2,'0');
+const FILM_SUBS=[[0,6,'ODYSSÉE NÉON',1],[6,14,'Quelque part, au bord de la galaxie…'],[14,24,'Deux voix se répondent, très loin l’une de l’autre.'],[24,36,'« Tu m’entends ? » — « Toujours. »'],[36,50,'Elles décident de se retrouver.'],[50,70,'Il suffit d’une onde pour traverser l’espace.'],[70,150,'(court-métrage de démonstration)']];
+function syncMsg(t){const el=document.getElementById('sync');if(!el)return;el.textContent=t;el.classList.add('show');clearTimeout(syncMsg.h);syncMsg.h=setTimeout(()=>el.classList.remove('show'),2600)}
+function wRx(e){const pl=document.getElementById('player');if(!pl)return;const f=document.createElement('span');f.className='rx';f.textContent=e;f.style.left=(10+Math.random()*80)+'%';pl.appendChild(f);setTimeout(()=>f.remove(),1900)}
+function drawFilm(t){const c=document.getElementById('film');if(!c)return;const d=Math.min(devicePixelRatio||1,2),w=c.clientWidth,h=c.clientHeight;if(!w)return;if(c.width!==w*d){c.width=w*d;c.height=h*d}const x=c.getContext('2d');x.setTransform(d,0,0,d,0,0);
+ const g=x.createLinearGradient(0,0,w,h);const hue=260+Math.sin(t/20)*25;g.addColorStop(0,`hsl(${hue},70%,12%)`);g.addColorStop(1,`hsl(${hue+40},70%,6%)`);x.fillStyle=g;x.fillRect(0,0,w,h);
+ for(let i=0;i<90;i++){const sp=(i%3+1)*6,sx=((i*97)%w-t*sp)%w;const px=sx<0?sx+w:sx,py=(i*53)%h;x.globalAlpha=.3+(i%5)/7;x.fillStyle='#fff';x.fillRect(px,py,i%3?1:2,i%3?1:2)}x.globalAlpha=1;
+ const pxp=w*.72-t*1.2%(w*1.4),py=h*.48;const rg=x.createRadialGradient(pxp-14,py-14,4,pxp,py,h*.28);rg.addColorStop(0,'#FFD6FA');rg.addColorStop(.4,'#A855F7');rg.addColorStop(1,'rgba(76,29,149,0)');x.fillStyle=rg;x.beginPath();x.arc(pxp,py,h*.28,0,7);x.fill();
+ x.strokeStyle='rgba(56,189,248,.7)';x.lineWidth=2;x.beginPath();x.ellipse(pxp,py,h*.45,h*.09,-.3,0,7);x.stroke();
+ x.strokeStyle='rgba(255,79,216,.9)';x.lineWidth=2.5;x.beginPath();for(let i=0;i<=w;i+=4){const yy=h*.82+Math.sin(i/18+t*3)*Math.sin(t*1.3)*10*Math.exp(-Math.pow((i-w/2)/(w/4),2));i?x.lineTo(i,yy):x.moveTo(i,yy)}x.stroke();
+ const sub=FILM_SUBS.find(s=>t>=s[0]&&t<s[1]);if(sub){x.textAlign='center';if(sub[3]){x.font=`800 italic ${Math.round(h*.13)}px 'Exo 2',sans-serif`;x.fillStyle='#fff';x.shadowColor='#A855F7';x.shadowBlur=18;x.fillText(sub[2],w/2,h*.3);x.shadowBlur=0}else{x.font=`600 ${Math.max(12,Math.round(h*.065))}px 'Plus Jakarta Sans',sans-serif`;x.fillStyle='rgba(0,0,0,.55)';const tw=x.measureText(sub[2]).width;x.fillRect(w/2-tw/2-8,h*.9-h*.065,tw+16,h*.09);x.fillStyle='#fff';x.fillText(sub[2],w/2,h*.9)}}}
+let wLast=0;
+function wLoop(ts){requestAnimationFrame(wLoop);if(V.name!=='watch'||!UI.w||UI.w.yt){wLast=ts;return}const W=UI.w,dt=Math.min(.1,(ts-wLast)/1000||0);wLast=ts;
+ if(W.playing){W.t+=dt;if(W.t>=W.dur){W.t=W.dur;W.playing=false;render()}
+  if(S.sim&&CALL&&W.t>=W.next){W.next+=40;W.playing=false;const n=PEOPLE[CALL.who].name;syncMsg(`${n} a mis pause`);render();setTimeout(()=>{if(UI.w===W&&!W.playing&&V.name==='watch'){W.playing=true;render();syncMsg(`${n} a relancé la lecture`)}},3500)}
+  if(S.sim&&CALL&&Math.random()<dt/7)wRx(['😂','❤️','🔥','😱'][Math.floor(Math.random()*4)])}
+ drawFilm(W.t);const pr=document.getElementById('w-prog');if(pr)pr.style.width=(W.t/W.dur*100)+'%';const tm=document.getElementById('w-time');if(tm)tm.textContent=fmtT(W.t)}
+requestAnimationFrame(wLoop);
 /* ---------- Rendu ---------- */
 const app=document.getElementById('app'), layer=document.getElementById('layer');
 function go(name,p,push=true){if(push)HIST.push(V);V={name,p};closeSheet();render(true)}
 function back(){V=HIST.pop()||{name:'home'};render(true)}
 function render(top){
- document.documentElement.dataset.skin=S.skin;document.documentElement.dataset.calm=S.calm?'1':'0';document.documentElement.lang=S.ui;document.body.classList.toggle('in-call',!!CALL&&V.name!=='call');document.body.classList.toggle('has-room',!!R);
+ document.documentElement.dataset.skin=S.skin;document.documentElement.dataset.calm=S.calm?'1':'0';document.documentElement.lang=S.ui;document.body.classList.toggle('in-call',!!CALL&&V.name!=='call'&&!CALL.bubble&&V.name!=='watch');document.body.classList.toggle('has-room',!!R);
  const fn=VIEWS[V.name]||VIEWS.home;
  try{app.innerHTML=fn(V.p)}catch(err){
   app.innerHTML=`<div class="scr no-nav" style="padding-top:60px"><div class="stack" style="align-items:center;text-align:center;gap:14px">${logo(30)}<h2>Oups, cet écran n’a pas pu s’afficher</h2><p class="muted small">Ce sont sûrement des données gardées d’une ancienne version de la démo.</p><button class="btn btn-p" data-a="go-home">Revenir à l’accueil</button><button class="btn btn-g" data-a="reset-ok">Réinitialiser la démo</button><p class="small muted" style="overflow-wrap:anywhere">${esc(err&&err.message)}</p></div></div>`;
   return}
- const cbOld=document.querySelector('.call-bar');if(cbOld)cbOld.remove();if(CALL&&V.name!=='call'){app.insertAdjacentHTML('beforeend',callBar())}
+ document.querySelectorAll('.call-bar,.call-bub').forEach(x=>x.remove());if(CALL&&V.name!=='call'){app.insertAdjacentHTML('beforeend',(CALL.bubble||V.name==='watch')?callBub():callBar())}
  if(top)window.scrollTo(0,0);
  pushPresence();
  const f=app.querySelector('[data-autofocus]'); if(f&&top) f.focus();
@@ -884,7 +915,10 @@ let CALL=null;
 const CALLLINES=['Tu m’entends bien ?','Haha, trop drôle !','On lance un quiz ?','Attends, je prends mon casque.','Tu as vu le dernier épisode ?','On se refait ça demain soir ?'];
 const PLATFORMS=[['Netflix','https://www.netflix.com'],['Disney+','https://www.disneyplus.com'],['Prime Video','https://www.primevideo.com'],['YouTube','https://www.youtube.com'],['Canal+','https://www.canalplus.com']];
 const callTime=()=>{const s2=Math.floor((Date.now()-CALL.t0)/1000);return Math.floor(s2/60)+':'+String(s2%60).padStart(2,'0')};
-function callBar(){if(!CALL||V.name==='call')return '';const p=PEOPLE[CALL.who];return `<button class="call-bar" data-a="go" data-v="call">${avatar(p.av,32)}<span style="flex:1;min-width:0"><b>En appel avec ${esc(p.name)}</b><br><span class="small muted" id="cb-t">${CALL.st==='ring'?'Ça sonne…':callTime()}</span></span><span class="rb end" data-a="call-end" style="width:38px;height:38px;background:var(--live)" role="button" aria-label="Raccrocher">${ic('phone')}</span></button>`}
+UI.bub=UI.bub||{x:null,y:null};
+function callBub(){const p=PEOPLE[CALL.who];const x=UI.bub.x??Math.min(innerWidth,440+Math.max(0,(innerWidth-440)/2))-96,y=UI.bub.y??140;
+ return `<div class="call-bub" id="call-bub" style="left:${x}px;top:${y}px" role="button" tabindex="0" aria-label="Appel avec ${esc(p.name)} : ouvrir l’appel">${`<span class="av">${avatar(p.av,52)}</span>`}<small id="cb-t">${CALL.st==='ring'?'…':callTime()}</small><span class="hang" data-a="call-end" role="button" aria-label="Raccrocher">${ic('phone')}</span></div>`}
+function callBar(){if(!CALL||V.name==='call')return '';const p=PEOPLE[CALL.who];return `<button class="call-bar" data-a="go" data-v="call">${avatar(p.av,32)}<span style="flex:1;min-width:0"><b>En appel avec ${esc(p.name)}</b><br><span class="small muted" id="cb-t">${CALL.st==='ring'?'Ça sonne…':callTime()}</span></span><span class="rb" data-a="call-bubble" style="width:38px;height:38px" role="button" aria-label="Réduire en bulle">${ic('duo')}</span><span class="rb end" data-a="call-end" style="width:38px;height:38px;background:var(--live)" role="button" aria-label="Raccrocher">${ic('phone')}</span></button>`}
 function miniRoom(){const r=room(R.id);return `<button class="mini-room" data-a="open-room" data-v="${r.id}">
  <div class="wave" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="grow" style="flex:1;min-width:0"><div class="small muted">Tu es dans</div><div class="ellip" style="font-weight:800">${esc(r.title)}</div></div>
  <span class="tag">${R.role==='listener'?'Écoute':(R.muted?'Micro coupé':'Micro ouvert')}</span></button>`}
@@ -1181,6 +1215,18 @@ call:()=>{if(!CALL)return VIEWS.messages();const p=PEOPLE[CALL.who],ring=CALL.st
  ${demo('<b>Prototype :</b> l’appel est simulé, aucun son n’est transmis. Tu peux naviguer dans l’appli : l’appel reste en haut de l’écran.')}
  ${nav('')}</div>`},
 
+watch:()=>{const W=UI.w||(UI.w={t:0,playing:false,dur:150,next:18,yt:null});const who=CALL?PEOPLE[CALL.who].name:'ton ami';
+ const player=W.yt?`<iframe src="https://www.youtube-nocookie.com/embed/${W.yt}?autoplay=1&playsinline=1&rel=0" title="Vidéo YouTube" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`:`<canvas id="film" aria-label="Court-métrage de démonstration"></canvas>`;
+ return `<div class="scr" style="gap:14px">${topBar('Regarder ensemble')}
+ <div class="player" id="player">${player}<span class="sync" id="sync"></span></div>
+ ${W.yt?`<p class="small muted">Vidéo YouTube. Dans l’appli, la lecture sera synchronisée avec ${esc(who)}.</p>`:`<div class="pctl"><button class="rb" data-a="w-play" aria-label="${W.playing?'Pause':'Lecture'}">${W.playing?'<b>II</b>':ic('play')}</button><div class="prog"><i id="w-prog" style="width:${W.t/W.dur*100}%"></i></div><span class="small" id="w-time" style="font-variant-numeric:tabular-nums">${fmtT(W.t)}</span></div>
+ <div class="row between"><span class="st on">Synchronisé avec ${esc(who)}</span><span class="small muted">même seconde chez vous deux</span></div>`}
+ <div class="row" style="justify-content:center;gap:8px">${['😂','😱','❤️','🔥','👏'].map(e=>`<button class="rb" style="font-size:20px" data-a="w-rx" data-v="${e}" aria-label="Réagir ${e}">${e}</button>`).join('')}</div>
+ ${window.PULSE_SITE?`<div class="card stack"><label for="yt-url" style="font-weight:700">Regarder une vidéo YouTube</label><div class="row"><input class="inp" id="yt-url" placeholder="Colle un lien youtube.com ou youtu.be" autocomplete="off"><button class="btn btn-p btn-sm" data-a="yt-go">Lancer</button></div>${W.yt?'<button class="link" data-a="yt-off">Revenir au film de démo</button>':''}<p class="err" id="yt-err"></p></div>`:`<p class="small muted">Sur le site de démo en ligne, tu pourras aussi coller un lien YouTube.</p>`}
+ <div class="card small muted">Netflix, Disney+ et Prime Video n’autorisent pas l’affichage de leurs films dans une autre appli. Avec elles, l’appel PULSE continue en arrière-plan avec la bulle flottante, et vous lancez le film en même temps grâce au compte à rebours.</div>
+ ${demo('<b>Prototype :</b> court-métrage animé de démonstration ; les actions de '+esc(who)+' sont simulées.')}
+ ${nav('')}</div>`},
+
 /* ----- Avis des testeurs ----- */
 avis:()=>`<div class="scr no-nav">${topBar('Donne ton avis')}
  <p class="muted">1 minute pour aider à construire PULSE. Ton avis part dans un message que tu envoies toi-même.</p>
@@ -1445,8 +1491,15 @@ const ACT={
  'tw-pick':v=>{UI.tw=v;render()},
  'cards-open':()=>{cgNew();go('cards')},
  'call-start':v=>{if(S.blocked.includes(v))return;CALL={who:v,t0:Date.now(),st:'ring',muted:false,li:0};go('call');setTimeout(()=>{if(CALL&&CALL.who===v&&CALL.st==='ring'){CALL.st='on';CALL.t0=Date.now();render();speak('Allô ! Ça fait plaisir de t’entendre.',v,true)}},1800)},
+ 'call-open':()=>{if(CALL)CALL.bubble=false;go('call')},
  'call-end':(v,el,e)=>{if(e)e.stopPropagation();if(!CALL)return;const d=CALL.st==='ring'?'':' · '+callTime();CALL=null;closeSheet();toast('Appel terminé'+d);if(V.name==='call')back();else render()},
  'call-pick':()=>{const fr=S.friends.filter(f=>PEOPLE[f]&&!S.blocked.includes(f));const L=fr.length?fr:['lea','marco','nora'];sheet(`<h2>Appeler</h2>${fr.length?'':'<p class="small muted">Amis de démo pour essayer :</p>'}${L.map(f=>`<button class="opt" data-a="call-start" data-v="${f}">${avatar(PEOPLE[f].av,40)}<span style="flex:1"><b>${esc(PEOPLE[f].name)}</b></span>${ic('phone')}</button>`).join('')}`)},
+ 'call-bubble':(v,el,e)=>{CALL.bubble=true;render();toast('Appel réduit : déplace la bulle où tu veux.')},
+ 'w-open':()=>{UI.w=UI.w||{t:0,playing:false,dur:150,next:18,yt:null};go('watch')},
+ 'w-play':()=>{const W=UI.w;if(W.t>=W.dur)W.t=0;W.playing=!W.playing;render();syncMsg(W.playing?'Lecture pour vous deux':'Pause pour vous deux')},
+ 'w-rx':v=>{wRx(v)},
+ 'yt-go':()=>{const u=(document.getElementById('yt-url').value||'').trim();const m=u.match(/(?:youtu\.be\/|[?&]v=|\/shorts\/|\/embed\/)([\w-]{11})/);if(!m){document.getElementById('yt-err').textContent='Ce lien YouTube n’est pas reconnu.';return}UI.w.yt=m[1];UI.w.playing=false;render()},
+ 'yt-off':()=>{UI.w.yt=null;render()},
  'call-mute':()=>{CALL.muted=!CALL.muted;render()},
  'call-games':()=>sheet(`<h2>Jouer pendant l’appel</h2><p class="small muted">Le jeu s’ouvre, l’appel continue en haut de l’écran.</p>
   <button class="opt" data-a="qz-th" data-v="emoji"><span class="ic-b">😀</span><span><b>Emoji-rébus</b><br><span class="small muted">Devinez le film ou l’expression</span></span></button>
@@ -1454,7 +1507,9 @@ const ACT={
   <button class="opt" data-a="tp-open"><span class="ic-b">🤔</span><span><b>Tu préfères ?</b></span></button>
   <button class="opt" data-a="p4-open"><span class="ic-b">🔴</span><span><b>Quatre en ligne</b></span></button>
   <button class="opt" data-a="cards-open"><span class="ic-b">${ic('star')}</span><span><b>Onde</b></span></button>`),
- 'call-watch':()=>sheet(`<h2>Regarder ensemble</h2><p class="muted small">1. Chacun ouvre la même plateforme avec son propre abonnement et choisit le même film. 2. Vous lancez le compte à rebours. 3. Vous appuyez sur Lecture en même temps, et vous restez en appel.</p>
+ 'call-watch':()=>sheet(`<h2>Regarder ensemble</h2>
+  <button class="opt" data-a="w-open" style="border-color:color-mix(in srgb,var(--accent) 50%,transparent)"><span class="ic-b">${ic('play')}</span><span style="flex:1"><b>Regarder dans PULSE</b><br><span class="small muted">Vidéo dans l’appel, pause partagée, réactions</span></span>${ic('chev')}</button>
+  <p class="eyebrow" style="margin-top:4px">Ou avec une plateforme (chacun sur son compte)</p><p class="muted small">1. Chacun ouvre la même plateforme avec son propre abonnement et choisit le même film. 2. Vous lancez le compte à rebours. 3. Vous appuyez sur Lecture en même temps, et vous restez en appel.</p>
   <div class="stack" style="gap:8px">${PLATFORMS.map(([n,u])=>`<a class="opt" href="${u}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><span class="ic-b">${ic('tv')}</span><span style="flex:1"><b>${n}</b><br><span class="small muted">Ouvrir dans un nouvel onglet</span></span>${ic('chev')}</a>`).join('')}</div>
   <button class="btn btn-p" data-a="watch-sync">Lancer le compte à rebours commun</button>
   <p class="small muted">PULSE ne diffuse pas les films : chaque personne regarde sur son propre compte.</p>`),
@@ -1614,6 +1669,11 @@ document.addEventListener('change',e=>{
 document.addEventListener('submit',e=>{if(e.target.id==='rc-form'){e.preventDefault();const x=document.getElementById('rc-in').value.trim();if(x){UI.rc[e.target.dataset.v].push({n:'me',x});ACT['room-chat'](e.target.dataset.v);document.getElementById('rc-in').focus()}return}
  if(e.target.id!=='composer')return;e.preventDefault();const i=document.getElementById('msg-in');const x=i.value.trim();if(!x)return;S.convos.find(c=>c.id===V.p).msgs.push({f:'me',x});save();simReply(V.p);render();window.scrollTo(0,document.body.scrollHeight);document.getElementById('msg-in').focus()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet()});
+let bubD=null;
+document.addEventListener('pointerdown',e=>{const b=e.target.closest('#call-bub');if(!b||e.target.closest('[data-a]'))return;const r=b.getBoundingClientRect();bubD={dx:e.clientX-r.left,dy:e.clientY-r.top,x0:e.clientX,y0:e.clientY,moved:false,el:b};b.setPointerCapture&&b.setPointerCapture(e.pointerId)});
+document.addEventListener('pointermove',e=>{if(!bubD)return;if(Math.abs(e.clientX-bubD.x0)+Math.abs(e.clientY-bubD.y0)>6)bubD.moved=true;if(!bubD.moved)return;const x=Math.max(4,Math.min(innerWidth-84,e.clientX-bubD.dx)),y=Math.max(4,Math.min(innerHeight-130,e.clientY-bubD.dy));bubD.el.style.left=x+'px';bubD.el.style.top=y+'px';UI.bub={x,y}});
+document.addEventListener('pointerup',()=>{if(!bubD)return;const m=bubD.moved;bubD=null;if(!m)go('call')});
+document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&document.activeElement&&document.activeElement.id==='call-bub'){e.preventDefault();go('call')}});
 let pttT0=0;
 document.addEventListener('pointerdown',e=>{const b=e.target.closest('#ptt');if(!b)return;e.preventDefault();pttT0=Date.now();b.classList.add('hot');const n=UI.tw==='all'?'Le groupe':PEOPLE[UI.tw].name;const st=document.getElementById('ptt-state');if(st)st.textContent=`En direct · ${n} t’entend`;const lv=document.getElementById('tw-live');if(lv)lv.innerHTML='<span class="wave"><i></i><i></i><i></i><i></i></span> Tu parles…'});
 const pttUp=()=>{if(!pttT0)return;const d=Math.max(1,Math.round((Date.now()-pttT0)/1000));pttT0=0;const to=UI.tw;S.tw=[...(S.tw||[]),{to,d}].slice(-30);save();render();toast(`Fin de transmission (${d} s, démo sans son).`);

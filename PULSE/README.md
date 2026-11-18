@@ -31,6 +31,7 @@ Réglages → « Se déconnecter et effacer ce prototype » remet tout à zéro.
 
 - Appel vocal à deux qui reste ouvert : barre « En appel avec… » en haut de l'écran pendant qu'on navigue, micro coupé, raccrocher.
 - Pendant l'appel : jouer ensemble (emoji-rébus, quiz, Tu préfères, Quatre en ligne, Onde) ou regarder ensemble (liens vers Netflix, Disney+, Prime Video, YouTube, Canal+ et compte à rebours commun). PULSE ne diffuse pas les films : chacun regarde sur son propre abonnement.
+- Regarder ensemble dans PULSE : lecteur vidéo dans l'appel avec pause partagée et réactions (court-métrage animé de démo ; sur le site Netlify, on peut coller un lien YouTube). Netflix, Disney+ et Prime Video n'autorisent pas l'affichage de leurs films dans une autre appli : avec elles, l'appel continue en arrière-plan (bulle flottante déplaçable) et le compte à rebours sert à lancer en même temps.
 - Accès : bouton téléphone dans une conversation, sur un ami, ou « Appeler un ami » dans le bouton PULSE. Appel simulé dans la démo.
 
 ## Jeux entre amis
