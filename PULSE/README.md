@@ -36,14 +36,21 @@ Comptes et serveur, vérification d'âge renforcée, audio temps réel, appels e
 
 ## Décisions à faire valider par Kelly
 
-1. Palette finale : Cosmique (vitrine néon) ou Ocean Signal. Les codes Ocean Signal du prototype sont une proposition.
-2. Variante de logo (A ou B) : les images n'étaient pas dans le dépôt, le logo du prototype est provisoire.
+1. Palette finale (bascule dans Réglages) : Cosmique (vitrine néon) ou Ocean Signal. Les codes Ocean Signal du prototype sont une proposition.
+2. Variante de logo : A (violet-rose, « Logo PULSE néon dans l'espace ») ou B (violet-rose-cyan, « Logo futuriste PULSE en néon cosmique »). Bascule dans Réglages ; B est affiché par défaut.
 3. Les 4 nouveaux archétypes d'avatar.
 4. Organisation des onglets : Salons et Activités hors de la barre basse, ou dans la barre.
 5. Mécanique du « talkie-walkie » : direct en temps réel ou message vocal rapide.
 6. Périmètre de la traduction et contenu de PULSE+.
 7. Pile technique pour la vraie application (mobile natif ou web, serveur, fournisseur audio temps réel).
 
-## Références
+## Références et visuels
 
-Le dossier de transmission du 18 novembre 2026 fait foi. Les 14 visuels PULSE (dont « Vitrine néon de l'application PULSE.png ») ne sont pas encore dans le dépôt : les ajouter dans `PULSE/references/` permettra de coller plus finement aux maquettes.
+- `DOSSIER_MAITRE.md` : dossier de transmission du 18 novembre 2026 (fait foi).
+- `references/` : les 14 images PULSE originales. La « Vitrine néon » sert de modèle principal à l'interface.
+- `assets/` : illustrations découpées dans les maquettes de Kelly (accueil, découvrir, communauté Musique, salon, « Mon univers ») et l'icône micro. Ce sont des visuels provisoires en résolution limitée, à remplacer par des versions HD.
+
+## Écarts connus avec les maquettes
+
+- Les avatars du prototype sont dessinés en vectoriel pour pouvoir porter chaque accessoire. Les maquettes montrent des avatars 3D façon film d'animation : il faudra des visuels 3D en couches (corps, têtes, accessoires) pour atteindre ce rendu tout en gardant la personnalisation.
+- Les icônes de catégories sont lumineuses mais plates ; les maquettes utilisent des icônes 3D.
