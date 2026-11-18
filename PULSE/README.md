@@ -25,6 +25,12 @@ Réglages → « Se déconnecter et effacer ce prototype » remet tout à zéro.
 - Talkie-walkie en direct, façon Tenten : on appuie, l'ami entend pendant qu'on parle, rien n'est enregistré. Amis et groupe, mode « Ne pas déranger ».
 - Avis des testeurs : écran « Donne ton avis » qui prépare un message à envoyer par WhatsApp ou à copier (la démo n'enregistre rien).
 
+## Jeux entre amis
+
+- **Onde** : jeu de cartes original aux couleurs de PULSE (même couleur ou même chiffre, cartes Saut, Inverse, +2 et Prisme, annonce « Pulse ! »), jouable contre 3 joueurs simulés.
+- **L'Intrus** : jeu de mots à rôle caché (un joueur a un mot proche), indices puis vote, jouable contre 3 joueurs simulés.
+- Les noms et visuels de jeux existants (Uno, Undercover…) ne sont pas utilisés : ce sont des marques.
+
 ## Interactivité ajoutée
 
 - Voix de synthèse pour les exemples (Pulse du jour, présentations, réponses du talkie-walkie), via la voix Claude de la page publiée ou la synthèse vocale du navigateur.

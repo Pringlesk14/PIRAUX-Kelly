@@ -20,6 +20,7 @@
   --accent:#FFC93C; --blue:#1E88B8; --cyan:#7DF9FF; --text2:#B5D2D8; --muted:#7FA2AA;
   --line:rgba(47,224,214,.22); --line2:rgba(181,210,216,.12); --live:#FF6B5B;
 }
+*,*::before,*::after{box-sizing:border-box}
 html,body{height:100%}
 body{background:var(--bg);color:var(--text);font-family:var(--f-body);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
@@ -322,6 +323,25 @@ textarea.inp{height:auto;min-height:90px;padding:12px 16px;resize:vertical}
 .tw-live{display:flex;align-items:center;justify-content:center;gap:10px;min-height:24px;font-weight:800;font-size:14px}
 .tw-group{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,var(--accent),var(--primary));box-shadow:0 0 0 2px var(--line)}
 .tw-f.on .tw-group{box-shadow:0 0 0 3px var(--electric),0 0 18px var(--electric)}
+.gcard{position:relative;width:64px;height:92px;flex:none;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:26px;color:#fff;
+  background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.35),transparent 45%),linear-gradient(160deg,var(--cc),color-mix(in srgb,var(--cc) 45%,#0A0520));border:2px solid rgba(255,255,255,.75);box-shadow:0 0 14px -2px var(--cc);text-shadow:0 1px 6px rgba(0,0,0,.4)}
+.gcard .ico{width:26px;height:26px;stroke-width:2.4}
+.gcard small{position:absolute;top:4px;left:7px;font-size:11px}
+.gcard.prism{background:conic-gradient(from 20deg,#8B5CF6,#FF4FD8,#FFC93C,#22D3EE,#8B5CF6);--cc:#A855F7}
+.gcard.big{width:92px;height:132px;font-size:38px}
+.gcard.back{background:radial-gradient(circle at 50% 40%,#2E1670,#0E0628);--cc:#A855F7}
+.hand{display:flex;gap:6px;overflow-x:auto;padding:14px 4px 6px;scrollbar-width:none}
+.hand .gcard{transition:transform .15s}
+.hand .gcard.ok{transform:translateY(-10px)}
+.hand .gcard:not(.ok){opacity:.55}
+.opps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.opp{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px;border-radius:16px;border:1px solid var(--line);font-size:12px;font-weight:700}
+.opp.turn{border-color:var(--accent);box-shadow:0 0 16px -4px var(--accent)}
+.table-mid{display:flex;align-items:center;justify-content:center;gap:22px;padding:8px 0}
+.game-tile{display:flex;gap:14px;align-items:center;text-align:left;width:100%;padding:14px;border-radius:22px;background:linear-gradient(120deg,color-mix(in srgb,var(--c1) 30%,var(--surface)),var(--surface) 75%);border:1px solid color-mix(in srgb,var(--c1) 50%,transparent)}
+.game-tile .gi{width:64px;height:64px;border-radius:18px;display:grid;place-items:center;flex:none;background:radial-gradient(circle at 35% 30%,var(--c2),var(--c1) 70%);box-shadow:0 0 20px -4px var(--c1)}
+.game-tile .gi .ico{width:32px;height:32px;color:#fff}
+.word{font-size:30px;font-weight:800;text-align:center;letter-spacing:.02em;text-shadow:0 0 18px var(--electric)}
 .quick{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .quick .com-tile .big{width:48px;height:48px}
 .quick .com-tile .big .ico{width:24px;height:24px}
@@ -733,6 +753,36 @@ function blind(){const b=UI.bt;if(b.i>=BT_ORDER.length){const rk=[['Toi',b.sc.me
   <button class="btn btn-p" data-a="bt-play" data-v="${k}">${ic('play')} Écouter l’extrait</button>
   <div class="stack">${opts.map(o=>`<button class="opt" data-a="bt-ans" data-v="${o}">${esc(MEL[o].n)}</button>`).join('')}</div><p class="small muted">Mélodies du domaine public, jouées par ton navigateur.</p>`)}
 
+/* ---------- Jeux ---------- */
+const GC={violet:'#8B5CF6',rose:'#FF4FD8',cyan:'#22D3EE',or:'#FFC93C'};const GCN={violet:'Violet',rose:'Rose',cyan:'Cyan',or:'Or'};
+const BOTS=['lea','marco','nora'];
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+function newDeck(){const d=[];for(const c in GC){for(let v=1;v<=9;v++){d.push({c,v:String(v)},{c,v:String(v)})}for(const v of ['saut','inverse','+2'])d.push({c,v})}for(let i=0;i<4;i++)d.push({c:null,v:'prisme'});return shuffle(d)}
+function cardHTML(k,cls='',attrs=''){if(!k)return '';const sym=k.v==='saut'?ic('x'):k.v==='inverse'?'⇄':k.v==='prisme'?ic('sparkle'):esc(k.v);
+ return `<button class="gcard ${k.v==='prisme'?'prism':''} ${cls}" style="--cc:${GC[k.c]||'#A855F7'}" ${attrs} aria-label="${k.v==='prisme'?'Carte Prisme':esc(GCN[k.c]+' '+k.v)}">${sym}</button>`}
+const canPlay=(k,cg)=>k.v==='prisme'||k.c===cg.color||k.v===cg.top.v;
+function cgDraw(cg,i,n){for(let x=0;x<n;x++){if(!cg.deck.length){const top=cg.disc.pop();cg.deck=shuffle(cg.disc.map(k=>k.v==='prisme'?{c:null,v:'prisme'}:k));cg.disc=[top]}if(cg.deck.length)cg.hands[i].push(cg.deck.pop())}}
+function cgNew(){const deck=newDeck();const hands=[[],[],[],[]];for(let r=0;r<7;r++)for(let i=0;i<4;i++)hands[i].push(deck.pop());let top=deck.pop();while(top.v==='prisme'||isNaN(+top.v)){deck.unshift(top);top=deck.pop()}
+ UI.cg={deck,disc:[top],top,color:top.c,hands,turn:0,dir:1,pulsed:false,log:'À toi de commencer !',over:null}}
+const nextI=(cg,step=1)=>(cg.turn+cg.dir*step+400)%4;
+function cgPlay(i,idx,chosen){const cg=UI.cg;const k=cg.hands[i].splice(idx,1)[0];cg.disc.push(k);cg.top=k;cg.color=k.v==='prisme'?chosen:k.c;
+ const who=i===0?'Tu':PEOPLE[BOTS[i-1]].name;let msg=`${who} ${i===0?'joues':'joue'} ${k.v==='prisme'?'un Prisme → '+GCN[cg.color]:GCN[k.c]+' '+k.v}`;
+ if(cg.hands[i].length===1&&i===0&&!cg.pulsed){cgDraw(cg,0,2);msg+=' · tu as oublié « Pulse ! » : +2 cartes'}
+ if(cg.hands[i].length===1&&i>0)msg+=` · ${PEOPLE[BOTS[i-1]].name} : « Pulse ! »`;
+ if(!cg.hands[i].length){cg.over=i;cg.log=i===0?'Tu as gagné la partie !':`${PEOPLE[BOTS[i-1]].name} gagne la partie.`;return}
+ let skip=1;if(k.v==='inverse'){cg.dir*=-1}else if(k.v==='saut'){skip=2;msg+=' · le joueur suivant passe'}else if(k.v==='+2'){const n=nextI(cg);cgDraw(cg,n,2);skip=2;msg+=` · ${n===0?'tu pioches':PEOPLE[BOTS[n-1]].name+' pioche'} 2`}
+ cg.turn=nextI(cg,skip);cg.pulsed=false;cg.log=msg}
+function cgBots(){const cg=UI.cg;if(!cg||cg.over!==null||cg.turn===0)return;
+ setTimeout(()=>{if(UI.cg!==cg||V.name!=='cards')return;const i=cg.turn,h=cg.hands[i];let idx=h.findIndex(k=>k.v!=='prisme'&&canPlay(k,cg));if(idx<0)idx=h.findIndex(k=>canPlay(k,cg));
+  if(idx<0){cgDraw(cg,i,1);const last=h.length-1;if(canPlay(h[last],cg))idx=last;else{cg.log=`${PEOPLE[BOTS[i-1]].name} pioche`;cg.turn=nextI(cg);render();cgBots();return}}
+  let ch=null;if(h[idx].v==='prisme'){const cnt={};h.forEach(k=>{if(k.c)cnt[k.c]=(cnt[k.c]||0)+1});ch=Object.keys(GC).sort((a,b)=>(cnt[b]||0)-(cnt[a]||0))[0]}
+  cgPlay(i,idx,ch);render();cgBots()},1000)}
+const PAIRS=[['Plage','Piscine'],['Café','Thé'],['Guitare','Violon'],['Pizza','Burger'],['Chat','Chien'],['Train','Avion'],['Cinéma','Série'],['Karaoké','Concert']];
+const CLUES={Plage:['sable','vagues','serviette'],Piscine:['chlore','plongeoir','bonnet'],Café:['matin','tasse','noir'],Thé:['infusion','sachet','tasse'],Guitare:['cordes','accords','feu de camp'],Violon:['archet','cordes','orchestre'],Pizza:['four','fromage','part'],Burger:['pain','steak','frites'],Chat:['ronronne','griffes','moustaches'],Chien:['laisse','aboie','balade'],Train:['gare','rails','wagon'],Avion:['aéroport','ailes','décollage'],Cinéma:['écran','popcorn','salle'],Série:['épisode','saison','canapé'],Karaoké:['micro','paroles','fausse note'],Concert:['scène','foule','billet']};
+function igNew(){const pr=shuffle([...PAIRS[Math.floor(Math.random()*PAIRS.length)]]);const intr=Math.floor(Math.random()*4);
+ UI.ig={words:[0,1,2,3].map(i=>i===intr?pr[1]:pr[0]),intr,phase:'clue',clues:[],votes:null,out:null}}
+const igName=i=>i===0?'Toi':PEOPLE[BOTS[i-1]].name;
+
 /* ---------- Rendu ---------- */
 const app=document.getElementById('app'), layer=document.getElementById('layer');
 function go(name,p,push=true){if(push)HIST.push(V);V={name,p};closeSheet();render(true)}
@@ -839,6 +889,7 @@ home:()=>{
    <button class="btn btn-p btn-sm" style="align-self:flex-start" data-a="open-act" data-v="a1">${t('join')} ${ic('arrow')}</button>
    <img class="exp-img" src="assets/exp-mic.webp" alt=""></div></div>
  <button class="list-item" data-a="tw-open" style="border-color:color-mix(in srgb,var(--cyan) 50%,transparent)"><div class="glyph" style="--c1:#22D3EE;--c2:#fff">${ic('speaker')}</div><div class="grow"><div style="font-weight:700">Talkie-walkie</div><div class="small muted">Appuie, parle : tes amis t’entendent en direct</div></div><div class="faces">${(S.friends.length?S.friends:['lea','marco','nora']).filter(f=>PEOPLE[f]).slice(0,3).map(f=>avatar(PEOPLE[f].av,26)).join('')}</div></button>
+ <button class="game-tile" style="--c1:#8B5CF6;--c2:#FF4FD8" data-a="go" data-v="games"><span class="gi">${ic('star')}</span><span style="flex:1;min-width:0"><b>Jeux entre amis</b><br><span class="small muted">Onde, L’Intrus, Blind test… en vocal</span></span>${ic('chev')}</button>
  ${dailyCard()}
  <section class="stack"><div class="sec-h"><h2>${t('reco')}</h2><button class="link" data-a="go" data-v="rooms">${t('seeall')} ${ic('arrow')}</button></div><div class="com-grid">${coms.map(comTile).join('')}</div></section>
  <section class="stack"><div class="sec-h"><h2>Tes activités</h2><span class="tag" style="background:var(--primary);color:#fff">Nouveau</span></div>
@@ -938,6 +989,39 @@ talkie:()=>{const real=S.friends.filter(f=>!S.blocked.includes(f)&&PEOPLE[f]);co
  <section class="stack"><h2>Derniers échanges</h2>${(S.tw||[]).slice(-6).reverse().map(m=>m.from?`<div class="list-item">${avatar(PEOPLE[m.from].av,32)}<div class="grow small"><b>${esc(PEOPLE[m.from].name)}</b> : « ${esc(m.x)} »</div><button class="chip" data-a="say" data-v="${m.from}|${esc(m.x)}" aria-label="Réécouter">${ic('play')}</button></div>`:`<div class="list-item">${ic('speaker')}<div class="grow small">Toi → ${esc(m.to==='all'?'Groupe':(PEOPLE[m.to]||{name:'?'}).name)} · ${m.d} s en direct</div></div>`).join('')||'<p class="small muted">Aucun échange pour l’instant.</p>'}</section>
  ${demo('<b>Prototype :</b> aucun son n’est capté ni transmis. Dans la vraie appli, ta voix part en direct, pendant que tu parles.')}
  ${nav('')}</div>`},
+
+/* ----- Jeux ----- */
+games:()=>`<div class="scr">${topBar('Jeux entre amis')}
+ <div class="hero" style="min-height:0"><div class="planet" style="width:110px;height:110px"></div><span class="gold">${ic('sparkle')} Nouveau</span><h2 style="font-size:22px">Jouer, rire, parler</h2><p class="muted small" style="max-width:30ch">Des jeux à plusieurs, en vocal avec tes amis ou dans un salon.</p></div>
+ <button class="game-tile" style="--c1:#8B5CF6;--c2:#FF4FD8" data-a="cards-open"><span class="gi">${ic('star')}</span><span class="grow" style="flex:1;min-width:0"><b>Onde</b><br><span class="small muted">Jeu de cartes : même couleur ou même chiffre. Le premier sans carte gagne. 2 à 4 joueurs.</span></span>${ic('chev')}</button>
+ <button class="game-tile" style="--c1:#DB2777;--c2:#F59E0B" data-a="intrus-open"><span class="gi">${ic('users')}</span><span class="grow" style="flex:1;min-width:0"><b>L’Intrus</b><br><span class="small muted">Chacun a un mot secret, sauf un. Indices au micro, puis vote. 4 à 8 joueurs.</span></span>${ic('chev')}</button>
+ <button class="game-tile" style="--c1:#4F46E5;--c2:#22D3EE" data-a="open-act" data-v="a9"><span class="gi">${ic('music')}</span><span class="grow" style="flex:1;min-width:0"><b>Blind test</b><br><span class="small muted">Trouve la mélodie avant les autres.</span></span>${ic('chev')}</button>
+ <section class="stack"><h2>Bientôt</h2><div class="row wrap" style="gap:8px">${['Loup-garou vocal','Petit bac','Dessine et devine','Quatre en ligne','Pendu','Action ou vérité'].map(x=>`<span class="chip">${x}</span>`).join('')}</div></section>
+ ${demo('<b>Prototype :</b> tu joues contre des joueurs simulés. Dans l’appli, tu joueras avec tes amis, en vocal.')}
+ ${nav('')}</div>`,
+
+cards:()=>{const cg=UI.cg;if(!cg){cgNew();return VIEWS.cards()}const me=cg.hands[0],myTurn=cg.turn===0&&cg.over===null;
+ return `<div class="scr" style="gap:16px">${topBar('Onde')}
+ <div class="opps">${[1,2,3].map(i=>`<div class="opp ${cg.turn===i&&cg.over===null?'turn':''}">${avatar(PEOPLE[BOTS[i-1]].av,40)}<span>${esc(PEOPLE[BOTS[i-1]].name)}</span><span class="tag">${cg.hands[i].length} carte${cg.hands[i].length>1?'s':''}</span></div>`).join('')}</div>
+ <div class="table-mid"><button class="gcard big back" data-a="cg-draw" ${myTurn?'':'disabled'} aria-label="Piocher">${ic('plus')}</button>${cardHTML(cg.top,'big')}</div>
+ <div class="row" style="justify-content:center;gap:8px"><span class="tag" style="background:${GC[cg.color]};color:#0A0520">Couleur : ${GCN[cg.color]}</span><span class="tag">${cg.dir>0?'Sens horaire':'Sens inverse'}</span></div>
+ <p class="mic-state" aria-live="polite">${esc(cg.log)}</p>
+ ${cg.over!==null?`<button class="btn btn-p" data-a="cg-new">Rejouer</button>`:`<p class="small muted" style="text-align:center">${myTurn?'À toi : touche une carte surlignée, ou pioche.':'Les autres jouent…'}</p>`}
+ <div class="hand">${me.map((k,i)=>cardHTML(k,myTurn&&canPlay(k,cg)?'ok':'',`data-a="cg-play" data-v="${i}" ${myTurn&&canPlay(k,cg)?'':'disabled'}`)).join('')}</div>
+ ${me.length===2&&myTurn?`<button class="btn ${cg.pulsed?'btn-g':'btn-p'}" data-a="cg-pulse">${cg.pulsed?ic('check')+' Pulse ! annoncé':'Annoncer « Pulse ! »'}</button><p class="small muted" style="text-align:center">Annonce « Pulse ! » avant de poser ton avant-dernière carte, sinon +2 cartes.</p>`:''}
+ ${nav('')}</div>`},
+
+intrus:()=>{const g=UI.ig;if(!g){igNew();return VIEWS.intrus()}
+ const seat=(i,extra='')=>`<div class="seat">${avatar(i===0?S.av:PEOPLE[BOTS[i-1]].av,56)}<span>${igName(i)}</span>${extra}</div>`;
+ let body='';
+ if(g.phase==='clue')body=`<div class="card stack" style="align-items:center;text-align:center"><span class="eyebrow">Ton mot secret</span><div class="word">${esc(g.words[0])}</div><span class="small muted">Tu ne sais pas si tu es l’intrus : ton mot est peut-être différent de celui des autres.</span></div>
+  <div class="field"><label for="ig-clue">Ton indice (un mot, sans dire ton mot)</label><input class="inp" id="ig-clue" maxlength="24" autocomplete="off" placeholder="Dans l’appli, tu le dis au micro"></div><p class="err" id="ig-err"></p><button class="btn btn-p" data-a="ig-clue">Donner mon indice</button>`;
+ if(g.phase==='vote')body=`<div class="stack">${g.clues.map((c,i)=>`<div class="list-item">${avatar(i===0?S.av:PEOPLE[BOTS[i-1]].av,40)}<div class="grow"><b>${igName(i)}</b><div class="small muted">« ${esc(c)} »</div></div>${i?`<button class="chip" data-a="ig-vote" data-v="${i}">Voter</button>`:''}</div>`).join('')}</div><p class="small muted">Ton mot : <b>${esc(g.words[0])}</b>. Qui est l’intrus ?</p>`;
+ if(g.phase==='result'){const ok=g.out===g.intr;const meIntr=g.intr===0;const win=meIntr?!ok:ok;
+  body=`<div class="card stack" style="text-align:center;align-items:center"><span class="gold">${win?ic('trophy')+' Victoire':ic('x')+' Perdu'}</span><h2>${g.out===null?'Égalité : personne n’est éliminé':igName(g.out)+' est éliminé·e'}</h2><p class="muted">L’intrus était <b>${igName(g.intr)}</b>${meIntr?' : c’était toi !':''}</p><p class="small muted">Mot des autres : <b>${esc(g.words[g.intr===0?1:0])}</b> · mot de l’intrus : <b>${esc(g.words[g.intr])}</b></p></div>
+  <div class="stack">${[0,1,2,3].map(i=>`<div class="list-item">${avatar(i===0?S.av:PEOPLE[BOTS[i-1]].av,32)}<div class="grow small"><b>${igName(i)}</b> a voté ${igName(g.votes[i])}</div></div>`).join('')}</div><button class="btn btn-p" data-a="ig-new">Nouvelle manche</button>`}
+ return `<div class="scr">${topBar('L’Intrus')}<div class="stage">${[0,1,2,3].map(i=>seat(i)).join('')}</div>${body}
+ ${demo('<b>Prototype :</b> Léa, Marco et Nora sont simulés. Dans l’appli, chacun dit son indice au micro, dans un salon ou entre amis.')}${nav('')}</div>`},
 
 /* ----- Avis des testeurs ----- */
 avis:()=>`<div class="scr no-nav">${topBar('Donne ton avis')}
@@ -1070,6 +1154,7 @@ function discResults(){
   <div class="hero" style="min-height:160px;justify-content:center"><div class="art-r" style="background-image:url(assets/disc-hero.webp)"></div><h2 style="font-size:21px;max-width:13ch">Une communauté pour chaque passion</h2><p class="muted small" style="max-width:20ch">Musique, jeux vidéo, langues, cinéma…</p><button class="btn btn-p btn-sm" style="align-self:flex-start" data-a="scroll-cats">Explorer ${ic('arrow')}</button></div>
   <div class="quick"><button class="com-tile" style="${cv(cat('musique'))}" data-a="duo-open"><div class="big">${ic('duo')}</div><h3>Mode Duo</h3><span class="small muted">3 min avec une personne qui partage ta passion</span><span class="tag" style="align-self:flex-start">Bêta</span></button>
    <button class="com-tile" style="${cv(cat('discussions'))}" data-a="go" data-v="tandem"><div class="big">${ic('translate')}</div><h3>Échange de langues</h3><span class="small muted">Un natif t’aide, tu l’aides en retour</span></button></div>
+  <button class="game-tile" style="--c1:#8B5CF6;--c2:#FF4FD8" data-a="go" data-v="games"><span class="gi">${ic('star')}</span><span style="flex:1;min-width:0"><b>Jeux entre amis</b><br><span class="small muted">Cartes, mots, musique : joue à plusieurs</span></span>${ic('chev')}</button>
   <section class="stack" id="cats"><div class="sec-h"><h2>${t('cats')}</h2><button class="link" data-a="go" data-v="rooms">${t('seeall')} ${ic('arrow')}</button></div><div class="cat-grid">${CATS.map(c=>catTile(c,`data-a="open-com" data-v="${c.id}"`)).join('')}</div></section>
   <section class="stack"><h2>Activités à ne pas manquer</h2>
    <button class="hero" style="min-height:120px;text-align:left" data-a="open-act" data-v="a1"><div class="art-r" style="background-image:url(assets/exp-mic.webp);width:40%"></div><span class="live" style="align-self:flex-start">${t('live')}</span><h3 style="font-size:17px">Défi chant 🎵</h3><p class="small muted" style="max-width:22ch">Montre ta voix et récolte les votes !</p></button>
@@ -1152,6 +1237,7 @@ function pulseSheet(){
  <button class="opt" data-a="open-room" data-v="${best.id}"><span class="ic-b">${ic('mic')}</span><span><b>Parler maintenant</b><br><span class="small muted">Entrer dans « ${esc(best.title)} » (en direct)</span></span></button>
  <button class="opt" data-a="go" data-v="create"><span class="ic-b">${ic('plus')}</span><span><b>${t('create')}</b><br><span class="small muted">Public ou privé, sur le thème de ton choix</span></span></button>
  <button class="opt" data-a="tw-open"><span class="ic-b">${ic('speaker')}</span><span><b>Talkie-walkie</b><br><span class="small muted">Appuie et parle à un ami, il t’entend tout de suite</span></span></button>
+ <button class="opt" data-a="go" data-v="games"><span class="ic-b">${ic('star')}</span><span><b>Jeux entre amis</b><br><span class="small muted">Onde, L’Intrus, Blind test</span></span></button>
  <button class="opt" data-a="duo-open"><span class="ic-b">${ic('duo')}</span><span><b>Mode Duo</b> <span class="tag">Bêta</span><br><span class="small muted">3 minutes avec quelqu’un qui partage ta passion</span></span></button>
  <button class="opt" data-a="go" data-v="tandem"><span class="ic-b">${ic('translate')}</span><span><b>Échange de langues</b><br><span class="small muted">Parle avec un natif qui apprend ta langue</span></span></button>
  <p class="small muted">Le micro ne s’ouvre jamais tout seul : uniquement dans un salon, quand tu l’actives toi-même.</p>`)}
@@ -1197,6 +1283,23 @@ const ACT={
  read:()=>{S.readAloud=S.readAloud?0:1;save();render()},
  cc:()=>{UI.cc=!UI.cc;render()},
  'tw-pick':v=>{UI.tw=v;render()},
+ 'cards-open':()=>{cgNew();go('cards')},
+ 'cg-new':()=>{cgNew();render()},
+ 'cg-pulse':()=>{UI.cg.pulsed=true;toast('« Pulse ! » 🔥');render()},
+ 'cg-play':v=>{const cg=UI.cg,k=cg.hands[0][+v];if(!k||cg.turn!==0||!canPlay(k,cg))return;
+  if(k.v==='prisme'){sheet(`<h2>Choisis une couleur</h2><div class="row wrap" style="gap:10px">${Object.keys(GC).map(c=>`<button class="btn" style="background:${GC[c]};color:#0A0520;flex:1" data-a="cg-color" data-v="${v}|${c}">${GCN[c]}</button>`).join('')}</div>`);return}
+  cgPlay(0,+v,null);render();cgBots()},
+ 'cg-color':v=>{const [i,c]=v.split('|');closeSheet();cgPlay(0,+i,c);render();cgBots()},
+ 'cg-draw':()=>{const cg=UI.cg;if(cg.turn!==0||cg.over!==null)return;cgDraw(cg,0,1);const k=cg.hands[0][cg.hands[0].length-1];
+  if(canPlay(k,cg)){cg.log='Tu pioches : tu peux la jouer.'}else{cg.log='Tu pioches. Au suivant.';cg.turn=nextI(cg);cg.pulsed=false}render();cgBots()},
+ 'intrus-open':()=>{igNew();go('intrus')},
+ 'ig-new':()=>{igNew();render()},
+ 'ig-clue':()=>{const g=UI.ig,x=(document.getElementById('ig-clue').value||'').trim();
+  if(!x){document.getElementById('ig-err').textContent='Écris un indice.';return}if(x.toLowerCase().includes(g.words[0].toLowerCase())){document.getElementById('ig-err').textContent='Ton indice ne doit pas contenir ton mot.';return}
+  g.clues=[x,...[1,2,3].map(i=>{const L=CLUES[g.words[i]];return L[(i+Math.floor(Math.random()*3))%L.length]})];g.phase='vote';render()},
+ 'ig-vote':v=>{const g=UI.ig;const votes=[+v];for(let i=1;i<4;i++){const others=[0,1,2,3].filter(j=>j!==i);let t;if(i!==g.intr&&Math.random()<.55)t=g.intr;else t=others[Math.floor(Math.random()*others.length)];if(t===i)t=others[0];votes.push(t)}
+  const cnt={};votes.forEach(t=>cnt[t]=(cnt[t]||0)+1);const max=Math.max(...Object.values(cnt));const top=Object.keys(cnt).filter(k=>cnt[k]===max);
+  g.votes=votes;g.out=top.length===1?+top[0]:null;g.phase='result';render()},
  'tw-open':()=>{go('talkie');if(S.sim&&!S.dnd){clearTimeout(window.__twT);window.__twT=setTimeout(()=>{if(V.name==='talkie'){const real=S.friends.filter(f=>PEOPLE[f]);twIncoming((real.length?real:['lea'])[0])}},4000)}},
  dnd:()=>{S.dnd=S.dnd?0:1;save();render()},
  'fb-send':()=>{const g=id=>(document.getElementById(id)||{}).value||'';const v=document.querySelector('input[name=fb-use]:checked');
