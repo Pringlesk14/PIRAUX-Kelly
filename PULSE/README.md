@@ -31,6 +31,14 @@ Réglages → « Se déconnecter et effacer ce prototype » remet tout à zéro.
 
 - Lumi (version mignonne), Nébuleux (version étrange), Éclat (version stylée), Humain (version « snap ») et Animal totem, chacun avec 4 variantes de tête, 6 couleurs, les accessoires et l'aura. Ils remplacent Androïde et Être cosmique (les anciennes sauvegardes sont converties).
 
+## Tester en vrai entre testeurs (site Netlify)
+
+- Sur le site de démo, l'écran « Tester en vrai » donne à chacun un code à 6 chiffres. En ajoutant le code d'un ami, on peut s'écrire, s'envoyer de vrais vocaux, s'appeler (à deux) et utiliser un vrai talkie-walkie.
+- Fonctionnement pair à pair avec PeerJS (`vendor/peerjs-1.5.4.min.js`, licence MIT) et son serveur public gratuit : la voix et les messages passent directement d'un appareil à l'autre, rien n'est stocké sur un serveur PULSE. Les deux personnes doivent avoir la démo ouverte en même temps ; les messages écrits hors ligne partent à la reconnexion.
+- Limites : service public sans garantie, certains réseaux bloquent les connexions directes, appels à deux seulement. La vraie bêta passera par Supabase et LiveKit.
+- « Ma voix en 15 secondes » et le Pulse du jour enregistrent la vraie voix sur le site (gardée sur l'appareil).
+- Construire le site anonyme : `python3 tools/build_site.py <dossier>` produit `pulse-site/` et `pulse-site.zip`.
+
 ## Persos 3D
 
 - 9 persos 3D fournis par Kelly (Amani, Maya, Jade, Inaya, Lina, Kenzo, Rayan, Kai, Noah), recadrés dans `assets/persos/`, à choisir dans l'éditeur d'avatar (onglet Forme), en plus de « Crée le tien ».
