@@ -19,6 +19,14 @@ Réglages → « Se déconnecter et effacer ce prototype » remet tout à zéro.
 - Retirés pour le lancement : PULSE Premium et les accessoires PULSE+, traduction vocale en direct, appels vidéo.
 - Plan de construction et de publication : document « PULSE — Plan pour construire et publier l'application » (Claude Docs).
 
+## Interactivité ajoutée
+
+- Voix de synthèse pour les exemples (Pulse du jour, présentations, réponses du talkie-walkie), via la voix Claude de la page publiée ou la synthèse vocale du navigateur.
+- Blind test avec de vraies mélodies du domaine public jouées par le navigateur, contre deux joueurs simulés ; prestation audible dans l'audition à l'aveugle.
+- Salons « vivants » : arrivées, départs, réactions et messages simulés ; réponses simulées dans les messages et le talkie-walkie (désactivables dans Réglages → Démo).
+- Salon partagé en vrai (page publiée) : les personnes qui ont la page ouverte en même temps se voient dans le même salon, avec leur avatar, leur état de micro et leurs réactions.
+- Dictée (page publiée, navigateurs Chromium) : quand ton micro est ouvert dans un salon, tes paroles s'affichent en sous-titres et les autres les voient.
+
 ## Ce qui fonctionne dans le prototype
 
 - Onboarding : bienvenue (logo, slogan, accroche validée du 6 novembre), pseudo, date de naissance avec refus des moins de 18 ans, pays, langues, au moins 3 passions, avatar.
