@@ -240,3 +240,25 @@ select.input { appearance: auto; }
 .half-card { text-decoration: none; }
 .half-pick { display: block; max-width: 320px; margin: 0 auto 14px; cursor: pointer; }
 .segmented label { font-size: 13px; }
+.notice { background: #13301f; color: #a8f0c6; border: 1px solid #23603d; padding: 10px 12px; border-radius: 10px; font-size: 14px; }
+
+/* Safety: report, settings, moderation */
+.btn.danger { background: #5c1a2e; color: #ffd0dc; border: 1px solid #8a2945; }
+.sm-btn { padding: 6px 12px; font-size: 13px; }
+.reasons { border: 0; padding: 0; margin: 0 0 14px; display: flex; flex-direction: column; gap: 6px; }
+.reasons legend { margin-bottom: 8px; }
+.reason { display: flex; gap: 10px; align-items: center; padding: 11px 12px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border); cursor: pointer; font-size: 14px; }
+.reason.on { border-color: var(--glow-2); }
+.reason input { accent-color: var(--glow-2); }
+.report-target { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-radius: 12px; background: var(--surface-2); margin-bottom: 16px; }
+.settings section { display: flex; flex-direction: column; }
+.settings-row { display: flex; align-items: center; gap: 8px; width: 100%; padding: 13px 0; border: 0; border-bottom: 1px solid var(--border); background: none; text-align: left; font-size: 15px; cursor: pointer; }
+.badge-count { background: var(--glow-2); color: #1a0d14; border-radius: 999px; padding: 1px 8px; font-size: 12px; font-weight: 700; }
+.danger-zone { border: 1px solid #8a2945; border-radius: 14px; padding: 14px; }
+.report-card { display: flex; flex-direction: column; gap: 6px; padding: 14px; border-radius: 14px; background: var(--surface); border: 1px solid var(--border); margin-bottom: 12px; }
+.report-card p { margin: 0; }
+.report-card .quote { padding: 8px 10px; border-radius: 8px; background: var(--surface-2); overflow-wrap: anywhere; }
+.tag { display: inline-block; padding: 2px 8px; border-radius: 999px; background: var(--surface-2); color: var(--glow-1); font-weight: 600; }
+.rules p, .rules li { line-height: 1.55; }
+.rules li { margin-bottom: 6px; }
+.comment .report-link { margin-left: auto; color: var(--muted); padding: 2px; display: inline-flex; }

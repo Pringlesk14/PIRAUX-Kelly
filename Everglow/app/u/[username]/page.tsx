@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth";
-import { db, listPosts, type User } from "@/lib/db";
+import { db, isBlocked, listPosts, type User } from "@/lib/db";
 import { mediaUrl } from "@/lib/media";
-import { logout, toggleFollow } from "@/app/actions";
+import { blockUser, toggleFollow, unblockUser } from "@/app/actions";
 import { Avatar } from "@/components/Avatar";
 import { Icon } from "@/components/Icon";
 import { DuoImage } from "@/components/DuoImage";
@@ -14,9 +14,24 @@ export default async function ProfilePage({ params, searchParams }: { params: Pr
   const me = await requireUser();
   const { username } = await params;
   const tab = (await searchParams).tab === "photos" ? "photos" : "videos";
-  const user = db().prepare("SELECT id, username, display_name, bio, avatar FROM users WHERE username = ?").get(username) as User | undefined;
-  if (!user) notFound();
+  const user = db().prepare("SELECT id, username, display_name, bio, avatar, banned_at FROM users WHERE username = ?").get(username) as
+    | (User & { banned_at: number | null })
+    | undefined;
+  if (!user || user.banned_at) notFound();
   const isMe = user.id === me.id;
+  const iBlocked = !!db().prepare("SELECT 1 FROM blocks WHERE blocker_id = ? AND blocked_id = ?").get(me.id, user.id);
+  // Someone who blocked you simply doesn't exist for you.
+  if (!isMe && !iBlocked && isBlocked(me.id, user.id)) notFound();
+  if (iBlocked)
+    return (
+      <main>
+        <header className="topbar"><b style={{ fontSize: 18 }}>@{user.username}</b></header>
+        <div className="empty">
+          <p>Tu as bloqué @{user.username}. Vous ne voyez plus vos publications et ne pouvez plus vous écrire.</p>
+          <form action={unblockUser.bind(null, user.id)}><button className="btn secondary">Débloquer</button></form>
+        </div>
+      </main>
+    );
   const count = (sql: string, ...p: number[]) => (db().prepare(sql).get(...p) as { n: number }).n;
   const followers = count("SELECT COUNT(*) AS n FROM follows WHERE followee_id = ?", user.id);
   const following = count("SELECT COUNT(*) AS n FROM follows WHERE follower_id = ?", user.id);
@@ -31,8 +46,10 @@ export default async function ProfilePage({ params, searchParams }: { params: Pr
       <header className="topbar">
         <b style={{ fontSize: 18 }}>@{user.username}</b>
         <span className="spacer" />
-        {isMe && (
-          <form action={logout}><button className="btn secondary" style={{ padding: "6px 14px", fontSize: 13 }}>Déconnexion</button></form>
+        {isMe ? (
+          <Link href="/parametres" className="icon-btn" aria-label="Paramètres" title="Paramètres"><Icon name="settings" size={22} /></Link>
+        ) : (
+          <Link href={`/signaler?type=user&id=${user.id}`} className="icon-btn" aria-label="Signaler ce compte" title="Signaler ce compte"><Icon name="flag" size={20} /></Link>
         )}
       </header>
       <div className="profile-head">
@@ -60,6 +77,9 @@ export default async function ProfilePage({ params, searchParams }: { params: Pr
               <button className={`btn block${iFollow ? " secondary" : ""}`}>{iFollow ? "Abonné ✓" : "S'abonner"}</button>
             </form>
             <Link href={`/messages/${user.username}`} className="btn secondary">Message</Link>
+            <form action={blockUser.bind(null, user.id)} style={{ display: "flex", flex: "0 0 auto" }}>
+              <button className="btn secondary" title="Bloquer ce compte">Bloquer</button>
+            </form>
           </>
         )}
       </div>

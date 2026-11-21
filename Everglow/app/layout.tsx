@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { currentUser } from "@/lib/auth";
-import { db } from "@/lib/db";
+import { db, hiddenIds } from "@/lib/db";
 import { Nav } from "@/components/Nav";
 
 export const metadata: Metadata = {
@@ -14,7 +14,7 @@ export const viewport: Viewport = { themeColor: "#0b0a12", width: "device-width"
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const user = await currentUser();
   const unread = user
-    ? (db().prepare("SELECT COUNT(*) AS n FROM messages WHERE recipient_id = ? AND read_at IS NULL").get(user.id) as { n: number }).n
+    ? (db().prepare(`SELECT COUNT(*) AS n FROM messages WHERE recipient_id = ? AND read_at IS NULL AND sender_id NOT IN (${hiddenIds(user.id)})`).get(user.id) as { n: number }).n
     : 0;
   const capsulesReady = user
     ? (db().prepare("SELECT COUNT(*) AS n FROM capsules WHERE recipient_id = ? AND open_at <= ? AND opened_at IS NULL").get(user.id, Date.now()) as { n: number }).n

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
-import { db } from "@/lib/db";
+import { db, hiddenIds } from "@/lib/db";
 import { formatDate } from "@/lib/capsules";
 import { Countdown } from "@/components/Countdown";
 import { Icon } from "@/components/Icon";
@@ -17,7 +17,7 @@ export default async function CapsulesPage() {
     .prepare(
       `SELECT c.id, c.title, c.open_at, c.opened_at, c.sender_id, c.recipient_id, s.display_name AS sender, r.display_name AS recipient
          FROM capsules c JOIN users s ON s.id = c.sender_id JOIN users r ON r.id = c.recipient_id
-        WHERE c.recipient_id = ? OR c.sender_id = ?
+        WHERE (c.recipient_id = ? OR c.sender_id = ?) AND c.sender_id NOT IN (${hiddenIds(me.id)}) AND c.recipient_id NOT IN (${hiddenIds(me.id)})
         ORDER BY c.open_at`,
     )
     .all(me.id, me.id) as unknown as Row[];

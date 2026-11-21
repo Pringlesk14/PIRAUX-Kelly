@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
-import { db } from "@/lib/db";
+import { db, isBlocked } from "@/lib/db";
 import { CompleteHalf } from "@/components/CompleteHalf";
 import { Countdown } from "@/components/Countdown";
 import { Icon } from "@/components/Icon";
@@ -17,7 +17,7 @@ export default async function CompleteHalfPage({ params }: { params: Promise<{ i
     .get(Number((await params).id)) as
     | { id: number; media: string; caption: string; expires_at: number; completed_at: number | null; invited_id: number | null; user_id: number; username: string }
     | undefined;
-  const allowed = h && h.user_id !== me.id && (h.invited_id === null || h.invited_id === me.id);
+  const allowed = h && h.user_id !== me.id && (h.invited_id === null || h.invited_id === me.id) && !isBlocked(me.id, h.user_id);
   const open = h && !h.completed_at && h.expires_at > Date.now();
 
   return (

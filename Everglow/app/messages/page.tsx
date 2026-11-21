@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
-import { db } from "@/lib/db";
+import { db, hiddenIds } from "@/lib/db";
 import { timeAgo } from "@/lib/time";
 import { streakDays } from "@/lib/messages";
 import { Avatar } from "@/components/Avatar";
@@ -13,6 +13,7 @@ type Person = { id: number; username: string; display_name: string; avatar: stri
 export default async function MessagesPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const me = await requireUser();
   const q = ((await searchParams).q ?? "").trim();
+  const hidden = hiddenIds(me.id);
   const convs = db()
     .prepare(
       `WITH last AS (
@@ -21,12 +22,13 @@ export default async function MessagesPage({ searchParams }: { searchParams: Pro
        SELECT u.id, u.username, u.display_name, u.avatar, m.body, m.kind, m.opened_at, m.created_at, m.sender_id,
               (SELECT COUNT(*) FROM messages x WHERE x.sender_id = u.id AND x.recipient_id = ? AND x.read_at IS NULL) AS unread
          FROM last JOIN messages m ON m.id = last.mid JOIN users u ON u.id = last.other
+        WHERE u.id NOT IN (${hidden})
         ORDER BY m.id DESC`,
     )
     .all(me.id, me.id, me.id, me.id) as unknown as Conv[];
   const people = q
     ? (db()
-        .prepare("SELECT id, username, display_name, avatar FROM users WHERE id != ? AND (username LIKE ? OR display_name LIKE ?) ORDER BY username LIMIT 20")
+        .prepare(`SELECT id, username, display_name, avatar FROM users WHERE id != ? AND id NOT IN (${hidden}) AND (username LIKE ? OR display_name LIKE ?) ORDER BY username LIMIT 20`)
         .all(me.id, `%${q}%`, `%${q}%`) as unknown as Person[])
     : [];
 

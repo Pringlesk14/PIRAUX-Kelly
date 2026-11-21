@@ -56,6 +56,16 @@ Une capsule est un souvenir scellé : une vidéo, une photo et/ou un message qui
 - Un snap ne peut être ouvert qu'une seule fois, par son destinataire. Le fichier est supprimé du serveur 2 minutes après l'ouverture.
 - Les flammes 🔥 comptent les jours d'affilée où deux personnes s'envoient des snaps.
 
+## 🛡️ Sécurité et règles
+
+- **Âge** : inscription à partir de 13 ans (date de naissance demandée, jamais affichée). Entre 13 et 14 ans, il faut cocher l'accord d'un parent (règle française jusqu'à 15 ans). Il faut aussi accepter les règles.
+- **Signaler** : drapeau 🚩 sur une publication, un commentaire, un profil ou une conversation. Le signalement est anonyme.
+- **Bloquer** : depuis un profil. Les deux personnes ne voient plus les publications, stories, moitiés, capsules et commentaires de l'autre, et ne peuvent plus s'écrire ni s'abonner. On débloque dans les Paramètres.
+- **Supprimer son compte** : Paramètres → Zone sensible, avec le mot de passe. Tout est effacé, fichiers compris.
+- **Modération** : les modérateurs ont un « Espace modération » (dans les Paramètres) : ignorer un signalement, supprimer le contenu, suspendre ou rétablir un compte. Un compte suspendu ne peut plus se connecter et son contenu disparaît.
+- Pour nommer un modérateur : `npm run make-admin -- nom_utilisateur` (dans le contenu de démo, `kelly` l'est déjà).
+- Les règles et la politique de confidentialité sont sur la page `/regles`. Elles sont à faire relire avant une ouverture au grand public.
+
 ## Où sont les données ?
 
 - `data/everglow.db` : la base de données (comptes, publications, messages…)

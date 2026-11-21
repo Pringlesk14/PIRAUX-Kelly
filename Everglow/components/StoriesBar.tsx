@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { db, type User } from "@/lib/db";
+import { db, hiddenIds, type User } from "@/lib/db";
 import { Avatar } from "./Avatar";
 
 type Row = { id: number; username: string; display_name: string; avatar: string | null };
@@ -9,7 +9,7 @@ export function StoriesBar({ user }: { user: User }) {
     .prepare(
       `SELECT u.id, u.username, u.display_name, u.avatar, MAX(s.created_at) AS last
          FROM stories s JOIN users u ON u.id = s.user_id
-        WHERE s.expires_at > ? AND s.user_id != ?
+        WHERE s.expires_at > ? AND s.user_id != ? AND s.user_id NOT IN (${hiddenIds(user.id)})
         GROUP BY u.id ORDER BY last DESC`,
     )
     .all(Date.now(), user.id) as unknown as Row[];

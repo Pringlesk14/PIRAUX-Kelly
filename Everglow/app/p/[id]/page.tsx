@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth";
-import { db, listPosts } from "@/lib/db";
+import { db, hiddenIds, listPosts } from "@/lib/db";
 import { mediaUrl } from "@/lib/media";
 import { timeAgo } from "@/lib/time";
 import { addComment, deletePost } from "@/app/actions";
@@ -12,7 +12,7 @@ import { LikeButton } from "@/components/LikeButton";
 
 export const dynamic = "force-dynamic";
 
-type Comment = { id: number; body: string; created_at: number; username: string; display_name: string; avatar: string | null };
+type Comment = { id: number; body: string; created_at: number; username: string; display_name: string; avatar: string | null; user_id: number };
 
 export default async function PostPage({ params }: { params: Promise<{ id: string }> }) {
   const me = await requireUser();
@@ -21,8 +21,8 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
   if (!post) notFound();
   const comments = db()
     .prepare(
-      `SELECT c.id, c.body, c.created_at, u.username, u.display_name, u.avatar
-         FROM comments c JOIN users u ON u.id = c.user_id WHERE c.post_id = ? ORDER BY c.created_at`,
+      `SELECT c.id, c.body, c.created_at, c.user_id, u.username, u.display_name, u.avatar
+         FROM comments c JOIN users u ON u.id = c.user_id WHERE c.post_id = ? AND c.user_id NOT IN (${hiddenIds(me.id)}) ORDER BY c.created_at`,
     )
     .all(post.id) as unknown as Comment[];
 
@@ -38,10 +38,12 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
         )}
         <span className="muted small">· {timeAgo(post.created_at)}</span>
         <span className="spacer" />
-        {post.user_id === me.id && (
+        {post.user_id === me.id ? (
           <form action={deletePost.bind(null, post.id)}>
             <button className="icon-btn" aria-label="Supprimer la publication" title="Supprimer"><Icon name="trash" size={20} /></button>
           </form>
+        ) : (
+          <Link href={`/signaler?type=post&id=${post.id}`} className="icon-btn" aria-label="Signaler cette publication" title="Signaler"><Icon name="flag" size={20} /></Link>
         )}
       </header>
       {post.kind === "video" ? (
@@ -67,6 +69,9 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
             <b>{c.username}</b> <span className="muted small">{timeAgo(c.created_at)}</span>
             <div>{c.body}</div>
           </div>
+          {c.user_id !== me.id && (
+            <Link href={`/signaler?type=comment&id=${c.id}`} className="report-link" aria-label={`Signaler le commentaire de ${c.username}`} title="Signaler"><Icon name="flag" size={14} /></Link>
+          )}
         </div>
       ))}
       <form className="comment-form" action={addComment.bind(null, post.id)}>

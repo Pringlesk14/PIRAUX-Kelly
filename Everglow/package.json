@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "seed": "node scripts/seed.mjs"
+    "seed": "node scripts/seed.mjs",
+    "make-admin": "node scripts/make-admin.mjs"
   },
   "dependencies": {
     "bcryptjs": "3.0.3",

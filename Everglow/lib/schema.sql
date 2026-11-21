@@ -5,7 +5,10 @@ CREATE TABLE IF NOT EXISTS users (
   password_hash TEXT NOT NULL,
   bio TEXT NOT NULL DEFAULT '',
   avatar TEXT,
-  created_at INTEGER NOT NULL
+  created_at INTEGER NOT NULL,
+  birthdate TEXT,
+  is_admin INTEGER NOT NULL DEFAULT 0,
+  banned_at INTEGER
 );
 CREATE TABLE IF NOT EXISTS sessions (
   token TEXT PRIMARY KEY,
@@ -89,3 +92,21 @@ CREATE TABLE IF NOT EXISTS halves (
   post_id INTEGER REFERENCES posts(id) ON DELETE SET NULL
 );
 CREATE INDEX IF NOT EXISTS idx_halves_open ON halves(completed_at, expires_at);
+CREATE TABLE IF NOT EXISTS blocks (
+  blocker_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  blocked_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  created_at INTEGER NOT NULL,
+  PRIMARY KEY (blocker_id, blocked_id)
+);
+CREATE TABLE IF NOT EXISTS reports (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  reporter_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  target_type TEXT NOT NULL CHECK (target_type IN ('post','comment','user')),
+  target_id INTEGER NOT NULL,
+  reason TEXT NOT NULL,
+  details TEXT NOT NULL DEFAULT '',
+  created_at INTEGER NOT NULL,
+  resolved_at INTEGER,
+  resolution TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_reports_open ON reports(resolved_at, created_at);

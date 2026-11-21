@@ -31,9 +31,9 @@ export async function currentUser(): Promise<User | null> {
   if (!token) return null;
   const row = db()
     .prepare(
-      `SELECT u.id, u.username, u.display_name, u.bio, u.avatar
+      `SELECT u.id, u.username, u.display_name, u.bio, u.avatar, u.is_admin
          FROM sessions s JOIN users u ON u.id = s.user_id
-        WHERE s.token = ? AND s.expires_at > ?`,
+        WHERE s.token = ? AND s.expires_at > ? AND u.banned_at IS NULL`,
     )
     .get(token, Date.now());
   return (row as unknown as User) ?? null;
@@ -42,5 +42,11 @@ export async function currentUser(): Promise<User | null> {
 export async function requireUser(): Promise<User> {
   const user = await currentUser();
   if (!user) redirect("/login");
+  return user;
+}
+
+export async function requireAdmin(): Promise<User> {
+  const user = await requireUser();
+  if (!user.is_admin) redirect("/");
   return user;
 }

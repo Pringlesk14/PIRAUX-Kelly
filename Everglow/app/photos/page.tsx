@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
-import { db, listPosts } from "@/lib/db";
+import { db, hiddenIds, listPosts } from "@/lib/db";
 import { timeAgo } from "@/lib/time";
 import { Avatar } from "@/components/Avatar";
 import { Countdown } from "@/components/Countdown";
@@ -16,7 +16,7 @@ type Half = { id: number; media: string; caption: string; expires_at: number; us
 export default async function PhotosPage() {
   const user = await requireUser();
   const now = Date.now();
-  const open = `h.completed_at IS NULL AND h.expires_at > ?`;
+  const open = `h.completed_at IS NULL AND h.expires_at > ? AND h.user_id NOT IN (${hiddenIds(user.id)})`;
   const select = `SELECT h.id, h.media, h.caption, h.expires_at, u.username, h.invited_id, iu.username AS invited
                     FROM halves h JOIN users u ON u.id = h.user_id LEFT JOIN users iu ON iu.id = h.invited_id`;
   // Halves you can complete: sent to you first, then open ones, soonest to expire first.

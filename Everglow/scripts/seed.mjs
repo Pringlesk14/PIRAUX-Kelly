@@ -71,6 +71,9 @@ const ids = {};
 for (const x of users) {
   ids[x.u] = Number(db.prepare("INSERT INTO users (username, display_name, password_hash, bio, created_at) VALUES (?, ?, ?, ?, ?)").run(x.u, x.n, hash, x.bio, now - 30 * 24 * H).lastInsertRowid);
 }
+// Kelly runs the moderation space in the demo.
+db.prepare("UPDATE users SET is_admin = 1, birthdate = '2000-01-01' WHERE username = 'kelly'").run();
+db.prepare("UPDATE users SET birthdate = '2008-06-15' WHERE birthdate IS NULL").run();
 const follow = db.prepare("INSERT OR IGNORE INTO follows (follower_id, followee_id) VALUES (?, ?)");
 for (const a of Object.values(ids)) for (const b of Object.values(ids)) if (a !== b && (a + b) % 3 !== 0) follow.run(a, b);
 
