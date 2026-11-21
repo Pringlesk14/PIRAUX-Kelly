@@ -6,6 +6,7 @@ import { mediaUrl } from "@/lib/media";
 import { logout, toggleFollow } from "@/app/actions";
 import { Avatar } from "@/components/Avatar";
 import { Icon } from "@/components/Icon";
+import { DuoImage } from "@/components/DuoImage";
 
 export const dynamic = "force-dynamic";
 
@@ -22,7 +23,8 @@ export default async function ProfilePage({ params, searchParams }: { params: Pr
   const likes = count("SELECT COUNT(*) AS n FROM likes l JOIN posts p ON p.id = l.post_id WHERE p.user_id = ?", user.id);
   const iFollow = count("SELECT COUNT(*) AS n FROM follows WHERE follower_id = ? AND followee_id = ?", me.id, user.id) > 0;
   const hasStory = count("SELECT COUNT(*) AS n FROM stories WHERE user_id = ? AND expires_at > ?", user.id, Date.now()) > 0;
-  const posts = listPosts(me.id, "p.user_id = ? AND p.kind = ?", [user.id, tab === "photos" ? "photo" : "video"], 200);
+  // Photos include the Moitié-moitié photos this person completed for someone else.
+  const posts = listPosts(me.id, "(p.user_id = ? OR p.duo_partner_id = ?) AND p.kind = ?", [user.id, user.id, tab === "photos" ? "photo" : "video"], 200);
 
   return (
     <main>
@@ -77,8 +79,12 @@ export default async function ProfilePage({ params, searchParams }: { params: Pr
                   <span className="badge"><Icon name="play" size={16} fill="#fff" stroke="none" /></span>
                 </>
               ) : (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={mediaUrl(p.media)} alt={p.caption} loading="lazy" />
+                p.duo_media ? (
+                  <DuoImage left={p.media} right={p.duo_media} />
+                ) : (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={mediaUrl(p.media)} alt={p.caption} loading="lazy" />
+                )
               )}
             </Link>
           ))}

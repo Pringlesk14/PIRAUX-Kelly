@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { createSession, destroySession, requireUser } from "@/lib/auth";
-import { PRIVATE_DIR, saveUpload } from "@/lib/uploads";
+import { PRIVATE_DIR, deletePublic, saveUpload } from "@/lib/uploads";
 import { dayKey } from "@/lib/challenges";
 
 export type FormState = { error?: string } | undefined;
@@ -50,8 +50,10 @@ export async function createPost(_: FormState, form: FormData): Promise<FormStat
   const user = await requireUser();
   const target = String(form.get("target") ?? "post");
   if (target === "capsule") return createCapsule(user.id, form);
+  if (target === "half") return createHalf(user.id, form);
   const file = form.get("media");
   if (!(file instanceof File) || file.size === 0) return { error: "Choisis une vidéo ou une photo." };
+  if (target === "post" && !file.type.startsWith("video/")) return { error: "Choisis une vidéo. Les photos se partagent en Moitié-moitié." };
   let saved;
   try {
     saved = await saveUpload(file);
@@ -67,13 +69,12 @@ export async function createPost(_: FormState, form: FormData): Promise<FormStat
     redirect("/photos");
   }
   const caption = String(form.get("caption") ?? "").trim().slice(0, 500);
-  // Only videos take part in the daily challenge; photos join the Constellation.
-  const challengeDay = saved.kind === "video" && form.get("challenge") ? dayKey(now) : null;
+  const challengeDay = form.get("challenge") ? dayKey(now) : null;
   db()
     .prepare("INSERT INTO posts (user_id, kind, media, caption, created_at, challenge_day) VALUES (?, ?, ?, ?, ?, ?)")
     .run(user.id, saved.kind, saved.name, caption, now, challengeDay);
   revalidatePath("/");
-  redirect(saved.kind === "photo" ? "/photos" : challengeDay ? "/" : "/?tab=abonnements");
+  redirect(challengeDay ? "/" : "/?tab=abonnements");
 }
 
 const CAPSULE_DELAYS: Record<string, number> = {
@@ -215,12 +216,69 @@ export async function openSnap(messageId: number): Promise<{ kind: "video" | "ph
   return { kind: m.media_kind };
 }
 
-/** Gives today's single Lueur to a photo. The database allows one per person per day. */
-export async function giveGlow(postId: number) {
-  const user = await requireUser();
-  const post = db().prepare("SELECT user_id, kind FROM posts WHERE id = ?").get(postId) as { user_id: number; kind: string } | undefined;
-  if (!post || post.kind !== "photo" || post.user_id === user.id) return;
-  db().prepare("INSERT OR IGNORE INTO glows (user_id, post_id, day, created_at) VALUES (?, ?, ?, ?)").run(user.id, postId, dayKey(), Date.now());
-  revalidatePath(`/p/${postId}`);
+/* ---------- Moitié-moitié ---------- */
+
+const HALF_MS = 24 * 3600 * 1000;
+
+/** True if `a` follows `b` or `b` follows `a`. */
+function connected(a: number, b: number) {
+  return !!db().prepare("SELECT 1 FROM follows WHERE (follower_id = ? AND followee_id = ?) OR (follower_id = ? AND followee_id = ?)").get(a, b, b, a);
+}
+
+/** Posts the left half of a photo (cropped on the device), waiting 24 h for someone to complete it. */
+async function createHalf(userId: number, form: FormData): Promise<FormState> {
+  const file = form.get("media");
+  if (!(file instanceof File) || file.size === 0 || !file.type.startsWith("image/")) return { error: "Choisis une photo." };
+  const caption = String(form.get("caption") ?? "").trim().slice(0, 200);
+  const invite = String(form.get("invite") ?? "").trim().toLowerCase();
+  let invitedId: number | null = null;
+  if (invite) {
+    const u = db().prepare("SELECT id FROM users WHERE username = ?").get(invite) as { id: number } | undefined;
+    if (!u || u.id === userId || !connected(userId, u.id)) return { error: "Choisis une personne que tu suis ou qui te suit, ou « Tout le monde »." };
+    invitedId = u.id;
+  }
+  let saved;
+  try {
+    saved = await saveUpload(file, { onlyPhotos: true });
+  } catch (e) {
+    return { error: (e as Error).message };
+  }
+  const now = Date.now();
+  db()
+    .prepare("INSERT INTO halves (user_id, media, caption, invited_id, created_at, expires_at) VALUES (?, ?, ?, ?, ?, ?)")
+    .run(userId, saved.name, caption, invitedId, now, now + HALF_MS);
   revalidatePath("/photos");
+  redirect("/photos");
+}
+
+/** Completes someone's half with the right half of your photo, and publishes the result. */
+export async function completeHalf(halfId: number, _: FormState, form: FormData): Promise<FormState> {
+  const user = await requireUser();
+  const file = form.get("media");
+  if (!(file instanceof File) || file.size === 0) return { error: "Ajoute ta moitié de photo." };
+  let saved;
+  try {
+    saved = await saveUpload(file, { onlyPhotos: true });
+  } catch (e) {
+    return { error: (e as Error).message };
+  }
+  const now = Date.now();
+  // Claims the half in one statement, so two people can't complete it at the same time.
+  const claim = db()
+    .prepare(
+      `UPDATE halves SET completed_at = ? WHERE id = ? AND completed_at IS NULL AND expires_at > ?
+         AND user_id != ? AND (invited_id IS NULL OR invited_id = ?)`,
+    )
+    .run(now, halfId, now, user.id, user.id);
+  if (claim.changes === 0) {
+    await deletePublic(saved.name);
+    return { error: "Trop tard : cette moitié a déjà été complétée, ou ses 24 h sont passées." };
+  }
+  const half = db().prepare("SELECT user_id, media, caption FROM halves WHERE id = ?").get(halfId) as { user_id: number; media: string; caption: string };
+  const post = db()
+    .prepare("INSERT INTO posts (user_id, kind, media, caption, created_at, duo_partner_id, duo_media) VALUES (?, 'photo', ?, ?, ?, ?, ?)")
+    .run(half.user_id, half.media, half.caption, now, user.id, saved.name);
+  db().prepare("UPDATE halves SET post_id = ? WHERE id = ?").run(Number(post.lastInsertRowid), halfId);
+  revalidatePath("/photos");
+  redirect(`/p/${post.lastInsertRowid}`);
 }

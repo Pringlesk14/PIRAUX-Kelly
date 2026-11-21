@@ -19,12 +19,15 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const capsulesReady = user
     ? (db().prepare("SELECT COUNT(*) AS n FROM capsules WHERE recipient_id = ? AND open_at <= ? AND opened_at IS NULL").get(user.id, Date.now()) as { n: number }).n
     : 0;
+  const halvesForMe = user
+    ? (db().prepare("SELECT COUNT(*) AS n FROM halves WHERE invited_id = ? AND completed_at IS NULL AND expires_at > ?").get(user.id, Date.now()) as { n: number }).n
+    : 0;
   return (
     <html lang="fr">
       <body>
         <div className="app">
           {children}
-          {user && <Nav username={user.username} unread={unread} capsulesReady={capsulesReady} />}
+          {user && <Nav username={user.username} unread={unread} capsulesReady={capsulesReady} halvesForMe={halvesForMe} />}
         </div>
       </body>
     </html>

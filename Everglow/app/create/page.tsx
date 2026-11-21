@@ -7,7 +7,7 @@ import { themeFor, dayKey } from "@/lib/challenges";
 export default async function CreatePage({ searchParams }: { searchParams: Promise<{ type?: string }> }) {
   const me = await requireUser();
   const type = (await searchParams).type;
-  const target = type === "story" || type === "capsule" ? type : "post";
+  const target = type === "story" || type === "capsule" || type === "half" ? type : "post";
   // Capsules can be sent to people you follow or who follow you.
   const people = db()
     .prepare(

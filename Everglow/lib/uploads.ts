@@ -32,3 +32,7 @@ export async function saveUpload(file: File, { onlyPhotos = false, dir = UPLOAD_
 export async function deletePrivate(name: string) {
   await fs.rm(path.join(PRIVATE_DIR, path.basename(name)), { force: true });
 }
+
+export async function deletePublic(name: string) {
+  await fs.rm(path.join(UPLOAD_DIR, path.basename(name)), { force: true });
+}

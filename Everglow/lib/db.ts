@@ -29,6 +29,8 @@ export function db() {
 function migrate(conn: DatabaseSync) {
   const postCols = (conn.prepare("PRAGMA table_info(posts)").all() as { name: string }[]).map((c) => c.name);
   if (postCols.length > 0 && !postCols.includes("challenge_day")) conn.exec("ALTER TABLE posts ADD COLUMN challenge_day TEXT;");
+  if (postCols.length > 0 && !postCols.includes("duo_media"))
+    conn.exec("ALTER TABLE posts ADD COLUMN duo_partner_id INTEGER REFERENCES users(id) ON DELETE SET NULL; ALTER TABLE posts ADD COLUMN duo_media TEXT;");
   const cols = (conn.prepare("PRAGMA table_info(messages)").all() as { name: string }[]).map((c) => c.name);
   if (cols.length > 0 && !cols.includes("kind")) {
     conn.exec(`ALTER TABLE messages ADD COLUMN kind TEXT NOT NULL DEFAULT 'text';
@@ -72,18 +74,21 @@ export type FeedPost = {
   comment_count: number;
   liked: number;
   challenge_day: string | null;
+  /** Moitié-moitié: the right half and who took it (null for a single photo). */
+  duo_media: string | null;
+  partner_username: string | null;
 };
 
 /** Posts with author, counts and whether `viewerId` liked them. */
 export function listPosts(viewerId: number, where: string, params: (string | number)[], limit = 50, order = "p.created_at DESC"): FeedPost[] {
   return db()
     .prepare(
-      `SELECT p.id, p.kind, p.media, p.caption, p.created_at, p.user_id, p.challenge_day,
+      `SELECT p.id, p.kind, p.media, p.caption, p.created_at, p.user_id, p.challenge_day, p.duo_media, pu.username AS partner_username,
               u.username, u.display_name, u.avatar,
               (SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id) AS like_count,
               (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id) AS comment_count,
               EXISTS(SELECT 1 FROM likes l WHERE l.post_id = p.id AND l.user_id = ?) AS liked
-         FROM posts p JOIN users u ON u.id = p.user_id
+         FROM posts p JOIN users u ON u.id = p.user_id LEFT JOIN users pu ON pu.id = p.duo_partner_id
         WHERE ${where}
         ORDER BY ${order}
         LIMIT ${limit}`,

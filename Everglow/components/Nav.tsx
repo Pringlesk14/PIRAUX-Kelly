@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Icon } from "./Icon";
 
-export function Nav({ username, unread, capsulesReady }: { username: string; unread: number; capsulesReady: number }) {
+export function Nav({ username, unread, capsulesReady, halvesForMe }: { username: string; unread: number; capsulesReady: number; halvesForMe: number }) {
   const path = usePathname();
   const is = (p: string) => (p === "/" ? path === "/" : path.startsWith(p));
   return (
@@ -13,9 +13,10 @@ export function Nav({ username, unread, capsulesReady }: { username: string; unr
         <Icon name="home" />
         Vidéos
       </Link>
-      <Link href="/photos" className={is("/photos") ? "active" : ""}>
+      <Link href="/photos" className={is("/photos") || is("/moitie") ? "active" : ""} style={{ position: "relative" }}>
         <Icon name="image" />
         Photos
+        {halvesForMe > 0 && <span className="unread-dot" style={{ position: "absolute", top: 4, right: 12 }} />}
       </Link>
       <Link href="/create" className="create" aria-label="Publier">
         <Icon name="plus" />

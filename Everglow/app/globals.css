@@ -208,22 +208,35 @@ select.input { appearance: auto; }
 .check { display: flex; gap: 10px; align-items: flex-start; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 14px; font-size: 14px; line-height: 1.4; cursor: pointer; }
 .check input { margin-top: 3px; accent-color: var(--glow-2); width: 18px; height: 18px; flex-shrink: 0; }
 
-/* Constellation */
-.glow-info { margin: 14px 16px 0; padding: 12px 14px; border-radius: 14px; background: var(--surface); border: 1px solid var(--border); font-size: 14px; line-height: 1.45; }
-.glow-info b { color: var(--glow-1); }
-.sky { position: relative; margin: 14px 16px; border-radius: 18px; overflow: hidden; border: 1px solid var(--border);
-  background: radial-gradient(1.5px 1.5px at 12% 18%, #ffffffaa, transparent), radial-gradient(1px 1px at 72% 9%, #ffffff88, transparent), radial-gradient(1px 1px at 40% 55%, #ffffff77, transparent), radial-gradient(1.5px 1.5px at 88% 42%, #ffffffaa, transparent), radial-gradient(1px 1px at 25% 80%, #ffffff77, transparent), radial-gradient(1px 1px at 60% 92%, #ffffff88, transparent), linear-gradient(180deg, #0d0b22, #1b1036 60%, #241040);
-  background-size: 220px 260px, 180px 210px, 240px 200px, 200px 230px, 260px 240px, 190px 220px, 100% 100%; }
-.sky-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-.star { position: absolute; transform: translate(-50%, -50%); background: none; border: 0; padding: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; color: #fff; }
-.star img { background: radial-gradient(circle, #ffd9a0, #ff5f8f 60%, #a66bff); border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,.85); transition: transform .2s; animation: twinkle 3.2s ease-in-out infinite; }
-.star:hover img { transform: scale(1.08); }
-.star .label { font-size: 11px; font-weight: 600; white-space: nowrap; text-shadow: 0 1px 3px #000; }
-.star.given img { border-color: var(--glow-1); }
-@keyframes twinkle { 50% { filter: brightness(1.18); } }
-.glow-count { font-weight: 700; color: var(--glow-1); font-size: 15px; }
-.glow-given { color: var(--glow-1); font-size: 13px; }
 .post .bar { flex-wrap: wrap; }
 .challenge-pill:hover { border-color: var(--glow-1); }
-.star .label { color: #fff; }
-@media (prefers-reduced-motion: reduce) { .star img { animation: none; } }
+
+/* Moitié-moitié */
+.duo { position: relative; display: flex; aspect-ratio: 4 / 5; width: 100%; max-width: 100%; background: #000; overflow: hidden; }
+.duo .half { position: relative; width: 50%; height: 100%; overflow: hidden; }
+.duo .half img { position: absolute; top: 0; height: 100%; width: 200%; max-width: none; object-fit: cover; }
+.duo .half.left img { left: 0; }
+.duo .half.right img { right: 0; }
+.duo .half.empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center; padding: 8px; color: var(--muted); font-size: 13px; background: repeating-linear-gradient(135deg, var(--surface), var(--surface) 10px, var(--surface-2) 10px, var(--surface-2) 20px); }
+.duo .half.empty b { font-size: 30px; color: var(--glow-1); }
+.duo .seam { position: absolute; left: 50%; top: 0; bottom: 0; width: 3px; transform: translateX(-50%); background: linear-gradient(var(--glow-1), var(--glow-2), var(--glow-3)); box-shadow: 0 0 10px rgba(255,95,143,.6); }
+.duo-intro { margin: 14px 16px 0; padding: 12px 14px; border-radius: 14px; background: var(--surface); border: 1px solid var(--border); font-size: 14px; line-height: 1.45; }
+.halves { display: flex; gap: 12px; overflow-x: auto; padding: 4px 16px 8px; scrollbar-width: none; }
+.halves::-webkit-scrollbar { display: none; }
+.half-card { flex-shrink: 0; width: 158px; display: flex; flex-direction: column; gap: 6px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 8px; text-align: left; color: var(--text); }
+.half-card.for-me { border-color: var(--glow-2); box-shadow: 0 0 18px rgba(255,95,143,.25); }
+.half-card .duo { border-radius: 10px; }
+.half-card .meta { font-size: 12px; line-height: 1.35; }
+.half-card .cd { color: var(--glow-1); font-weight: 700; }
+.pending { display: flex; gap: 12px; align-items: center; margin: 0 16px 8px; padding: 10px; border-radius: 14px; background: var(--surface); border: 1px solid var(--border); font-size: 13px; }
+.pending .duo { width: 56px; border-radius: 8px; flex-shrink: 0; }
+.post .duo-title { font-weight: 700; }
+.grid .duo { height: 100%; aspect-ratio: auto; }
+.complete-hint { text-align: center; margin: 12px 16px; line-height: 1.45; }
+.duo label.half.empty { cursor: pointer; }
+.duo label.half.empty:hover { color: var(--text); }
+/* Halves uploaded by the app are already cropped: show them whole. */
+.duo.cropped .half img { width: 100%; left: 0; right: auto; }
+.half-card { text-decoration: none; }
+.half-pick { display: block; max-width: 320px; margin: 0 auto 14px; cursor: pointer; }
+.segmented label { font-size: 13px; }

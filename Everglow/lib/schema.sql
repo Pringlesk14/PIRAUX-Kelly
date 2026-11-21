@@ -19,7 +19,9 @@ CREATE TABLE IF NOT EXISTS posts (
   media TEXT NOT NULL,
   caption TEXT NOT NULL DEFAULT '',
   created_at INTEGER NOT NULL,
-  challenge_day TEXT
+  challenge_day TEXT,
+  duo_partner_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  duo_media TEXT
 );
 CREATE TABLE IF NOT EXISTS likes (
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -75,11 +77,15 @@ CREATE INDEX IF NOT EXISTS idx_stories_expires ON stories(expires_at);
 CREATE INDEX IF NOT EXISTS idx_messages_pair ON messages(sender_id, recipient_id, created_at);
 CREATE INDEX IF NOT EXISTS idx_capsules_recipient ON capsules(recipient_id, open_at);
 CREATE INDEX IF NOT EXISTS idx_posts_challenge ON posts(challenge_day);
-CREATE TABLE IF NOT EXISTS glows (
+CREATE TABLE IF NOT EXISTS halves (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  post_id INTEGER NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
-  day TEXT NOT NULL,
+  media TEXT NOT NULL,
+  caption TEXT NOT NULL DEFAULT '',
+  invited_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
   created_at INTEGER NOT NULL,
-  PRIMARY KEY (user_id, day)
+  expires_at INTEGER NOT NULL,
+  completed_at INTEGER,
+  post_id INTEGER REFERENCES posts(id) ON DELETE SET NULL
 );
-CREATE INDEX IF NOT EXISTS idx_glows_post ON glows(post_id);
+CREATE INDEX IF NOT EXISTS idx_halves_open ON halves(completed_at, expires_at);

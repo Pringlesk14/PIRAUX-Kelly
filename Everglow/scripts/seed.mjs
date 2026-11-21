@@ -87,25 +87,20 @@ if (hasFfmpeg) {
     ["kelly", "Bienvenue", "0xa66bff", "0xff5f8f", "Bienvenue sur Everglow ✨ Partage ce qui te fait briller !", now - 30 * H, yesterday],
   ];
   for (const [u, label, c0, c1, cap, t, day] of videos) post.run(ids[u], "video", makeVideo(label, c0, c1), cap, t, day);
-  const photos = [
-    ["ines", "Plage", "0x4fc3f7", "0xffb347", "Souvenir de vacances 🏖️", 7],
-    ["kelly", "Everglow", "0xff5f8f", "0xa66bff", "Le logo est prêt 💖", 4],
-    ["noah", "Skatepark", "0x5ee6a8", "0x16141f", "Session du dimanche", 3],
-    ["lucas", "Fond d ecran", "0xffb347", "0xa66bff", "Mon nouveau fond d'écran 🎨", 2],
-    ["noah", "Le spot", "0x4fc3f7", "0x5ee6a8", "Le spot de ce soir", 1],
+  // Moitié-moitié: halves are stored already cropped (540x1080), like the app does on the phone.
+  const halfImg = (label, c0, c1) => makePhoto(label, c0, c1, "540x1080");
+  const duo = db.prepare("INSERT INTO posts (user_id, kind, media, caption, created_at, duo_partner_id, duo_media) VALUES (?, 'photo', ?, ?, ?, ?, ?)");
+  const duos = [
+    ["ines", "Plage", "0x4fc3f7", "0xffb347", "kelly", "Bureau", "0xff5f8f", "0xa66bff", "Moi à la plage, Kelly devant son ordi 😂", 3 * H],
+    ["noah", "Skate", "0x5ee6a8", "0x16141f", "lucas", "Chambre", "0xffb347", "0xa66bff", "Skatepark × chambre de Lucas", 7 * H],
+    ["kelly", "Soleil", "0xffb347", "0xff5f8f", "noah", "Pluie", "0x4fc3f7", "0x0b0a12", "Duo improbable du dimanche", 26 * H],
   ];
-  // Constellation: past Lueurs, at most one per person per day, so today's is still free for everyone.
-  const glow = db.prepare("INSERT INTO glows (user_id, post_id, day, created_at) VALUES (?, ?, ?, ?)");
-  const nextDay = {};
-  photos.forEach(([u, label, c0, c1, cap, glows], k) => {
-    const pid = Number(post.run(ids[u], "photo", makePhoto(label, c0, c1), cap, now - (k + 1) * 3 * H, null).lastInsertRowid);
-    const givers = Object.keys(ids).filter((x) => x !== u);
-    for (let g = 0; g < glows; g++) {
-      const giver = givers[g % givers.length];
-      nextDay[giver] = (nextDay[giver] ?? 0) + 1;
-      glow.run(ids[giver], pid, dayKey(now - nextDay[giver] * 24 * H), now - nextDay[giver] * 24 * H);
-    }
-  });
+  for (const [u, l1, a0, a1, partner, l2, b0, b1, cap, ago] of duos)
+    duo.run(ids[u], halfImg(l1, a0, a1), cap, now - ago, ids[partner], halfImg(l2, b0, b1));
+  const half = db.prepare("INSERT INTO halves (user_id, media, caption, invited_id, created_at, expires_at) VALUES (?, ?, ?, ?, ?, ?)");
+  half.run(ids.lucas, halfImg("Lucas", "0xff5f8f", "0xffb347"), "J'ai fait la gauche, à toi de jouer 😏", ids.kelly, now - 19 * H, now + 5 * H);
+  half.run(ids.ines, halfImg("Ines", "0x4fc3f7", "0xa66bff"), "Ma moitié de plage, et toi t'es où ?", null, now - 12 * H, now + 12 * H);
+  half.run(ids.noah, halfImg("Noah", "0x5ee6a8", "0x4fc3f7"), "Complète mon skatepark 🛹", null, now - 4 * H, now + 20 * H);
   const story = db.prepare("INSERT INTO stories (user_id, kind, media, created_at, expires_at) VALUES (?, ?, ?, ?, ?)");
   story.run(ids.lucas, "photo", makePhoto("Story de Lucas", "0xff5f8f", "0xffb347", "720x1280"), now - H, now + 23 * H);
   story.run(ids.ines, "video", makeVideo("Story d Ines", "0xa66bff", "0x4fc3f7", 5), now - 2 * H, now + 22 * H);

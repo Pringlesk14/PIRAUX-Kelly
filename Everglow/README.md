@@ -5,7 +5,7 @@ Réseau social qui réunit dans un seul site :
 | Fonction | Où la trouver |
 |---|---|
 | 🔥 **Défi du jour** : un thème par jour pour tout le monde, et le podium du défi d'hier | onglet **Vidéos** |
-| ✨ **Constellation** : les photos sont des étoiles, chacun offre une seule Lueur par jour | onglet **Photos** |
+| ✂️ **Moitié-moitié** : une photo à deux, chacun prend une moitié là où il est | onglet **Photos** |
 | ⏳ Stories qui disparaissent au bout de 24 h | en haut de l'onglet **Photos** |
 | ⏳ **Capsules temporelles** : vidéo, photo ou message scellé jusqu'à une date choisie | onglet **Capsules** |
 | 💬 Messages privés, mis à jour en direct | onglet **Messages** |
@@ -31,15 +31,17 @@ Comptes de démo : `kelly`, `lucas`, `ines`, `noah`, avec le mot de passe `everg
 ## 🔥 Le Défi du jour (vidéos)
 
 - Chaque jour, un nouveau thème, le même pour tout le monde (la liste est dans `lib/challenges.ts`, on peut en ajouter autant qu'on veut).
-- Une vidéo publiée participe au défi par défaut (case à décocher). Le défi se termine à minuit, avec un compte à rebours.
+- Une vidéo publiée participe au défi par défaut (case à décocher). Les photos, elles, se partagent en Moitié-moitié. Le défi se termine à minuit, avec un compte à rebours.
 - L'onglet **Podium** montre le 🥇🥈🥉 du défi d'hier, selon les ❤️ reçus.
 - L'onglet **Abonnements** garde toutes les vidéos des personnes suivies.
 
-## ✨ La Constellation (photos)
+## ✂️ Moitié-moitié (photos)
 
-- Chaque photo est une étoile dans un ciel de nuit. Les photos d'une même personne sont reliées : c'est sa constellation.
-- Chacun a **une seule Lueur par jour** à offrir à la photo de son choix (pas à la sienne). La base de données elle-même empêche d'en donner deux.
-- Plus une photo a reçu de Lueurs, plus son étoile est grande et brillante.
+- On lance une moitié : on choisit une photo, l'appli garde sa **moitié gauche**. Le découpage se fait sur le téléphone, avant l'envoi : l'autre moitié n'arrive jamais sur le serveur.
+- On choisit qui complète : une personne qu'on suit (ou qui nous suit), ou **tout le monde**.
+- La personne a **24 h** pour compléter avec la moitié droite de sa propre photo, là où elle est. Les moitiés qui t'attendent sont en haut de l'onglet Photos (point rouge sur l'onglet quand une moitié t'est réservée).
+- Une moitié ne peut être complétée qu'une fois, jamais par la personne qui l'a lancée, et seulement par la personne invitée si elle est réservée.
+- La photo assemblée apparaît dans le fil, signée « ines × kelly », et sur le profil des deux.
 
 ## ⏳ Les Capsules (l'idée propre à Everglow)
 
