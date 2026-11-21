@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { createSession, destroySession, requireUser } from "@/lib/auth";
-import { saveUpload } from "@/lib/uploads";
+import { PRIVATE_DIR, saveUpload } from "@/lib/uploads";
 
 export type FormState = { error?: string } | undefined;
 
@@ -47,8 +47,9 @@ export async function logout() {
 
 export async function createPost(_: FormState, form: FormData): Promise<FormState> {
   const user = await requireUser();
-  const file = form.get("media");
   const target = String(form.get("target") ?? "post");
+  if (target === "capsule") return createCapsule(user.id, form);
+  const file = form.get("media");
   if (!(file instanceof File) || file.size === 0) return { error: "Choisis une vidéo ou une photo." };
   let saved;
   try {
@@ -70,6 +71,62 @@ export async function createPost(_: FormState, form: FormData): Promise<FormStat
     .run(user.id, saved.kind, saved.name, caption, now);
   revalidatePath("/");
   redirect(saved.kind === "video" ? "/" : "/photos");
+}
+
+const CAPSULE_DELAYS: Record<string, number> = {
+  "1min": 60_000,
+  "1h": 3600_000,
+  "1d": 86400_000,
+  "1w": 7 * 86400_000,
+  "1m": 30 * 86400_000,
+  "1y": 365 * 86400_000,
+};
+const CAPSULE_MAX_MS = 50 * 365 * 86400_000;
+
+async function createCapsule(senderId: number, form: FormData): Promise<FormState> {
+  const title = String(form.get("title") ?? "").trim().slice(0, 60);
+  const message = String(form.get("message") ?? "").trim().slice(0, 1000);
+  const to = String(form.get("to") ?? "").trim().toLowerCase();
+  const when = String(form.get("when") ?? "");
+  const file = form.get("media");
+  const hasFile = file instanceof File && file.size > 0;
+  if (!title) return { error: "Donne un titre à ta capsule." };
+  if (!hasFile && !message) return { error: "Ajoute un message, une photo ou une vidéo à ta capsule." };
+  const recipient = db().prepare("SELECT id FROM users WHERE username = ?").get(to) as { id: number } | undefined;
+  const connected =
+    recipient &&
+    (recipient.id === senderId ||
+      db().prepare("SELECT 1 FROM follows WHERE (follower_id = ? AND followee_id = ?) OR (follower_id = ? AND followee_id = ?)").get(senderId, recipient.id, recipient.id, senderId));
+  if (!recipient || !connected) return { error: "Choisis à qui envoyer la capsule : toi-même, ou une personne que tu suis ou qui te suit." };
+  const now = Date.now();
+  let openAt: number;
+  if (when === "date") {
+    const day = String(form.get("date") ?? "");
+    openAt = /^\d{4}-\d{2}-\d{2}$/.test(day) ? new Date(`${day}T00:00:00`).getTime() : NaN;
+    if (Number.isNaN(openAt)) return { error: "Choisis la date d'ouverture." };
+    if (openAt <= now) return { error: "Choisis une date dans le futur." };
+    if (openAt > now + CAPSULE_MAX_MS) return { error: "Une capsule peut être scellée pour 50 ans maximum." };
+  } else if (CAPSULE_DELAYS[when]) {
+    openAt = now + CAPSULE_DELAYS[when];
+  } else {
+    return { error: "Choisis quand la capsule s'ouvrira." };
+  }
+  let media: { name: string; kind: string } | null = null;
+  if (hasFile) {
+    try {
+      media = await saveUpload(file as File, { dir: PRIVATE_DIR });
+    } catch (e) {
+      return { error: (e as Error).message };
+    }
+  }
+  db()
+    .prepare(
+      `INSERT INTO capsules (sender_id, recipient_id, title, message, media, media_kind, created_at, open_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    )
+    .run(senderId, recipient.id, title, message, media?.name ?? null, media?.kind ?? null, now, openAt);
+  revalidatePath("/capsules");
+  redirect("/capsules");
 }
 
 export async function deletePost(postId: number) {
@@ -110,7 +167,7 @@ export async function updateProfile(_: FormState, form: FormData): Promise<FormS
   const file = form.get("avatar");
   if (file instanceof File && file.size > 0) {
     try {
-      avatar = (await saveUpload(file, true)).name;
+      avatar = (await saveUpload(file, { onlyPhotos: true })).name;
     } catch (e) {
       return { error: (e as Error).message };
     }
@@ -124,4 +181,33 @@ export async function sendMessage(recipientId: number, body: string) {
   const text = body.trim().slice(0, 2000);
   if (!text || recipientId === user.id) return;
   db().prepare("INSERT INTO messages (sender_id, recipient_id, body, created_at) VALUES (?, ?, ?, ?)").run(user.id, recipientId, text, Date.now());
+}
+
+export async function sendSnap(recipientId: number, form: FormData): Promise<FormState> {
+  const user = await requireUser();
+  const file = form.get("media");
+  if (recipientId === user.id || !db().prepare("SELECT 1 FROM users WHERE id = ?").get(recipientId)) return { error: "Destinataire introuvable." };
+  if (!(file instanceof File) || file.size === 0) return { error: "Choisis une photo ou une vidéo." };
+  let saved;
+  try {
+    saved = await saveUpload(file, { dir: PRIVATE_DIR });
+  } catch (e) {
+    return { error: (e as Error).message };
+  }
+  db()
+    .prepare("INSERT INTO messages (sender_id, recipient_id, body, created_at, kind, media, media_kind) VALUES (?, ?, '', ?, 'snap', ?, ?)")
+    .run(user.id, recipientId, Date.now(), saved.name, saved.kind);
+  revalidatePath("/messages");
+}
+
+/** Opens a received snap. It can only be opened once: returns null if it was already opened. */
+export async function openSnap(messageId: number): Promise<{ kind: "video" | "photo" } | null> {
+  const user = await requireUser();
+  const now = Date.now();
+  const res = db()
+    .prepare("UPDATE messages SET opened_at = ?, read_at = ? WHERE id = ? AND recipient_id = ? AND kind = 'snap' AND opened_at IS NULL AND media IS NOT NULL")
+    .run(now, now, messageId, user.id);
+  if (res.changes === 0) return null;
+  const m = db().prepare("SELECT media_kind FROM messages WHERE id = ?").get(messageId) as { media_kind: "video" | "photo" };
+  return { kind: m.media_kind };
 }

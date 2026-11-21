@@ -4,3 +4,4 @@ data/
 uploads/
 next-env.d.ts
 tsconfig.tsbuildinfo
+private-uploads/

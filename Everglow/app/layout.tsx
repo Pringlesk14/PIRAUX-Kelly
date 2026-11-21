@@ -16,12 +16,15 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const unread = user
     ? (db().prepare("SELECT COUNT(*) AS n FROM messages WHERE recipient_id = ? AND read_at IS NULL").get(user.id) as { n: number }).n
     : 0;
+  const capsulesReady = user
+    ? (db().prepare("SELECT COUNT(*) AS n FROM capsules WHERE recipient_id = ? AND open_at <= ? AND opened_at IS NULL").get(user.id, Date.now()) as { n: number }).n
+    : 0;
   return (
     <html lang="fr">
       <body>
         <div className="app">
           {children}
-          {user && <Nav username={user.username} unread={unread} />}
+          {user && <Nav username={user.username} unread={unread} capsulesReady={capsulesReady} />}
         </div>
       </body>
     </html>

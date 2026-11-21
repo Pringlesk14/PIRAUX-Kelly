@@ -3,6 +3,8 @@ import path from "node:path";
 import crypto from "node:crypto";
 
 export const UPLOAD_DIR = path.join(process.cwd(), "uploads");
+/** Capsule and snap files: never served by /media, only by routes that check who may see them. */
+export const PRIVATE_DIR = path.join(process.cwd(), "private-uploads");
 
 const TYPES: Record<string, { ext: string; kind: "video" | "photo" }> = {
   "video/mp4": { ext: "mp4", kind: "video" },
@@ -16,13 +18,17 @@ const TYPES: Record<string, { ext: string; kind: "video" | "photo" }> = {
 
 export const ACCEPT = Object.keys(TYPES).join(",");
 
-/** Saves an uploaded file and returns its public name and kind. */
-export async function saveUpload(file: File, onlyPhotos = false) {
+/** Saves an uploaded file and returns its stored name and kind. */
+export async function saveUpload(file: File, { onlyPhotos = false, dir = UPLOAD_DIR } = {}) {
   const type = TYPES[file.type];
   if (!type || (onlyPhotos && type.kind !== "photo")) throw new Error("Format de fichier non pris en charge.");
   if (file.size === 0) throw new Error("Le fichier est vide.");
-  await fs.mkdir(UPLOAD_DIR, { recursive: true });
+  await fs.mkdir(dir, { recursive: true });
   const name = `${crypto.randomUUID()}.${type.ext}`;
-  await fs.writeFile(path.join(UPLOAD_DIR, name), Buffer.from(await file.arrayBuffer()));
+  await fs.writeFile(path.join(dir, name), Buffer.from(await file.arrayBuffer()));
   return { name, kind: type.kind };
+}
+
+export async function deletePrivate(name: string) {
+  await fs.rm(path.join(PRIVATE_DIR, path.basename(name)), { force: true });
 }

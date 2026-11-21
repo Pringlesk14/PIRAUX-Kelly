@@ -10,8 +10,10 @@ import bcrypt from "bcryptjs";
 const root = process.cwd();
 const dataDir = path.join(root, "data");
 const uploadDir = path.join(root, "uploads");
+const privateDir = path.join(root, "private-uploads");
 fs.mkdirSync(dataDir, { recursive: true });
 fs.mkdirSync(uploadDir, { recursive: true });
+fs.mkdirSync(privateDir, { recursive: true });
 
 const db = new DatabaseSync(path.join(dataDir, "everglow.db"));
 db.exec("PRAGMA foreign_keys = ON;");
@@ -33,24 +35,24 @@ function text(label, size) {
   return `,drawtext=fontfile='${FONT.replace(/:/g, "\\:")}':text='${safe}':fontcolor=white:fontsize=${size}:x=(w-text_w)/2:y=(h-text_h)/2:shadowcolor=black@0.5:shadowx=3:shadowy=3`;
 }
 
-function makeVideo(label, c0, c1, seconds = 6) {
+function makeVideo(label, c0, c1, seconds = 6, dir = uploadDir) {
   const name = `${crypto.randomUUID()}.mp4`;
   execFileSync("ffmpeg", [
     "-y", "-loglevel", "error",
     "-f", "lavfi", "-i", `gradients=s=720x1280:c0=${c0}:c1=${c1}:speed=0.02:d=${seconds}:r=30${text(label, 64)}`,
     "-f", "lavfi", "-i", `sine=frequency=330:d=${seconds},volume=0.05`,
     "-shortest", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-preset", "veryfast", "-c:a", "aac", "-movflags", "+faststart",
-    path.join(uploadDir, name),
+    path.join(dir, name),
   ]);
   return name;
 }
 
-function makePhoto(label, c0, c1, size = "1080x1080") {
+function makePhoto(label, c0, c1, size = "1080x1080", dir = uploadDir) {
   const name = `${crypto.randomUUID()}.jpg`;
   execFileSync("ffmpeg", [
     "-y", "-loglevel", "error",
     "-f", "lavfi", "-i", `gradients=s=${size}:c0=${c0}:c1=${c1}:d=1${text(label, 72)}`,
-    "-frames:v", "1", "-q:v", "3", path.join(uploadDir, name),
+    "-frames:v", "1", "-q:v", "3", path.join(dir, name),
   ]);
   return name;
 }
@@ -97,6 +99,26 @@ if (hasFfmpeg) {
   comment.run(ids.noah, firstPost, "Pareil chaque lundi", now - H / 2);
   const like = db.prepare("INSERT OR IGNORE INTO likes (user_id, post_id) VALUES (?, ?)");
   for (const { id } of db.prepare("SELECT id FROM posts").all()) for (const uid of Object.values(ids)) if ((id + uid) % 2) like.run(uid, id);
+
+  // Capsules: one opens two minutes after seeding, two are sealed for a year, one is already open.
+  const D = 24 * H;
+  const capsule = db.prepare(`INSERT INTO capsules (sender_id, recipient_id, title, message, media, media_kind, created_at, open_at, opened_at)
+                              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`);
+  capsule.run(ids.lucas, ids.kelly, "Ouvre-moi vite 👀", "Je l'ai scellée pour qu'elle s'ouvre deux minutes après ton arrivée.\nBienvenue dans les Capsules d'Everglow ! 🎉",
+    makeVideo("Surprise", "0xffb347", "0xa66bff", 6, privateDir), "video", now - 2 * H, now + 2 * 60 * 1000, null);
+  capsule.run(ids.ines, ids.kelly, "Nos vacances, un an après 🌅", "Tu te souviens de cette plage ? Je voulais que tu revoies ça exactement un an plus tard.",
+    makePhoto("Un an plus tard", "0x4fc3f7", "0xffb347", "1080x1080", privateDir), "photo", now - D, now + 364 * D, null);
+  capsule.run(ids.kelly, ids.kelly, "Lettre à moi dans 1 an", "Est-ce qu'Everglow a des milliers d'utilisateurs ? J'espère que tu es fière du chemin parcouru.",
+    null, null, now - 3 * D, now + 362 * D, null);
+  capsule.run(ids.noah, ids.kelly, "Pour quand tu auras 1 000 abonnés", "Je savais que tu y arriverais 🛹✨",
+    makeVideo("1000 abonnes", "0x5ee6a8", "0xff5f8f", 6, privateDir), "video", now - 30 * D, now - 2 * D, now - 2 * D);
+
+  // Snaps: past days build flame streaks, and Noah sent one that is still waiting to be opened.
+  const snap = db.prepare(`INSERT INTO messages (sender_id, recipient_id, body, created_at, read_at, kind, media, media_kind, opened_at)
+                           VALUES (?, ?, '', ?, ?, 'snap', ?, ?, ?)`);
+  for (let d = 4; d >= 1; d--) snap.run(d % 2 ? ids.lucas : ids.kelly, d % 2 ? ids.kelly : ids.lucas, now - d * D, now - d * D, null, "photo", now - d * D);
+  for (let d = 2; d >= 1; d--) snap.run(ids.ines, ids.kelly, now - d * D, now - d * D, null, "photo", now - d * D);
+  snap.run(ids.noah, ids.kelly, now - 5 * 60 * 1000, null, makePhoto("Snap de Noah", "0x5ee6a8", "0x4fc3f7", "720x1280", privateDir), "photo", null);
 } else {
   console.log("ffmpeg introuvable : comptes créés sans vidéos ni photos de démo.");
 }

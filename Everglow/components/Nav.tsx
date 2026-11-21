@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Icon } from "./Icon";
 
-export function Nav({ username, unread }: { username: string; unread: number }) {
+export function Nav({ username, unread, capsulesReady }: { username: string; unread: number; capsulesReady: number }) {
   const path = usePathname();
   const is = (p: string) => (p === "/" ? path === "/" : path.startsWith(p));
   return (
@@ -19,6 +19,11 @@ export function Nav({ username, unread }: { username: string; unread: number }) 
       </Link>
       <Link href="/create" className="create" aria-label="Publier">
         <Icon name="plus" />
+      </Link>
+      <Link href="/capsules" className={is("/capsules") ? "active" : ""} style={{ position: "relative" }}>
+        <Icon name="hourglass" />
+        Capsules
+        {capsulesReady > 0 && <span className="unread-dot" style={{ position: "absolute", top: 4, right: 12 }} />}
       </Link>
       <Link href="/messages" className={is("/messages") ? "active" : ""} style={{ position: "relative" }}>
         <Icon name="chat" />

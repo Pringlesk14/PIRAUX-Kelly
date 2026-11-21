@@ -25,11 +25,23 @@ export function db() {
   return { prepare: (sql: string) => new Statement(conn().prepare(sql)), exec: (sql: string) => conn().exec(sql) };
 }
 
+// Adds the snap columns to a messages table created by an earlier version.
+function migrate(conn: DatabaseSync) {
+  const cols = (conn.prepare("PRAGMA table_info(messages)").all() as { name: string }[]).map((c) => c.name);
+  if (cols.length > 0 && !cols.includes("kind")) {
+    conn.exec(`ALTER TABLE messages ADD COLUMN kind TEXT NOT NULL DEFAULT 'text';
+      ALTER TABLE messages ADD COLUMN media TEXT;
+      ALTER TABLE messages ADD COLUMN media_kind TEXT;
+      ALTER TABLE messages ADD COLUMN opened_at INTEGER;`);
+  }
+}
+
 function conn(): DatabaseSync {
   if (!globalForDb.__everglowDb) {
     fs.mkdirSync(DATA_DIR, { recursive: true });
     const conn = new DatabaseSync(path.join(DATA_DIR, "everglow.db"));
     conn.exec("PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;");
+    migrate(conn);
     conn.exec(SCHEMA);
     globalForDb.__everglowDb = conn;
   }

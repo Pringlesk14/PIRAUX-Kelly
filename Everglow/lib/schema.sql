@@ -51,8 +51,25 @@ CREATE TABLE IF NOT EXISTS messages (
   recipient_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   body TEXT NOT NULL,
   created_at INTEGER NOT NULL,
-  read_at INTEGER
+  read_at INTEGER,
+  kind TEXT NOT NULL DEFAULT 'text' CHECK (kind IN ('text','snap')),
+  media TEXT,
+  media_kind TEXT CHECK (media_kind IN ('video','photo')),
+  opened_at INTEGER
+);
+CREATE TABLE IF NOT EXISTS capsules (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  sender_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  recipient_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  message TEXT NOT NULL DEFAULT '',
+  media TEXT,
+  media_kind TEXT CHECK (media_kind IN ('video','photo')),
+  created_at INTEGER NOT NULL,
+  open_at INTEGER NOT NULL,
+  opened_at INTEGER
 );
 CREATE INDEX IF NOT EXISTS idx_posts_created ON posts(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_stories_expires ON stories(expires_at);
 CREATE INDEX IF NOT EXISTS idx_messages_pair ON messages(sender_id, recipient_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_capsules_recipient ON capsules(recipient_id, open_at);

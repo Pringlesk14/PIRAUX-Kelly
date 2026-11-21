@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { conversation } from "@/lib/messages";
+import { conversation, streakDays } from "@/lib/messages";
 import { Avatar } from "@/components/Avatar";
 import { Chat } from "@/components/Chat";
 import { Icon } from "@/components/Icon";
@@ -24,7 +24,7 @@ export default async function ChatPage({ params }: { params: Promise<{ username:
           <div><b>{other.display_name}</b><div className="muted small">@{other.username}</div></div>
         </Link>
       </header>
-      <Chat meId={me.id} otherId={other.id} username={other.username} initial={conversation(me.id, other.id)} />
+      <Chat meId={me.id} otherId={other.id} username={other.username} name={other.display_name} initial={conversation(me.id, other.id)} initialStreak={streakDays(me.id, other.id)} />
     </main>
   );
 }

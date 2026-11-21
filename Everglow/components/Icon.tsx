@@ -14,6 +14,8 @@ const PATHS: Record<string, string> = {
   volume: "M11 5 6 9H2v6h4l5 4zM15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14",
   mute: "M11 5 6 9H2v6h4l5 4zM22 9l-6 6M16 9l6 6",
   trash: "M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14",
+  camera: "M4 8h3l2-3h6l2 3h3v11H4zM12 16.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z",
+  hourglass: "M6 2h12M6 22h12M7 2c0 5 10 6 10 10S7 17 7 22M17 2c0 5-10 6-10 10s10 5 10 10",
 };
 
 export function Icon({ name, size = 24, fill = "none", stroke = "currentColor" }: { name: keyof typeof PATHS | string; size?: number; fill?: string; stroke?: string }) {
