@@ -6,8 +6,9 @@ import type { FeedPost } from "@/lib/db";
 import { Avatar } from "./Avatar";
 import { Icon } from "./Icon";
 import { LikeButton } from "./LikeButton";
+import { Countdown } from "./Countdown";
 
-function Clip({ post, muted, onToggleMute }: { post: FeedPost; muted: boolean; onToggleMute: () => void }) {
+function Clip({ post, muted, onToggleMute, chip }: { post: FeedPost; muted: boolean; onToggleMute: () => void; chip: string }) {
   const ref = useRef<HTMLVideoElement>(null);
   const [paused, setPaused] = useState(false);
 
@@ -46,6 +47,7 @@ function Clip({ post, muted, onToggleMute }: { post: FeedPost; muted: boolean; o
       />
       {paused && <div className="paused"><Icon name="play" size={72} fill="rgba(255,255,255,.8)" stroke="none" /></div>}
       <div className="overlay">
+        {chip && <span className="chip">{chip}</span>}
         <Link href={`/u/${post.username}`} className="author">
           <Avatar user={post} size={36} />@{post.username}
         </Link>
@@ -65,14 +67,35 @@ function Clip({ post, muted, onToggleMute }: { post: FeedPost; muted: boolean; o
   );
 }
 
-export function VideoFeed({ posts }: { posts: FeedPost[] }) {
+export type Challenge = { today: string; yesterday: string; title: string; endsAt: number; count: number; joined: boolean };
+
+export function VideoFeed({ posts, challenge }: { posts: FeedPost[]; challenge?: Challenge }) {
   // Browsers only autoplay muted videos; the viewer turns sound on once.
   const [muted, setMuted] = useState(true);
+  const chipFor = (p: FeedPost) =>
+    !challenge ? "" : p.challenge_day === challenge.today ? "🔥 Défi du jour" : p.challenge_day === challenge.yesterday ? "Défi d'hier" : "";
   return (
     <div className="feed">
       {posts.map((p) => (
-        <Clip key={p.id} post={p} muted={muted} onToggleMute={() => setMuted(!muted)} />
+        <Clip key={p.id} post={p} muted={muted} onToggleMute={() => setMuted(!muted)} chip={chipFor(p)} />
       ))}
+      {challenge && (
+        <section className="clip challenge-card">
+          <div className="cc-inner">
+            <div className="cc-eyebrow">Défi du jour</div>
+            <h2>{challenge.title}</h2>
+            <p>
+              {challenge.count} participation{challenge.count > 1 ? "s" : ""} · se termine dans <Countdown openAt={challenge.endsAt} className="cd" />
+            </p>
+            {challenge.joined ? (
+              <p>✅ Tu participes ! Reviens demain pour découvrir le podium.</p>
+            ) : (
+              <Link className="btn" href="/create?challenge=1">Participer au défi</Link>
+            )}
+            <p className="small" style={{ opacity: 0.75 }}>Chaque jour, un nouveau thème pour tout le monde. Les vidéos les plus aimées montent sur le podium.</p>
+          </div>
+        </section>
+      )}
     </div>
   );
 }

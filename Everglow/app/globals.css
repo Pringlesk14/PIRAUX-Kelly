@@ -187,3 +187,43 @@ select.input { appearance: auto; }
 .bubble.snap.new { border: 0; background: var(--surface-2); color: var(--glow-2); box-shadow: inset 0 0 0 2px var(--glow-2); cursor: pointer; text-align: left; }
 .bubble.snap.done { color: var(--muted); font-weight: 500; }
 .snap-count { width: 34px; height: 34px; border-radius: 50%; border: 2px solid #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* Défi du jour */
+.challenge-pill { position: absolute; top: 52px; left: 50%; transform: translateX(-50%); z-index: 5; background: rgba(0,0,0,.45); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,.2); color: #fff; border-radius: 999px; padding: 6px 12px; font-size: 13px; font-weight: 600; width: max-content; max-width: calc(100% - 32px); text-align: center; line-height: 1.35; }
+.challenge-pill .cd { font-variant-numeric: tabular-nums; color: var(--glow-1); }
+.chip { display: inline-block; font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: var(--gradient); color: #1a0d14; margin-bottom: 6px; text-shadow: none; }
+.challenge-card { background: radial-gradient(circle at 30% 20%, rgba(255,179,71,.35), transparent 55%), radial-gradient(circle at 80% 80%, rgba(166,107,255,.35), transparent 55%), #120f1f; display: flex; align-items: center; justify-content: center; text-align: center; color: #fff; }
+.cc-inner { padding: 24px; display: flex; flex-direction: column; gap: 12px; align-items: center; max-width: 360px; }
+.cc-inner h2 { font-size: 28px; margin: 0; text-wrap: balance; line-height: 1.15; }
+.cc-inner p { margin: 0; line-height: 1.45; }
+.cc-eyebrow { text-transform: uppercase; letter-spacing: .1em; font-size: 12px; font-weight: 700; color: var(--glow-1); }
+.cd { font-variant-numeric: tabular-nums; }
+.podium { padding-top: 64px; }
+.podium-title { font-size: 24px; margin: 6px 0 16px; text-wrap: balance; }
+.podium-row { display: flex; gap: 12px; align-items: center; width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 10px; margin-bottom: 10px; text-align: left; color: var(--text); }
+.podium-row.first { border-color: var(--glow-1); box-shadow: 0 0 22px rgba(255,179,71,.3); }
+.podium-row video { width: 64px; height: 86px; object-fit: cover; border-radius: 10px; flex-shrink: 0; }
+.podium-row .info { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.medal { font-size: 30px; }
+.check { display: flex; gap: 10px; align-items: flex-start; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 14px; font-size: 14px; line-height: 1.4; cursor: pointer; }
+.check input { margin-top: 3px; accent-color: var(--glow-2); width: 18px; height: 18px; flex-shrink: 0; }
+
+/* Constellation */
+.glow-info { margin: 14px 16px 0; padding: 12px 14px; border-radius: 14px; background: var(--surface); border: 1px solid var(--border); font-size: 14px; line-height: 1.45; }
+.glow-info b { color: var(--glow-1); }
+.sky { position: relative; margin: 14px 16px; border-radius: 18px; overflow: hidden; border: 1px solid var(--border);
+  background: radial-gradient(1.5px 1.5px at 12% 18%, #ffffffaa, transparent), radial-gradient(1px 1px at 72% 9%, #ffffff88, transparent), radial-gradient(1px 1px at 40% 55%, #ffffff77, transparent), radial-gradient(1.5px 1.5px at 88% 42%, #ffffffaa, transparent), radial-gradient(1px 1px at 25% 80%, #ffffff77, transparent), radial-gradient(1px 1px at 60% 92%, #ffffff88, transparent), linear-gradient(180deg, #0d0b22, #1b1036 60%, #241040);
+  background-size: 220px 260px, 180px 210px, 240px 200px, 200px 230px, 260px 240px, 190px 220px, 100% 100%; }
+.sky-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.star { position: absolute; transform: translate(-50%, -50%); background: none; border: 0; padding: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; color: #fff; }
+.star img { background: radial-gradient(circle, #ffd9a0, #ff5f8f 60%, #a66bff); border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,.85); transition: transform .2s; animation: twinkle 3.2s ease-in-out infinite; }
+.star:hover img { transform: scale(1.08); }
+.star .label { font-size: 11px; font-weight: 600; white-space: nowrap; text-shadow: 0 1px 3px #000; }
+.star.given img { border-color: var(--glow-1); }
+@keyframes twinkle { 50% { filter: brightness(1.18); } }
+.glow-count { font-weight: 700; color: var(--glow-1); font-size: 15px; }
+.glow-given { color: var(--glow-1); font-size: 13px; }
+.post .bar { flex-wrap: wrap; }
+.challenge-pill:hover { border-color: var(--glow-1); }
+.star .label { color: #fff; }
+@media (prefers-reduced-motion: reduce) { .star img { animation: none; } }

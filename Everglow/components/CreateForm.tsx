@@ -7,7 +7,7 @@ import { Icon } from "./Icon";
 type Target = "post" | "story" | "capsule";
 type Person = { username: string; display_name: string };
 
-export function CreateForm({ accept, initialTarget, me, people }: { accept: string; initialTarget: Target; me: string; people: Person[] }) {
+export function CreateForm({ accept, initialTarget, me, people, challengeTitle }: { accept: string; initialTarget: Target; me: string; people: Person[]; challengeTitle: string }) {
   const [state, action, pending] = useActionState<FormState, FormData>(createPost, undefined);
   const [target, setTarget] = useState<Target>(initialTarget);
   const [preview, setPreview] = useState<{ url: string; video: boolean } | null>(null);
@@ -18,6 +18,7 @@ export function CreateForm({ accept, initialTarget, me, people }: { accept: stri
   const [to, setTo] = useState(me);
   const [when, setWhen] = useState("1y");
   const [date, setDate] = useState("");
+  const [joinChallenge, setJoinChallenge] = useState(true);
   const cap = target === "capsule";
 
   // React clears the file field after a failed send, so clear the preview too.
@@ -108,6 +109,14 @@ export function CreateForm({ accept, initialTarget, me, people }: { accept: stri
         <div className="field">
           <label htmlFor="caption">Légende</label>
           <textarea className="input" id="caption" name="caption" value={caption} onChange={(e) => setCaption(e.target.value)} maxLength={500} placeholder="Dis-en un peu plus… #everglow" />
+          <label className="check" style={{ marginTop: 8 }}>
+            <input type="checkbox" name="challenge" checked={joinChallenge} onChange={(e) => setJoinChallenge(e.target.checked)} />
+            <span>
+              Participer au <b>Défi du jour</b> : {challengeTitle}
+              <br />
+              <span className="muted small">Pour les vidéos. Une photo rejoint la Constellation.</span>
+            </span>
+          </label>
         </div>
       ) : (
         <p className="muted small">Ta story sera visible pendant 24 heures, puis elle disparaîtra.</p>

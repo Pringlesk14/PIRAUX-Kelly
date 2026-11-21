@@ -4,7 +4,9 @@ import { requireUser } from "@/lib/auth";
 import { db, listPosts } from "@/lib/db";
 import { mediaUrl } from "@/lib/media";
 import { timeAgo } from "@/lib/time";
-import { addComment, deletePost } from "@/app/actions";
+import { addComment, deletePost, giveGlow } from "@/app/actions";
+import { dayKey, endOfDay } from "@/lib/challenges";
+import { Countdown } from "@/components/Countdown";
 import { Avatar } from "@/components/Avatar";
 import { Icon } from "@/components/Icon";
 import { LikeButton } from "@/components/LikeButton";
@@ -24,6 +26,8 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
          FROM comments c JOIN users u ON u.id = c.user_id WHERE c.post_id = ? ORDER BY c.created_at`,
     )
     .all(post.id) as unknown as Comment[];
+  const glows = (db().prepare("SELECT COUNT(*) AS n FROM glows WHERE post_id = ?").get(post.id) as { n: number }).n;
+  const myGlow = db().prepare("SELECT post_id FROM glows WHERE user_id = ? AND day = ?").get(me.id, dayKey()) as { post_id: number } | undefined;
 
   return (
     <main>
@@ -45,7 +49,24 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
       )}
       <div className="post" style={{ marginBottom: 0 }}>
         <div className="bar">
-          <LikeButton postId={post.id} liked={!!post.liked} count={post.like_count} size={26} />
+          {post.kind === "video" ? (
+            <LikeButton postId={post.id} liked={!!post.liked} count={post.like_count} size={26} />
+          ) : (
+            <>
+              <span className="glow-count">✨ {glows} Lueur{glows > 1 ? "s" : ""}</span>
+              {post.user_id === me.id ? (
+                <span className="muted small">C&apos;est ta photo</span>
+              ) : myGlow?.post_id === post.id ? (
+                <span className="glow-given">Tu lui as offert ta Lueur aujourd&apos;hui</span>
+              ) : myGlow ? (
+                <span className="muted small">Lueur déjà offerte aujourd&apos;hui · nouvelle dans <Countdown openAt={endOfDay()} className="cd" /></span>
+              ) : (
+                <form action={giveGlow.bind(null, post.id)}>
+                  <button className="btn" style={{ padding: "6px 14px", fontSize: 13 }}>Offrir ma Lueur du jour</button>
+                </form>
+              )}
+            </>
+          )}
           <span className="action"><Icon name="comment" size={26} />{comments.length}</span>
         </div>
         {post.caption && <div className="caption"><b>{post.username}</b> {post.caption}</div>}

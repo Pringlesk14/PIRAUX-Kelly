@@ -18,7 +18,8 @@ CREATE TABLE IF NOT EXISTS posts (
   kind TEXT NOT NULL CHECK (kind IN ('video','photo')),
   media TEXT NOT NULL,
   caption TEXT NOT NULL DEFAULT '',
-  created_at INTEGER NOT NULL
+  created_at INTEGER NOT NULL,
+  challenge_day TEXT
 );
 CREATE TABLE IF NOT EXISTS likes (
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -73,3 +74,12 @@ CREATE INDEX IF NOT EXISTS idx_posts_created ON posts(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_stories_expires ON stories(expires_at);
 CREATE INDEX IF NOT EXISTS idx_messages_pair ON messages(sender_id, recipient_id, created_at);
 CREATE INDEX IF NOT EXISTS idx_capsules_recipient ON capsules(recipient_id, open_at);
+CREATE INDEX IF NOT EXISTS idx_posts_challenge ON posts(challenge_day);
+CREATE TABLE IF NOT EXISTS glows (
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  post_id INTEGER NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+  day TEXT NOT NULL,
+  created_at INTEGER NOT NULL,
+  PRIMARY KEY (user_id, day)
+);
+CREATE INDEX IF NOT EXISTS idx_glows_post ON glows(post_id);

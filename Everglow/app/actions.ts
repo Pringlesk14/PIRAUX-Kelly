@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { createSession, destroySession, requireUser } from "@/lib/auth";
 import { PRIVATE_DIR, saveUpload } from "@/lib/uploads";
+import { dayKey } from "@/lib/challenges";
 
 export type FormState = { error?: string } | undefined;
 
@@ -66,11 +67,13 @@ export async function createPost(_: FormState, form: FormData): Promise<FormStat
     redirect("/photos");
   }
   const caption = String(form.get("caption") ?? "").trim().slice(0, 500);
+  // Only videos take part in the daily challenge; photos join the Constellation.
+  const challengeDay = saved.kind === "video" && form.get("challenge") ? dayKey(now) : null;
   db()
-    .prepare("INSERT INTO posts (user_id, kind, media, caption, created_at) VALUES (?, ?, ?, ?, ?)")
-    .run(user.id, saved.kind, saved.name, caption, now);
+    .prepare("INSERT INTO posts (user_id, kind, media, caption, created_at, challenge_day) VALUES (?, ?, ?, ?, ?, ?)")
+    .run(user.id, saved.kind, saved.name, caption, now, challengeDay);
   revalidatePath("/");
-  redirect(saved.kind === "video" ? "/" : "/photos");
+  redirect(saved.kind === "photo" ? "/photos" : challengeDay ? "/" : "/?tab=abonnements");
 }
 
 const CAPSULE_DELAYS: Record<string, number> = {
@@ -210,4 +213,14 @@ export async function openSnap(messageId: number): Promise<{ kind: "video" | "ph
   if (res.changes === 0) return null;
   const m = db().prepare("SELECT media_kind FROM messages WHERE id = ?").get(messageId) as { media_kind: "video" | "photo" };
   return { kind: m.media_kind };
+}
+
+/** Gives today's single Lueur to a photo. The database allows one per person per day. */
+export async function giveGlow(postId: number) {
+  const user = await requireUser();
+  const post = db().prepare("SELECT user_id, kind FROM posts WHERE id = ?").get(postId) as { user_id: number; kind: string } | undefined;
+  if (!post || post.kind !== "photo" || post.user_id === user.id) return;
+  db().prepare("INSERT OR IGNORE INTO glows (user_id, post_id, day, created_at) VALUES (?, ?, ?, ?)").run(user.id, postId, dayKey(), Date.now());
+  revalidatePath(`/p/${postId}`);
+  revalidatePath("/photos");
 }

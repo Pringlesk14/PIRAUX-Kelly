@@ -4,8 +4,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { formatCountdown } from "@/lib/capsules";
 
-/** Live countdown to a capsule's opening; refreshes the page when it reaches zero. */
-export function Countdown({ openAt }: { openAt: number }) {
+/** Live countdown (capsule opening, end of the daily challenge); refreshes the page at zero. */
+export function Countdown({ openAt, className = "count" }: { openAt: number; className?: string }) {
   const router = useRouter();
   const [left, setLeft] = useState(openAt - Date.now());
   useEffect(() => {
@@ -20,7 +20,7 @@ export function Countdown({ openAt }: { openAt: number }) {
     return () => clearInterval(t);
   }, [openAt, router]);
   return (
-    <span className="count" suppressHydrationWarning>
+    <span className={className} suppressHydrationWarning>
       {formatCountdown(left)}
     </span>
   );

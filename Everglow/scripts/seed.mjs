@@ -58,6 +58,7 @@ function makePhoto(label, c0, c1, size = "1080x1080", dir = uploadDir) {
 }
 
 const now = Date.now();
+const dayKey = (t) => { const d = new Date(t); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
 const H = 3600 * 1000;
 const hash = bcrypt.hashSync("everglow", 10);
 const users = [
@@ -75,20 +76,36 @@ for (const a of Object.values(ids)) for (const b of Object.values(ids)) if (a !=
 
 if (hasFfmpeg) {
   console.log("Génération des vidéos et photos de démo…");
-  const post = db.prepare("INSERT INTO posts (user_id, kind, media, caption, created_at) VALUES (?, ?, ?, ?, ?)");
+  const post = db.prepare("INSERT INTO posts (user_id, kind, media, caption, created_at, challenge_day) VALUES (?, ?, ?, ?, ?, ?)");
+  // Daily challenge: two entries today, three yesterday (they make up the podium).
+  const today = dayKey(now), yesterday = dayKey(now - 24 * H);
   const videos = [
-    ["lucas", "Lundi matin", "0xff5f8f", "0x2b1055", "Quand le réveil sonne pour la rentrée 😭 #school"],
-    ["noah", "Kickflip", "0x4fc3f7", "0x0b0a12", "Premier kickflip réussi !! 🛹🔥"],
-    ["ines", "Golden hour", "0xffb347", "0xff5f8f", "La lumière ce soir était incroyable 🌅"],
-    ["kelly", "Bienvenue", "0xa66bff", "0xff5f8f", "Bienvenue sur Everglow ✨ Partage ce qui te fait briller !"],
+    ["lucas", "Lundi matin", "0xff5f8f", "0x2b1055", "Quand le réveil sonne pour la rentrée 😭 #school", now - 2 * H, today],
+    ["ines", "Ciel du matin", "0xa66bff", "0x4fc3f7", "Ma participation au défi du jour 🌌", now - 1 * H, today],
+    ["noah", "Kickflip", "0x4fc3f7", "0x0b0a12", "Premier kickflip réussi !! 🛹🔥", now - 26 * H, yesterday],
+    ["ines", "Golden hour", "0xffb347", "0xff5f8f", "La lumière ce soir était incroyable 🌅", now - 28 * H, yesterday],
+    ["kelly", "Bienvenue", "0xa66bff", "0xff5f8f", "Bienvenue sur Everglow ✨ Partage ce qui te fait briller !", now - 30 * H, yesterday],
   ];
-  videos.forEach(([u, label, c0, c1, cap], k) => post.run(ids[u], "video", makeVideo(label, c0, c1), cap, now - (k + 1) * 2 * H));
+  for (const [u, label, c0, c1, cap, t, day] of videos) post.run(ids[u], "video", makeVideo(label, c0, c1), cap, t, day);
   const photos = [
-    ["ines", "Plage", "0x4fc3f7", "0xffb347", "Souvenir de vacances 🏖️"],
-    ["kelly", "Everglow", "0xff5f8f", "0xa66bff", "Le logo est prêt 💖"],
-    ["noah", "Skatepark", "0x5ee6a8", "0x16141f", "Session du dimanche"],
+    ["ines", "Plage", "0x4fc3f7", "0xffb347", "Souvenir de vacances 🏖️", 7],
+    ["kelly", "Everglow", "0xff5f8f", "0xa66bff", "Le logo est prêt 💖", 4],
+    ["noah", "Skatepark", "0x5ee6a8", "0x16141f", "Session du dimanche", 3],
+    ["lucas", "Fond d ecran", "0xffb347", "0xa66bff", "Mon nouveau fond d'écran 🎨", 2],
+    ["noah", "Le spot", "0x4fc3f7", "0x5ee6a8", "Le spot de ce soir", 1],
   ];
-  photos.forEach(([u, label, c0, c1, cap], k) => post.run(ids[u], "photo", makePhoto(label, c0, c1), cap, now - (k + 1) * 3 * H));
+  // Constellation: past Lueurs, at most one per person per day, so today's is still free for everyone.
+  const glow = db.prepare("INSERT INTO glows (user_id, post_id, day, created_at) VALUES (?, ?, ?, ?)");
+  const nextDay = {};
+  photos.forEach(([u, label, c0, c1, cap, glows], k) => {
+    const pid = Number(post.run(ids[u], "photo", makePhoto(label, c0, c1), cap, now - (k + 1) * 3 * H, null).lastInsertRowid);
+    const givers = Object.keys(ids).filter((x) => x !== u);
+    for (let g = 0; g < glows; g++) {
+      const giver = givers[g % givers.length];
+      nextDay[giver] = (nextDay[giver] ?? 0) + 1;
+      glow.run(ids[giver], pid, dayKey(now - nextDay[giver] * 24 * H), now - nextDay[giver] * 24 * H);
+    }
+  });
   const story = db.prepare("INSERT INTO stories (user_id, kind, media, created_at, expires_at) VALUES (?, ?, ?, ?, ?)");
   story.run(ids.lucas, "photo", makePhoto("Story de Lucas", "0xff5f8f", "0xffb347", "720x1280"), now - H, now + 23 * H);
   story.run(ids.ines, "video", makeVideo("Story d Ines", "0xa66bff", "0x4fc3f7", 5), now - 2 * H, now + 22 * H);
@@ -99,6 +116,9 @@ if (hasFfmpeg) {
   comment.run(ids.noah, firstPost, "Pareil chaque lundi", now - H / 2);
   const like = db.prepare("INSERT OR IGNORE INTO likes (user_id, post_id) VALUES (?, ?)");
   for (const { id } of db.prepare("SELECT id FROM posts").all()) for (const uid of Object.values(ids)) if ((id + uid) % 2) like.run(uid, id);
+  // A clear winner for yesterday's podium: Noah's kickflip (3rd video).
+  const kickflip = db.prepare("SELECT id FROM posts WHERE caption LIKE 'Premier kickflip%'").get().id;
+  for (const u of ["kelly", "lucas", "ines"]) like.run(ids[u], kickflip);
 
   // Capsules: one opens two minutes after seeding, two are sealed for a year, one is already open.
   const D = 24 * H;

@@ -25,8 +25,10 @@ export function db() {
   return { prepare: (sql: string) => new Statement(conn().prepare(sql)), exec: (sql: string) => conn().exec(sql) };
 }
 
-// Adds the snap columns to a messages table created by an earlier version.
+// Adds columns to tables created by an earlier version of Everglow.
 function migrate(conn: DatabaseSync) {
+  const postCols = (conn.prepare("PRAGMA table_info(posts)").all() as { name: string }[]).map((c) => c.name);
+  if (postCols.length > 0 && !postCols.includes("challenge_day")) conn.exec("ALTER TABLE posts ADD COLUMN challenge_day TEXT;");
   const cols = (conn.prepare("PRAGMA table_info(messages)").all() as { name: string }[]).map((c) => c.name);
   if (cols.length > 0 && !cols.includes("kind")) {
     conn.exec(`ALTER TABLE messages ADD COLUMN kind TEXT NOT NULL DEFAULT 'text';
@@ -69,20 +71,21 @@ export type FeedPost = {
   like_count: number;
   comment_count: number;
   liked: number;
+  challenge_day: string | null;
 };
 
 /** Posts with author, counts and whether `viewerId` liked them. */
-export function listPosts(viewerId: number, where: string, params: (string | number)[], limit = 50): FeedPost[] {
+export function listPosts(viewerId: number, where: string, params: (string | number)[], limit = 50, order = "p.created_at DESC"): FeedPost[] {
   return db()
     .prepare(
-      `SELECT p.id, p.kind, p.media, p.caption, p.created_at, p.user_id,
+      `SELECT p.id, p.kind, p.media, p.caption, p.created_at, p.user_id, p.challenge_day,
               u.username, u.display_name, u.avatar,
               (SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id) AS like_count,
               (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id) AS comment_count,
               EXISTS(SELECT 1 FROM likes l WHERE l.post_id = p.id AND l.user_id = ?) AS liked
          FROM posts p JOIN users u ON u.id = p.user_id
         WHERE ${where}
-        ORDER BY p.created_at DESC
+        ORDER BY ${order}
         LIMIT ${limit}`,
     )
     .all(viewerId, ...params) as unknown as FeedPost[];

@@ -2,6 +2,7 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { ACCEPT } from "@/lib/uploads";
 import { CreateForm } from "@/components/CreateForm";
+import { themeFor, dayKey } from "@/lib/challenges";
 
 export default async function CreatePage({ searchParams }: { searchParams: Promise<{ type?: string }> }) {
   const me = await requireUser();
@@ -18,7 +19,7 @@ export default async function CreatePage({ searchParams }: { searchParams: Promi
   return (
     <main className="page">
       <h1 className="page-title">Créer</h1>
-      <CreateForm accept={ACCEPT} initialTarget={target} me={me.username} people={people} />
+      <CreateForm accept={ACCEPT} initialTarget={target} me={me.username} people={people} challengeTitle={themeFor(dayKey())} />
     </main>
   );
 }
